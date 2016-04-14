@@ -4,19 +4,9 @@
 
 ### Introduction
 
-This set of scripts aid package maintainers to import sources from
-Debian, verify signatures and stage them to be imported inside
-Devuan's git repository.
-
-The Devuan SDK is a fresh take to old tasks :^) acting as a sort of
-interactive shell extension. All the instructions below should be
-followed while already running in ZSh. A clear advantage is having tab
-completion on commands, when running it interactively.
-
-BEWARE this is still in development and does not addresses strictly
-security issues nor wrong usage. USE AT YOUR OWN RISK and in any case
-DON'T USE ON YOUR PERSONAL MACHINE.
-If you try this fast and loose use a disposable system ;^)
+ARM SDK is a build system used to toast OS images for ARM devices.
+Currently only Devuan is supported, but later on support for other distros
+will be added.
 
 ## Requirements
 
@@ -26,35 +16,29 @@ from shell scripts.
 Using a Debian-based OS, install the following packages:
 
 ```
-gnupg2 schroot debootstrap debhelper makedev curl rsync dpkg-dev gcc-arm-none-eabi parted kpartx qemu-user-static pinthread sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler
+gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler
 ```
-
-Please note that:
- - `dpkg-dev` may be called `dpkg` or `dpkg-devtools` on other systems like Arch and Parabola.
- - `pinthread` is Devuan software and may not exist in other distros
- - `sudo` is used to elevate the sdk user to superuser privileges and should be configured accordingly
-
 ## Quick start
 
 First clone the SDK repository:
 
 ```
-git clone https://github.com/dyne/arm-sdk.git
+; git clone https://github.com/dyne/arm-sdk.git
 ```
 
 Then run ZSh. In case you have conflicting extensions on your zsh
 configuration, it may be needed to run from a vanilla one, using:
 
 ```
-zsh --no-rcs
+; zsh --no-rcs
 ```
 
 then step inside the sdk, "source" it:
 
 ```
-cd arm-sdk
+; cd arm-sdk
 
-source sdk
+; source sdk
 ```
 
 Now is the time you choose the device you want to build the image for. Currently
@@ -62,6 +46,9 @@ you can choose one of the following:
 * `raspi2`
 * `bananapi`
 * `cubieboard2`
+```
+; init-arm raspi2
+```
 
 Once initialized, you will get further instructions.
 

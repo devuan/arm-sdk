@@ -1,11 +1,8 @@
 #!/usr/bin/env zsh
 #
-# Devuan SDK - build management
-#
 # Copyright (C) 2015-2016 Dyne.org Foundation
-# Copyright (C) 2016      parazyd <parazyd@dyne.org>
 #
-# Devuan SDK is designed, written and maintained by Denis Roio <jaromil@dyne.org>
+# ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Public License as published by
@@ -21,10 +18,10 @@
 # this source code; if not, write to: Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 #
-# Devuan SDK build script for BananaPi devices (armhf)
+# ARM SDK build script for Acer Chromebook devices (armhf)
 
 # -- settings --
-device_name="bananapi"
+device_name="chromeacer"
 arch="armhf"
 image_name="${os}-${release}-${version}-${arch}-${device_name}"
 size=1337

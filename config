@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-# Devuan SDK configuration
+# ARM SDK configuration
 # safe to leave untouched
 
 # syntax: variable=value
