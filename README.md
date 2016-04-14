@@ -39,7 +39,7 @@ Please note that:
 First clone the SDK repository:
 
 ```
-git clone https://git.devuan.org/devuan/devuan-sdk.git
+git clone https://github.com/dyne/arm-sdk.git
 ```
 
 Then run ZSh. In case you have conflicting extensions on your zsh
@@ -52,7 +52,7 @@ zsh --no-rcs
 then step inside the sdk, "source" it:
 
 ```
-cd devuan-sdk
+cd arm-sdk
 
 source sdk
 ```
