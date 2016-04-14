@@ -1,9 +1,9 @@
 # ARM image builds
 
 ## Custom toolchains
-**ARMv6**: `https://pub.parazyd.cf/mirror/gcc-arm-eabi-linaro-4.6.2.txz`
-**ARMv7**: `https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz`
-**ARM64**: `https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz`
+**ARMv6**: `https://pub.parazyd.cf/mirror/gcc-arm-eabi-linaro-4.6.2.txz`  
+**ARMv7**: `https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz`  
+**ARM64**: `https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz`  
 SHA256sums are available by downloading $filename.sha
 
 ## qemu-wrapper
