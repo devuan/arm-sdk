@@ -67,6 +67,11 @@ Once initialized, you will get further instructions.
 
 For more info, please consult the `README` included in the `arm` subdirectory.
 
+## Configuration
+
+Edit the `config` file included in the root directory of arm-sdk to your liking.
+If you are using a custom toolchain, add it to the PATH as described.
+
 ## Acknowledgments
 
 The Devuan SDK was conceived during a period of residency at the

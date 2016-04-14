@@ -1,0 +1,73 @@
+#!/usr/bin/env zsh
+
+# Devuan SDK
+
+# Copyright (C) 2015-2016 Dyne.org Foundation
+#
+# Devuan SDK is written and maintained by Denis Roio <jaromil@dyne.org>
+#
+# This source code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This source code is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  Please refer
+# to the GNU Public License for more details.
+#
+# You should have received a copy of the GNU Public License along with
+# this source code; if not, write to: Free Software Foundation, Inc.,
+# 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# reqs: curl, gnupg2, sudo, debootstrap
+
+
+# setup zsh options
+setopt pushdsilent
+
+# load zsh modules
+zmodload zsh/system
+zmodload zsh/regex
+
+# adopts Zsh extension "Zuper"
+zkv=1
+helpers=1
+source arm/zuper
+
+## declare global variables
+
+# config variables
+vars+=(os mirror release section version)
+#
+# global variables
+vars+=(R sdk_loaded)
+
+# we assume source sdk is always run from the source dir
+# which is the "root" of the program, $R, or env DEVUAN_SDK
+R=${ARM:-`pwd`}
+#
+# global maps (TODO in zuper)
+maps+=(arm_map)
+
+source config
+
+# load all zlibs
+source arm/init-arm
+
+# complete zuper initialization
+source arm/zuper.init
+
+# unset DEBUG_BEFORE_CMD
+
+# exit on error of any function
+TRAPZERR() { zerr; return $? }
+
+if [[ $sdk_loaded = 1 ]]; then
+    act "ARM SDK reloaded"
+else
+    notice "ARM SDK loaded"
+    typeset -h sdk_loaded
+    sdk_loaded=1
+    export RPROMPT=ARM SDK
+fi

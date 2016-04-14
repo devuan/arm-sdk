@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+
+# Devuan SDK configuration
+# safe to leave untouched
+
+# syntax: variable=value
+# (no spaces before and after the equal sign)
+
+os=devuan
+release=jessie
+section=main
+version=alpha4
+mirror=http://packages.devuan.org/merged
+
+# add here the info of the toolchain you are using
+# custom toolchain
+compiler="arm-linux-gnueabihf-"
+export PATH="$PATH:/sbin:$R/toolchains/gcc-arm-linux-gnueabihf-4.7/bin"
+# devuan default toolchain
+#compiler="arm-none-eabi-"
+#export PATH="$PATH:/sbin"
+
+core_packages=(debian-keyring devuan-keyring)
+core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)
+core_packages+=(locales console-common less nano git curl)
+
+base_packages=(bzip2 dialog apt-utils fakeroot e2fsprogs parted)
+
+system_packages=(sysvinit ssh)

@@ -1,0 +1,400 @@
+#!/usr/bin/env zsh
+#
+# Devuan SDK - build management
+#
+# Copyright (C) 2015-2016 Dyne.org Foundation
+# Copyright (C) 2016      parazyd <parazyd@dyne.org>
+#
+# Devuan SDK is designed, written and maintained by Denis Roio <jaromil@dyne.org>
+#
+# This source code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This source code is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  Please refer
+# to the GNU Public License for more details.
+#
+# You should have received a copy of the GNU Public License along with
+# this source code; if not, write to: Free Software Foundation, Inc.,
+# 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# Common functions for builds
+
+writebase="$strapdir"
+command -v dcfldd >/dev/null && DD=`command -v dcfldd`
+DD=${DD:-/bin/dd}
+
+write-hostname() {
+	fn write-hostname
+
+	print $os | sudo tee ${writebase}/etc/hostname
+	notice "Wrote $writebase/etc/hostname"
+}
+
+write-fstab() {
+	fn write-fstab
+
+	notice "Writing fstab"
+	cat <<EOF | sudo tee ${workdir}/root/etc/fstab
+# <file system> <mount point> <type> <options> <dump> <pass>
+proc /proc proc nodev,noexec,nosuid 0 0
+/dev/mmcblk0p2 / ext4 errors=remount-ro 0 1
+/dev/mmcblk0p1 /boot vfat noauto 0 0
+EOF
+}
+
+write-hosts-file() {
+	fn write-hosts-file
+
+	cat <<EOF | sudo tee ${writebase}/etc/hosts
+127.0.0.1    ${os}              localhost
+::1          localhost          ip6-localhost ip6-loopback
+fe00::0      ip6-localnet
+fe00::0      ip6-mcastprefix
+fe02::1      ip6-allnodes
+fe02::1      ip6-allrouters
+EOF
+	notice "Wrote $writebase/etc/hosts"
+}
+
+write-network-ifaces() {
+	fn write-hosts-file
+
+	cat <<EOF | sudo tee ${writebase}/etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+EOF
+	notice "Wrote $writebase/etc/network/interfaces"
+}
+
+write-resolvconf() {
+	fn write-resolvconf
+
+	cat <<EOF | sudo tee ${writebase}/etc/resolv.conf
+# foebud and ccc dns
+nameserver 85.214.20.141
+nameserver 213.73.91.35
+EOF
+	notice "Wrote $writebase/etc/resolv.conf"
+}
+
+write-debconf() {
+	fn write-debconf
+
+	cat <<EOF | sudo tee ${writebase}/debconf.set
+console-common console-data/keymap/policy select Select keymap from full list
+console-common console-data/keymap/full select en-latin1-nodeadkeys
+EOF
+	[[ $? = 0 ]] || error "Failed writing $writebase/debconf.set"
+}
+
+write-cleanup() {
+	fn write-cleanup
+
+	cat <<EOF | sudo tee ${writebase}/cleanup
+#!/bin/bash
+rm -rf /root/.bash_history
+apt-get update
+apt-get clean
+rm -f /0
+rm -f /hs_err*
+rm -f cleanup
+rm -f /usr/bin/qemu*
+EOF
+	sudo chmod +x $writebase/cleanup
+	notice "Wrote $writebase/cleanup"
+}
+
+write-sources-list() {
+	fn write-sources-list
+
+	cat <<EOF | sudo tee ${writebase}/$1etc/apt/sources.list
+deb ${mirror} ${release} ${section}
+deb-src ${mirror} ${release} ${section}
+EOF
+	notice "Wrote $writebase/etc/apt/sources.list"
+}
+
+write-third-stage() {
+	fn write-third-stage
+
+	cat <<EOF | sudo tee ${writebase}/third-stage
+#!/bin/bash
+dpkg-divert --add --local --divert /usr/sbin/invoke-rc.d.chroot --rename /usr/sbin/invoke-rc.d
+cp /bin/true /usr/sbin/invoke-rc.d
+echo -e "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
+
+apt-get update
+apt-get --yes --force-yes install locales-all
+
+debconf-set-selections /debconf.set
+rm -f /debconf.set
+apt-get update
+apt-get -y install ${core_packages}
+
+echo "root:toor" | chpasswd
+sed -i -e 's/KERNEL\!=\"eth\*|/KERNEL\!=\"/' /lib/udev/rules.d/75-persistent-net-generator.rules
+rm -fv /etc/udev/rules.d/70-persistent-net.rules
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get --yes --force-yes install ${base_packages}
+apt-get --yes --force-yes install ${system_packages}
+apt-get --yes --force-yes install ${extra_packages}
+
+apt-get --yes --force-yes dist-upgrade
+apt-get --yes --force-yes autoremove
+
+echo "Allowing SSH root login"
+sed -i -e 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+update-rc.d ssh enable
+
+rm -fv /usr/sbin/policy-rc.d
+rm -fv /usr/sbin/invoke-rc.d
+dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
+
+rm -fv /third-stage
+EOF
+	sudo chmod +x $writebase/third-stage
+	notice "Wrote $writebase/third-stage"
+}
+
+${device_name}-bootstrap() {
+	fn ${device_name}-bootstrap
+
+	notice "Bootstrapping $os base"
+	mkdir -p ${workdir}
+	cd ${workdir}
+
+	sudo debootstrap --foreign --arch ${arch} ${release} ${strapdir} ${mirror}
+	[[ $? = 0 ]] || {
+		error "debootstrap failed"
+		return 1
+	}
+
+	# qemu-wrapper
+	[[ $enable_qemu_wrapper = 1 ]] && {
+		sudo cp $R/arm/qemu-wrapper ${strapdir}/usr/bin/ && notice "Copied qemu-wrapper"
+		print ':arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/qemu-wrapper:' \
+			| sudo tee /proc/sys/fs/binfmt_misc/register
+	}
+
+	sudo cp -rfv ${qemu_bin} ${strapdir}/usr/bin/ && notice "Success bootstrapping base"
+	[[ $? = 0 ]] || return 1
+	notice "Next step is "${device_name}-secondstage
+}
+
+${device_name}-secondstage() {
+	fn ${device_name}-secondstage
+
+	notice "Bootstrapping $os second-stage"
+	LANG=C sudo -E chroot ${strapdir} /debootstrap/debootstrap --second-stage
+	[[ $? = 0 ]] || {
+		error "debootstrap second-stage failed"
+		return 1
+	}
+
+	write-sources-list
+	write-hostname
+	write-hosts-file
+	write-network-ifaces
+	write-resolvconf
+	write-debconf
+	write-third-stage
+
+	notice "Finished second-stage"
+	notice "Next step is: ${device_name}-thirdstage"
+}
+
+${device_name}-thirdstage() {
+	fn ${device_name}-thirdstage
+
+	notice "Bootstrapping $os third-stage"
+
+	export LC_ALL=C
+	export DEBIAN_FRONTEND=noninteractive
+
+	sudo -E mount -t proc proc ${strapdir}/proc && notice "Mounted proc..."
+	sudo -E mount -o bind /dev/ ${strapdir}/dev/ && notice "Mounted dev..."
+	sudo -E mount -o bind /dev/pts ${strapdir}/dev/pts && notice "Mounted dev/pts..."
+
+	notice "Chrooting..."
+	LANG=C sudo -E chroot $strapdir /third-stage
+	[[ $? = 0 ]] || {
+		error "Failed at third-stage"
+		return 1
+	}
+
+	write-cleanup
+	notice "Executing cleanup..."
+	LANG=C sudo -E chroot ${strapdir} /cleanup
+	[[ $? = 0 ]] || {
+		error "Failed at cleanup"
+		return 1
+	}
+
+	copy-zram
+
+	sudo umount ${strapdir}/dev/pts && notice "Unmounted dev/pts"
+	sudo umount ${strapdir}/dev && notice "Unmounted dev"
+	sudo umount ${strapdir}/proc && notice "Unmounted proc"
+	notice "Finalized third-stage"
+	notice "Next step is: ${device_name}-prepimg"
+}
+
+${device_name}-prepimg() {
+	fn ${device_name}-prepimg
+
+	notice "Creating image file..."
+	$DD if=/dev/zero \
+		of=${image_name}.img \
+		bs=1M count=$size
+
+	notice "Partitioning..."
+	parted ${image_name}.img --script -- mklabel msdos
+	parted ${image_name}.img --script -- mkpart primary ${parted_boot}
+	parted ${image_name}.img --script -- mkpart primary ${parted_root}
+
+	loopdevice=`sudo losetup -f --show ${workdir}/${image_name}.img`
+	mappdevice=`sudo kpartx -va $loopdevice | sed -E 's/.*(loop[0-9])p.*/\1/g' | head -1`
+	notice "Loopdevice: $loopdevice"
+	notice "Mapper device: $mappdevice"
+
+	sleep 2
+
+	mappdevice="/dev/mapper/${mappdevice}"
+	bootpart=${mappdevice}p1
+	rootpart=${mappdevice}p2
+
+	notice "Formatting partitions..."
+	sudo mkfs.vfat $bootpart
+	sudo mkfs.ext4 $rootpart
+
+	mkdir -p ${workdir}/bootp ${workdir}/root
+	sudo mount $bootpart ${workdir}/bootp && notice "Mounted boot part"
+	sudo mount $rootpart ${workdir}/root && notice "Mounted root part"
+
+	print ${inittab} | sudo tee -a ${strapdir}/etc/inittab
+	for i in $custmodules; do print $i | sudo tee -a ${strapdir}/etc/modules ; done
+
+	notice "Finalized preparing image"
+	notice "Next step is ${device_name}-build-kernel"
+}
+
+${device_name}-pack-image() {
+	fn ${device_name}-pack-image
+
+	notice "Rechecking filesystem"
+	sudo e2fsck -f ${mappdevice}p2
+	sudo resize2fs ${mappdevice}p2
+
+	sudo kpartx -dv $loopdevice
+	[[ $? = 0 ]] || error "kpartx failed to remove $loopdevice"
+	sudo losetup -d $loopdevice
+	[[ $? = 0 ]] || error "losetup failed to remove $loopdevice"
+
+	notice "Compressing image to xz"
+	xz -zv ${image_name}.img
+
+	notice "Generating sha256 for ${image_name}.img.xz"
+	sha256sum ${image_name}.img.xz > ${image_name}.img.xz.sha
+
+	[[ -d $R/arm/finished ]] || mkdir -p $R/arm/finished
+	mv -v ${image_name}.img.xz $R/arm/finished/
+	mv -v ${image_name}.img.xz.sha $R/arm/finished/
+
+	cd $R
+	sudo rm -r ${strapdir}
+	sudo rm -r ${workdir}
+
+	notice "Finished building ${image_name}"
+}
+
+get-kernel-firmware() {
+	[[ -d $R/tmp/firmware ]] || git clone \
+		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git $R/tmp/firmware
+		rm -rf $R/tmp/firmware/.git
+}
+
+clean-kernel-leftovers() {
+	notice "Cleaning up from kernel build..."
+	sudo rm -r ${strapdir}/usr/src/kernel
+	sudo rm ${strapdir}/usr/src/${device_name}.config
+	#sudo rm ${strapdir}/usr/src/kernel-at-commit
+
+	sudo chown root ${strapdir}/lib
+	sudo chown -R root ${strapdir}/lib/modules
+	sudo chown -R root ${strapdir}/lib/firmware
+
+	cd ${workdir}
+}
+
+copy-kernel-config() {
+	cd ${strapdir}/usr/src/kernel
+
+	cp -v ${workdir}/../kernel-configs/${device_name}.config .config
+	sudo cp -v ${workdir}/../kernel-configs/${device_name}.config ../${device_name}.config
+
+	export ARCH=arm
+	export CROSS_COMPILE=${compiler}
+}
+
+make-kernel-modules() {
+	[[ -d ${strapdir}/lib/modules ]] || sudo mkdir -p ${strapdir}/lib/modules
+	[[ -d ${strapdir}/lib/firmware ]] || sudo mkdir -p ${strapdir}/lib/firmware
+	sudo chown -R $USER ${strapdir}/lib/modules
+	sudo chown -R $USER ${strapdir}/lib/firmware
+	make modules_install INSTALL_MOD_PATH=${strapdir}
+	[[ $? = 0 ]] || {
+		error "Failed installing kernel modules"
+		return 1
+	}
+}
+
+copy-zram() {
+	notice "Installing zram init"
+	sudo cp ${workdir}/../extra/zram ${strapdir}/etc/init.d/zram
+	sudo chmod +x ${strapdir}/etc/init.d/zram
+}
+
+${device_name}-finalize() {
+	fn ${device_name}-finalize
+
+	clean-kernel-leftovers
+
+	notice "Making you wait for nothing..."
+	sudo rsync -HPavz -q ${strapdir}/* ${workdir}/root
+
+	writebase="${workdir}/root"
+	write-sources-list
+	write-fstab
+
+	cd ${workdir}
+
+	sudo umount ${bootpart} && notice "Unmounted boot part"
+	sudo umount ${rootpart} && notice "Unmounted root part"
+
+	notice "Finalized build..."
+	notice "Pack and finish with: ${device_name}-pack-image"
+}
+
+${device_name}-build-all() {
+	for i in bootstrap secondstage thirdstage prepimg build-kernel finalize pack-image; do
+		${device_name}-${i}
+		[[ $? = 0 ]] || {
+			error "Failed on ${device_name}-${i}"
+			return 1
+		}
+	done
+}
+
+[[ -f ${qemu_bin} ]] || warn "No ${qemu_bin}"
+notice "Loaded build script for ${device_name}"
+notice "Run '${device_name}-bootstrap' to build step by step"
+notice "Run '${device_name}-build-all' to build image automatically"
