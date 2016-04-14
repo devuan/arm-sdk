@@ -218,8 +218,8 @@ ${device_name}-thirdstage() {
 	export DEBIAN_FRONTEND=noninteractive
 
 	sudo -E mount -t proc proc ${strapdir}/proc && notice "Mounted proc..."
-	sudo -E mount -o bind /dev/ ${strapdir}/dev/ && notice "Mounted dev..."
-	sudo -E mount -o bind /dev/pts ${strapdir}/dev/pts && notice "Mounted dev/pts..."
+	sudo -E mount --rbind /dev/ ${strapdir}/dev/ && notice "Mounted dev..."
+	sudo -E mount --rbind /dev/pts ${strapdir}/dev/pts && notice "Mounted dev/pts..."
 
 	notice "Chrooting..."
 	LANG=C sudo -E chroot $strapdir /third-stage
@@ -238,8 +238,8 @@ ${device_name}-thirdstage() {
 
 	copy-zram
 
-	sudo umount ${strapdir}/dev/pts && notice "Unmounted dev/pts"
-	sudo umount ${strapdir}/dev && notice "Unmounted dev"
+	sudo umount -nR ${strapdir}/dev/pts && notice "Unmounted dev/pts"
+	sudo umount -nR ${strapdir}/dev && notice "Unmounted dev"
 	sudo umount ${strapdir}/proc && notice "Unmounted proc"
 	notice "Finalized third-stage"
 	notice "Next step is: ${device_name}-prepimg"
