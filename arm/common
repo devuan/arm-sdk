@@ -263,8 +263,7 @@ ${device_name}-prepimg() {
 		cgpt create ${image_name}.img
 		cgpt add -i 1 -t kernel -b 8192 -s 32768 -l kernel -S 1 -T 5 -P 10 ${image_name}.img
 		cgpt add -i 2 -t data -b 40960 -s `expr $(cgpt show ${image_name}.img \
-			| grep 'Sec GPT table' \
-			| awk '{print \$1}') - 40960` -l Root ${image_name}.img
+			| awk '/Sec GPT table/ {print \$1}') - 40960` -l Root ${image_name}.img
 
 		loopdevice=`sudo losetup -f --show ${workdir}/${image_name}.img`
 		mappdevice=`sudo kpartx -va $loopdevice | sed -E 's/.*(loop[0-9])p.*/\1/g' | head -1`
@@ -283,7 +282,6 @@ ${device_name}-prepimg() {
 		mkdir -p ${workdir}/root
 		sudo mount $rootpart ${workdir}/root && notice "Mounted root part"
 
-		for i in $custmodules; do print $i | sudo tee -a ${strapdir}/etc/modules ; done
 	else
 		parted ${image_name}.img --script -- mklabel msdos
 		parted ${image_name}.img --script -- mkpart primary ${parted_boot}
@@ -308,10 +306,10 @@ ${device_name}-prepimg() {
 		sudo mount $bootpart ${workdir}/bootp && notice "Mounted boot part"
 		sudo mount $rootpart ${workdir}/root && notice "Mounted root part"
 
-		print ${inittab} | sudo tee -a ${strapdir}/etc/inittab
-		for i in $custmodules; do print $i | sudo tee -a ${strapdir}/etc/modules ; done
 	fi
 
+	print ${inittab} | sudo tee -a ${strapdir}/etc/inittab
+	for i in $custmodules; do print $i | sudo tee -a ${strapdir}/etc/modules ; done
 	notice "Finalized preparing image"
 	notice "Next step is ${device_name}-build-kernel"
 }
