@@ -90,10 +90,6 @@ EOF
 	sudo rm -rf rpi-firmware && notice "Removed rpi-firmware leftovers"
 	cd ${workdir}
 
-	#notice "Cleaning up from kernel build..."
-	#sudo rm -r ${strapdir}/usr/src/kernel
-	#sudo rm ${strapdir}/usr/src/${device_name}.config
-
 	notice "Installing raspi-config..."
 	sudo cp ${workdir}/../extra/rpi-conf/raspi-config ${strapdir}/usr/bin/raspi-config \
 		&& notice "RPi-config: Installed script"
