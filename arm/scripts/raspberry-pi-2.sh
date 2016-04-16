@@ -29,8 +29,6 @@ extra_packages=(wpasupplicant ntpdate)
 # Ones below should not need changing
 workdir="$R/arm/${armdev}-build"
 strapdir="${workdir}/${os}-${arch}"
-qemu_bin="/usr/bin/qemu-arm-static" # Devuan, install qemu-user-static
-#qemu_bin="/usr/bin/qemu-arm" # Gentoo, compile with USE=static-user
 #enable_qemu_wrapper=1 # Uncomment this to enable qemu-wrapper (consult the readme)
 parted_boot=(fat32 0 64)
 parted_root=(ext4 64 -1)

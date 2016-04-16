@@ -20,9 +20,25 @@
 #
 # Common functions for builds
 
+# -- settings --
+os=devuan
+release=jessie
+section=main
+version=alpha4
+mirror=http://packages.devuan.org/merged
+
+core_packages=(debian-keyring devuan-keyring)
+core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)
+core_packages+=(locales console-common less nano git curl)
+
+base_packages=(bzip2 dialog apt-utils fakeroot e2fsprogs parted)
+
+system_packages=(sysvinit ssh)
+
 writebase="$strapdir"
 command -v dcfldd >/dev/null && DD=`command -v dcfldd`
 DD=${DD:-/bin/dd}
+# -- end settings --
 
 write-hostname() {
 	fn write-hostname
@@ -344,12 +360,16 @@ ${device_name}-pack-image() {
 }
 
 get-kernel-firmware() {
+	fn get-kernel-firmware
+
 	[[ -d $R/tmp/firmware ]] || git clone \
 		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git $R/tmp/firmware
 		rm -rf $R/tmp/firmware/.git
 }
 
 clean-kernel-leftovers() {
+	fn clean-kernel-leftovers
+
 	notice "Cleaning up from kernel build..."
 	sudo rm -r ${strapdir}/usr/src/kernel
 	sudo rm ${strapdir}/usr/src/${device_name}.config
@@ -363,8 +383,9 @@ clean-kernel-leftovers() {
 }
 
 copy-kernel-config() {
-	cd ${strapdir}/usr/src/kernel
+	fn copy-kernel-config
 
+	cd ${strapdir}/usr/src/kernel
 	cp -v ${workdir}/../kernel-configs/${device_name}.config .config
 	sudo cp -v ${workdir}/../kernel-configs/${device_name}.config ../${device_name}.config
 
@@ -373,6 +394,7 @@ copy-kernel-config() {
 }
 
 make-kernel-modules() {
+	fn make-kernel-modules
 	[[ -d ${strapdir}/lib/modules ]] || sudo mkdir -p ${strapdir}/lib/modules
 	[[ -d ${strapdir}/lib/firmware ]] || sudo mkdir -p ${strapdir}/lib/firmware
 	sudo chown -R $USER ${strapdir}/lib/modules
@@ -385,6 +407,7 @@ make-kernel-modules() {
 }
 
 copy-zram() {
+	fn copy-zram
 	notice "Installing zram init"
 	sudo cp ${workdir}/../extra/zram ${strapdir}/etc/init.d/zram
 	sudo chmod +x ${strapdir}/etc/init.d/zram

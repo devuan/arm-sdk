@@ -31,8 +31,6 @@ extra_packages+=(laptop-mode-tools usbutils sudo vim)
 # Ones below should not need changing
 workdir="$R/arm/${device_name}-build"
 strapdir="${workdir}/${os}-${arch}"
-qemu_bin="/usr/bin/qemu-arm-static" # Devuan
-#qemu_bin="/usr/bin/qemu-arm" # Gentoo
 gpt=1
 #parted_boot=(fat32 2048s 264191s)
 #parted_root=(ext4 264192s 100%)

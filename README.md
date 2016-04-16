@@ -41,13 +41,16 @@ then step inside the sdk, "source" it:
 ; source sdk
 ```
 
-Now is the time you choose the device you want to build the image for. Currently
-you can choose one of the following:
+Now is the time you choose the device and OS you want to build the image for. Currently
+you can choose these distros:
+* `devuan`
+and one of the following devices:
 * `raspi2`
 * `bananapi`
 * `cubieboard2`
+* `chromeacer`
 ```
-; init-arm raspi2
+; init devuan raspi2
 ```
 
 Once initialized, you will get further instructions.

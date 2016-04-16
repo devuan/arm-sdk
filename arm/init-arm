@@ -19,12 +19,13 @@
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-init-arm() {
-	fn init-arm $*
-	armdev="$1"
-	req=(armdev)
+init() {
+	fn init $*
+	distro="$1"
+	armdev="$2"
+	req=(distro armdev)
 	ckreq || {
-		error "No ARM device specified"
+		error "No distro or device specified"
 		return 1
 	}
 
@@ -38,6 +39,6 @@ init-arm() {
 
 	arm_build_device=${arm_map[$armdev]}
 
-	common="$R/arm/common"
+	common="$R/arm/profiles/common-${distro}"
 	source ${arm_build_device}
 }

@@ -29,8 +29,6 @@ extra_packages=()
 # Ones below should not need changing
 workdir="$R/arm/${device_name}-build"
 strapdir="${workdir}/${os}-${arch}"
-qemu_bin="/usr/bin/qemu-arm-static" # Devuan
-#qemu_bin="/usr/bin/qemu-arm" # Gentoo
 parted_boot=(fat32 2048s 264191s)
 parted_root=(ext4 264192s 100%)
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
