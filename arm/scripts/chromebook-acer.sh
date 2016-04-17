@@ -23,7 +23,6 @@
 # -- settings --
 device_name="chromeacer"
 arch="armhf"
-image_name="${os}-${release}-${version}-${arch}-${device_name}"
 size=1730
 extra_packages=(wpasupplicant abootimg cgpt fake-hwclock u-boot-tools ntpdate)
 extra_packages+=(vboot-utils vboot-kernel-utils)
@@ -36,10 +35,10 @@ gpt=1
 #parted_root=(ext4 264192s 100%)
 #inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 custmodules=()
-# -- end settings --
-
-# source common commands and add toolchain to PATH
+# source common commands
 source $common
+image_name="${os}-${release}-${version}-${arch}-${device_name}"
+# -- end settings --
 
 ${device_name}-build-kernel() {
 	fn ${device_name}-build-kernel

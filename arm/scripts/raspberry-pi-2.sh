@@ -23,7 +23,6 @@
 # -- settings --
 device_name="raspi2"
 arch="armhf"
-image_name="${os}-${release}-${version}-${arch}-${device_name}"
 size=1337
 extra_packages=(wpasupplicant ntpdate)
 # Ones below should not need changing
@@ -34,10 +33,10 @@ parted_boot=(fat32 0 64)
 parted_root=(ext4 64 -1)
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 custmodules=()
-# -- end settings --
-
-# source common commands and add toolchain to PATH
+# source common commands
 source $common
+image_name="${os}-${release}-${version}-${arch}-${device_name}"
+# -- end settings --
 
 ${device_name}-build-kernel() {
 	fn ${device_name}-build-kernel

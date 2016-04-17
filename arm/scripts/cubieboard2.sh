@@ -23,7 +23,6 @@
 # -- settings --
 device_name="cubieboard2"
 arch="armhf"
-image_name="${os}-${release}-${version}-${arch}-${device_name}"
 size=1337
 extra_packages=()
 # Ones below should not need changing
@@ -33,10 +32,11 @@ parted_boot=(fat32 2048s 264191s)
 parted_root=(ext4 264192s 100%)
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 custmodules=(sunxi_emac)
+# source common commands
+source $common
+image_name="${os}-${release}-${version}-${arch}-${device_name}"
 # -- end settings --
 
-# source common commands and add toolchain to PATH
-source $common
 
 ${device_name}-build-kernel() {
 	fn ${device_name}-build-kernel
