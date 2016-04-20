@@ -6,6 +6,10 @@
 **ARM64**: `https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz`  
 SHA256sums are available by downloading $filename.sha
 
+## Custom packages
+In `extra/pkginclude` you can place any .deb packages and they will get pulled
+by the script. Remember to use the correct architecture
+
 ## qemu-wrapper
 For certain devices, you will want to pass arguments to qemu, such as the cpu
 model. To enable this, you will have to modify and compile qemu-wrapper.c with:

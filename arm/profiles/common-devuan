@@ -127,7 +127,8 @@ EOF
 write-sources-list() {
 	fn write-sources-list
 
-	cat <<EOF | sudo tee ${writebase}/$1etc/apt/sources.list
+#	cat <<EOF | sudo tee ${writebase}/$1etc/apt/sources.list
+	cat <<EOF | sudo tee ${writebase}/etc/apt/sources.list
 deb ${mirror} ${release} ${section}
 deb-src ${mirror} ${release} ${section}
 EOF
@@ -136,6 +137,9 @@ EOF
 
 write-third-stage() {
 	fn write-third-stage
+
+	mkdir ${writebase}/pkginclude
+	cp $R/arm/extra/pkginclude/*.deb ${writebase}/pkginclude/
 
 	cat <<EOF | sudo tee ${writebase}/third-stage
 #!/bin/bash
@@ -162,6 +166,11 @@ apt-get --yes --force-yes install ${system_packages}
 apt-get --yes --force-yes install ${extra_packages}
 
 apt-get --yes --force-yes dist-upgrade
+
+for package in `find /pkginclude`; do
+	dpkg -i $package
+done
+
 apt-get --yes --force-yes autoremove
 
 echo "Allowing SSH root login"
@@ -172,6 +181,7 @@ rm -fv /usr/sbin/policy-rc.d
 rm -fv /usr/sbin/invoke-rc.d
 dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
 
+rm -rfv /pkginclude/
 rm -fv /third-stage
 EOF
 	sudo chmod +x $writebase/third-stage
