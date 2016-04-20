@@ -26,8 +26,6 @@ arch="armhf"
 size=1337
 extra_packages=(wpasupplicant ntpdate)
 # Ones below should not need changing
-workdir="$R/arm/${armdev}-build"
-strapdir="${workdir}/${os}-${arch}"
 #enable_qemu_wrapper=1 # Uncomment this to enable qemu-wrapper (consult the readme)
 parted_boot=(fat32 0 64)
 parted_root=(ext4 64 -1)
@@ -35,6 +33,8 @@ inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 custmodules=()
 # source common commands
 source $common
+workdir="$R/arm/${armdev}-build"
+strapdir="${workdir}/${os}-${arch}"
 image_name="${os}-${release}-${version}-${arch}-${device_name}"
 # -- end settings --
 

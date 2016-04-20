@@ -28,8 +28,6 @@ extra_packages=(wpasupplicant abootimg cgpt fake-hwclock u-boot-tools ntpdate)
 extra_packages+=(vboot-utils vboot-kernel-utils)
 extra_packages+=(laptop-mode-tools usbutils sudo vim)
 # Ones below should not need changing
-workdir="$R/arm/${device_name}-build"
-strapdir="${workdir}/${os}-${arch}"
 gpt=1
 #parted_boot=(fat32 2048s 264191s)
 #parted_root=(ext4 264192s 100%)
@@ -37,6 +35,8 @@ gpt=1
 custmodules=()
 # source common commands
 source $common
+workdir="$R/arm/${device_name}-build"
+strapdir="${workdir}/${os}-${arch}"
 image_name="${os}-${release}-${version}-${arch}-${device_name}"
 # -- end settings --
 
