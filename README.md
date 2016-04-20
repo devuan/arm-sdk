@@ -43,8 +43,11 @@ then step inside the sdk, "source" it:
 
 Now is the time you choose the device and OS you want to build the image for. Currently
 you can choose these distros:
-* `devuan`  
+
+* `devuan`
+
 and one of the following devices:
+
 * `raspi2`
 * `bananapi`
 * `cubieboard2`

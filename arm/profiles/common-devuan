@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 #
+# ARM SDK
+#
 # Copyright (C) 2016 Dyne.org Foundation
 #
 # ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
@@ -25,7 +27,7 @@ os=devuan
 release=jessie
 section=main
 version=alpha4
-mirror=http://packages.devuan.org/merged
+mirror=https://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
 core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)

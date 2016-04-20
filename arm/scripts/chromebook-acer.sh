@@ -1,6 +1,8 @@
 #!/usr/bin/env zsh
 #
-# Copyright (C) 2015-2016 Dyne.org Foundation
+# ARM SDK
+#
+# Copyright (C) 2016 Dyne.org Foundation
 #
 # ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
 #

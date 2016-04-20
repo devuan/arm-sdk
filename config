@@ -1,13 +1,13 @@
 #!/usr/bin/env zsh
-
-# ARM SDK configuration
-# safe to leave untouched
 #
+# ARM SDK configuration
+
 # add here the info of the toolchain you are using
-# custom toolchain
+# custom toolchain (https://pub.parazyd.cf/mirror/)
 compiler="arm-linux-gnueabihf-"
 export PATH="$PATH:/sbin:$R/toolchains/gcc-arm-linux-gnueabihf-4.7/bin"
-# devuan default toolchain
+
+# Devuan official toolchain
 #compiler="arm-none-eabi-"
 #export PATH="$PATH:/sbin"
 
