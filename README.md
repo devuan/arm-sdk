@@ -25,8 +25,9 @@ First clone the SDK repository:
 ```
 ; git clone https://github.com/dyne/arm-sdk.git
 ```
-
-Then run ZSh. In case you have conflicting extensions on your zsh
+Edit the `config` file to match your crosscompile toolchain. Consult
+`arm/README.md` if you're in a need of a precompiled one, then
+run ZSh. In case you have conflicting extensions on your zsh
 configuration, it may be needed to run from a vanilla one, using:
 
 ```
