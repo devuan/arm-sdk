@@ -26,7 +26,7 @@
 release=jessie
 section=main
 version=alpha4
-mirror=https://packages.devuan.org/merged
+mirror=http://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
 core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)
