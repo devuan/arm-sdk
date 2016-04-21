@@ -46,7 +46,7 @@ init() {
 	common="$R/arm/profiles/common-${os}"
 
 	[[ -f $common ]] ||  { error "No valid distro specified"; return 1 }
-	[[-f $arm_build_device ]] || { error "No valid device specified"; return 1 }
+	[[ -f $arm_build_device ]] || { error "No valid device specified"; return 1 }
 
 	source ${arm_build_device}
 }

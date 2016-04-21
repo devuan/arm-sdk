@@ -249,7 +249,7 @@ ${device_name}-thirdstage() {
 	sudo -E mount -o bind /dev/pts ${strapdir}/dev/pts && notice "Mounted dev/pts..."
 
 	notice "Chrooting..."
-	LANG=C sudo -E chroot $strapdir /third-stage
+	LANG=C sudo -E chroot ${strapdir} /third-stage
 	[[ $? = 0 ]] || {
 		error "Failed at third-stage"
 		return 1

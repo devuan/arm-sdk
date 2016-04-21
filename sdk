@@ -39,8 +39,12 @@ vars+=(os mirror release section version)
 # global variables
 vars+=(R sdk_loaded)
 # script variables
-vars+=(strapdir writebase device_name image_name)
-vars+=(loopdevice mappdevice )
+vars+=(workdir strapdir writebase)
+vars+=(loopdevice mappdevice)
+vars+=(arm_build_device)
+# script locals
+vars+=(device_name image_name arch size)
+vars+=(inittab)
 
 # we assume source sdk is always run from the source dir
 # which is the "root" of the program, $R, or env DEVUAN_SDK
