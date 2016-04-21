@@ -16,7 +16,7 @@ from shell scripts.
 Using a Debian-based OS, install the following packages:
 
 ```
-gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt
+gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils
 ```
 ## Quick start
 
