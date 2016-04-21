@@ -27,19 +27,17 @@ First clone the SDK repository:
 ```
 Edit the `config` file to match your crosscompile toolchain. Consult
 `arm/README.md` if you're in a need of a precompiled one, then
-run ZSh. In case you have conflicting extensions on your zsh
-configuration, it may be needed to run from a vanilla one, using:
+run zsh. In case you have conflicting extensions on your zsh
+configuration, safest way would be to run a vanilla one, using:
 
 ```
-; zsh --no-rcs
+; zsh -f
 ```
 
 then step inside the sdk, "source" it:
 
 ```
-; cd arm-sdk
-
-; source sdk
+; cd arm-sdk && source sdk
 ```
 
 Now is the time you choose the device and OS you want to build the image for. Currently
