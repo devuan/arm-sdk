@@ -23,7 +23,6 @@
 # Common functions for builds
 
 # -- settings --
-os=devuan
 release=jessie
 section=main
 version=alpha4

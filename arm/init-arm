@@ -22,11 +22,11 @@
 
 init() {
 	fn init $*
-	distro="$1"
+	os="$1"
 	armdev="$2"
-	req=(distro armdev)
+	req=(os armdev)
 	ckreq || {
-		error "No distro or device specified"
+		error "Missing arguments. Please retry."
 		return 1
 	}
 
@@ -43,7 +43,10 @@ init() {
 	)
 
 	arm_build_device=${arm_map[$armdev]}
+	common="$R/arm/profiles/common-${os}"
 
-	common="$R/arm/profiles/common-${distro}"
+	[[ -f $common ]] ||  { error "No valid distro specified"; return 1 }
+	[[-f $arm_build_device ]] || { error "No valid device specified"; return 1 }
+
 	source ${arm_build_device}
 }
