@@ -36,7 +36,7 @@ base_packages=(bzip2 dialog apt-utils fakeroot e2fsprogs parted)
 
 system_packages=(sysvinit ssh)
 
-writebase="$strapdir"
+writebase=${strapdir}
 command -v dcfldd >/dev/null && DD=`command -v dcfldd`
 DD=${DD:-/bin/dd}
 # -- end settings --

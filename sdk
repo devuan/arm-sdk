@@ -41,7 +41,7 @@ vars+=(R sdk_loaded)
 # script variables
 vars+=(workdir strapdir writebase)
 vars+=(loopdevice mappdevice)
-vars+=(arm_build_device)
+vars+=(arm_build_device armdev)
 # script locals
 vars+=(device_name image_name arch size)
 vars+=(inittab)

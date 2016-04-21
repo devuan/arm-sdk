@@ -33,9 +33,9 @@ parted_root=(ext4 264192s 100%)
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 custmodules=(sunxi_emac)
 # source common commands
-source $common
 workdir="$R/arm/${device_name}-build"
 strapdir="${workdir}/${os}-${arch}"
+source $common
 image_name="${os}-${release}-${version}-${arch}-${device_name}"
 # -- end settings --
 

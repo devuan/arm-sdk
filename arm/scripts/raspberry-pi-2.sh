@@ -34,9 +34,9 @@ parted_root=(ext4 64 -1)
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 custmodules=()
 # source common commands
-source $common
 workdir="$R/arm/${armdev}-build"
 strapdir="${workdir}/${os}-${arch}"
+source $common
 image_name="${os}-${release}-${version}-${arch}-${device_name}"
 # -- end settings --
 
