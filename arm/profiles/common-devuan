@@ -139,8 +139,8 @@ EOF
 write-third-stage() {
 	fn write-third-stage
 
-	mkdir ${writebase}/pkginclude
-	cp $R/arm/extra/pkginclude/*.deb ${writebase}/pkginclude/
+	sudo mkdir ${writebase}/pkginclude
+	sudo cp $R/arm/extra/pkginclude/*.deb ${writebase}/pkginclude/
 
 	cat <<EOF | sudo tee ${writebase}/third-stage
 #!/bin/bash
