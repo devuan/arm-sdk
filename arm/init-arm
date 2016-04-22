@@ -42,6 +42,7 @@ init() {
 		"cubieboard2"           "$R/arm/scripts/cubieboard2.sh"
 		"cubietruck"            "$R/arm/scripts/cubietruck.sh"
 		"chromeacer"            "$R/arm/scripts/chromebook-acer.sh"
+		"odroidxu"              "$R/arm/scripts/odroid-xu.sh"
 	)
 
 	arm_build_device=${arm_map[$armdev]}
