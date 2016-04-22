@@ -3,13 +3,15 @@
 # ARM SDK configuration
 
 # add here the info of the toolchain you are using
-# custom toolchain (https://pub.parazyd.cf/mirror/)
-compiler="arm-linux-gnueabihf-"
-export PATH="$PATH:/sbin:$R/toolchains/gcc-arm-linux-gnueabihf-4.7/bin"
 
 # Devuan official toolchain
-#compiler="arm-none-eabi-"
-#export PATH="$PATH:/sbin"
+compiler="arm-none-eabi-"
+export PATH="$PATH:/sbin"
 
+# custom toolchain (https://pub.parazyd.cf/mirror/)
+#compiler="arm-linux-gnueabihf-"
+#export PATH="$PATH:/sbin:$R/toolchains/gcc-arm-linux-gnueabihf-4.7/bin"
+
+# static qemu arm binary
 qemu_bin="/usr/bin/qemu-arm-static" # Devuan
 #qemu_bin="/usr/bin/qemu-arm" # Gentoo
