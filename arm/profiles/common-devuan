@@ -136,11 +136,23 @@ EOF
 	notice "Wrote $writebase/etc/apt/sources.list"
 }
 
+copy-pkginclude() {
+	fn copy-pkginclude
+
+	sudo mkdir ${writebase}/pkginclude
+	pkgincludes=`find $R/arm/extra/pkginclude -type f -name "*.deb"`
+	[[ -z $pkgincludes ]] || {
+		notice "Copying your custom packages"
+		for i in ${pkgincludes}; do
+			sudo cp -v ${i} ${writebase}/pkginclude/
+		done
+	}
+}
+
 write-third-stage() {
 	fn write-third-stage
 
-	sudo mkdir ${writebase}/pkginclude
-	sudo cp $R/arm/extra/pkginclude/*.deb ${writebase}/pkginclude/
+	copy-pkginclude
 
 	cat <<EOF | sudo tee ${writebase}/third-stage
 #!/bin/bash
