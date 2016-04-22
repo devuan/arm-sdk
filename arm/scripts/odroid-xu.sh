@@ -27,6 +27,10 @@ device_name="odroidxu"
 arch="armhf"
 size=1337
 extra_packages=()
+# This is used for crosscompiling exynos5-hwcomposer
+# Without it there is no framebuffer console.
+# Set according to your compiler.
+hosttuple=arm-linux-gnueabihf
 # Ones below should not need changing
 parted_boot=(fat32 2048s 264191s)
 parted_root=(ext4 264192s 100%)
@@ -67,7 +71,7 @@ EOF
 	copy-kernel-config
 
 	make -j `grep -c processor /proc/cpuinfo`
-	sudo make modules_install INSTALL_MOD_PATH=${strapdir}
+	make-kernel-modules
 
 	sudo cp arch/arm/boot/zImage ${workdir}/bootp
 
