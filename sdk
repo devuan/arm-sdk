@@ -2,7 +2,7 @@
 #
 # ARM SDK
 #
-# Copyright (C) 2016 Dyne.org Foundation
+# Copyright (c) 2016 Dyne.org Foundation
 #
 # ARM SDK is written and maintained by parazyd <parazyd@dyne.org>
 #
@@ -49,7 +49,7 @@ vars+=(inittab)
 # we assume source sdk is always run from the source dir
 # which is the "root" of the program, $R, or env DEVUAN_SDK
 R=${ARM_SDK:-`pwd`}
-#
+
 # global maps (TODO in zuper)
 maps+=(arm_map)
 

@@ -1,9 +1,12 @@
 # ARM image builds
 
 ## Custom toolchains
-**ARMv6**: `https://pub.parazyd.cf/mirror/gcc-arm-eabi-linaro-4.6.2.txz`  
-**ARMv7**: `https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz`  
-**ARM64**: `https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz`  
+**ARMv6**: `https://pub.parazyd.cf/mirror/gcc-arm-eabi-linaro-4.6.2.txz`
+
+**ARMv7**: `https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz`
+
+**ARM64**: `https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz`
+
 SHA256sums are available by downloading $filename.sha
 
 ## Custom packages
@@ -13,9 +16,11 @@ by the script. Remember to use the correct architecture
 ## qemu-wrapper
 For certain devices, you will want to pass arguments to qemu, such as the cpu
 model. To enable this, you will have to modify and compile qemu-wrapper.c with:
+
 ```
 gcc -static qemu-wraper.c -O2 -s -o qemu-wrapper
 ```
+
 And after it's compiled, uncomment the entry in the settings section of your
 build script.
 

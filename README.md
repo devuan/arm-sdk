@@ -13,11 +13,14 @@ will be added.
 This SDK is designed to be used interactively from a terminal as well
 from shell scripts.
 
-Using a Debian-based OS, install the following packages:
+For a Debian-based OS, install the following packages:
 
 ```
 gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils
 ```
+
+On any other, find the equivalents of the aforementioned packages.
+
 ## Quick start
 
 First clone the SDK repository:
@@ -25,6 +28,7 @@ First clone the SDK repository:
 ```
 ; git clone https://github.com/dyne/arm-sdk.git
 ```
+
 Edit the `config` file to match your crosscompile toolchain. Consult
 `arm/README.md` if you're in a need of a precompiled one, then
 run zsh. In case you have conflicting extensions on your zsh
@@ -41,7 +45,7 @@ then step inside the sdk, "source" it:
 ```
 
 Now is the time you choose the device and OS you want to build the image for. Currently
-you can choose these distros:
+you can choose between these distros:
 
 * `devuan`
 
@@ -54,6 +58,7 @@ and one of the following devices:
 * `cubietruck`
 * `chromeacer`
 * `odroidxu`
+
 ```
 ; init devuan raspi2
 ```
@@ -73,7 +78,7 @@ The Devuan SDK was conceived during a period of residency at the
 Schumacher college in Dartington UK, greatly inspired by the laborious
 and mindful atmosphere of its wonderful premises.
 
-ARM SDK is Copyright (C) 2016 by the Dyne.org Foundation
+ARM SDK is Copyright (c) 2016 by the Dyne.org Foundation
 
 ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
 
