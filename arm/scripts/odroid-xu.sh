@@ -81,7 +81,7 @@ EOF
 	sed -i -e 's/if 1/if 0/g' include/log.h
 	sed -i -e 's/#define ALOGD/#define ALOGD\r#define ALOGF/g' include/log.h
 
-	./configure --prefix=/usr --build x86_64-pc-linux-gnu --host $hosttuple
+	./configure --prefix=/usr --build x86_64-pc-linux-gnu --host ${hosttuple}
 	make
 	sudo make DESTDIR=${strapdir} install
 
@@ -105,7 +105,6 @@ setenv bootcmd "fatload mmc 0:1 0x40008000 zImage; fatload mmc 0:1 0x42000000 uI
 setenv bootargs "console=tty1 console=ttySAC2,115200n8 vmalloc=512M fb_x_res=\${fb_x_res} fb_y_res=\${fb_y_res} hdmi_phy_res=\${hdmi_phy_res} vout=hdmi led_blink=1 fake_fb=true root=/dev/mmcblk0p2 rootwait rootfstype=ext4 rw net.ifnames=0"
 boot
 EOF
-
 	# 1080p
 	cat << EOF | sudo tee ${workdir}/bootp/boot-hdmi-1080.txt
 setenv initrd_high "0xffffffff"
@@ -119,19 +118,20 @@ boot
 EOF
 
 	notice "Making bootimgs..."
-	sudo mkimage -A arm -T script -C none -d ${basedir}/bootp/boot-hdmi-720.txt ${basedir}/bootp/boot-720.scr
-	sudo mkimage -A arm -T script -C none -d ${basedir}/bootp/boot-hdmi-1080.txt ${basedir}/bootp/boot-1080.scr
+	sudo mkimage -A arm -T script -C none -d ${workdir}/bootp/boot-hdmi-720.txt ${workdir}/bootp/boot-720.scr
+	sudo mkimage -A arm -T script -C none -d ${workdir}/bootp/boot-hdmi-1080.txt ${workdir}/bootp/boot-1080.scr
 	sudo cp ${workdir}/bootp/boot-720.scr ${workdir}/bootp/boot.scr
 
 	notice "Getting firmware..."
 	sudo rm -r ${strapdir}/lib/firmware
 	sudo chown $USER ${strapdir}/lib
 	get-kernel-firmware
-	cp -ra $R/tmp/firmware ${strapdir}/lib/firmware
+	sudo cp -ra $R/tmp/firmware ${strapdir}/lib/firmware
 
 	notice "Doing u-boot magic"
 	cd ${strapdir}/usr/src/kernel/tools/hardkernel/u-boot-pre-built
 	sudo sh sd_fusing.sh $loopdevice
+	act "^ not this time :)"
 
 	notice "Finished building kernel"
 	notice "Next step is: ${device_name}-finalize"
