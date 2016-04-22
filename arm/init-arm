@@ -40,6 +40,7 @@ init() {
 		"bananapi"              "$R/arm/scripts/bananapi.sh"
 		"bananapro"             "$R/arm/scripts/bananapro.sh"
 		"cubieboard2"           "$R/arm/scripts/cubieboard2.sh"
+		"cubietruck"            "$R/arm/scripts/cubietruck.sh"
 		"chromeacer"            "$R/arm/scripts/chromebook-acer.sh"
 	)
 
