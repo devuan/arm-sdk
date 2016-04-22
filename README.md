@@ -49,8 +49,11 @@ and one of the following devices:
 
 * `raspi2`
 * `bananapi`
+* `bananapro`
 * `cubieboard2`
+* `cubietruck`
 * `chromeacer`
+* `odroidxu`
 ```
 ; init devuan raspi2
 ```
