@@ -38,6 +38,7 @@ init() {
 	arm_map=(
 		"raspi2"                "$R/arm/scripts/raspberry-pi-2.sh"
 		"bananapi"              "$R/arm/scripts/bananapi.sh"
+		"bananapro"             "$R/arm/scripts/bananapro.sh"
 		"cubieboard2"           "$R/arm/scripts/cubieboard2.sh"
 		"chromeacer"            "$R/arm/scripts/chromebook-acer.sh"
 	)
