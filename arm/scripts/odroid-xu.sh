@@ -35,7 +35,7 @@ hosttuple=arm-linux-gnueabihf
 parted_boot=(fat32 2048s 264191s)
 parted_root=(ext4 264192s 100%)
 inittab="T1:12345:respawn:/bin/login -f root ttySAC2 /dev/ttySAC2 2>&1"
-custmodules=(sunxi_emac)
+custmodules=()
 # source common commands
 workdir="$R/arm/${device_name}-build"
 strapdir="${workdir}/${os}-${arch}"
