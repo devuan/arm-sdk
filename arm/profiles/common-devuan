@@ -25,7 +25,7 @@
 # -- settings --
 release=jessie
 section=main
-version=alpha4
+version=beta
 mirror=http://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
