@@ -316,7 +316,7 @@ ${device_name}-prepimg() {
 		rootpart=${mappdevice}p2
 
 		notice "Formatting partitions..."
-		mkfs.ext4 -L rootfs $rootpart
+		sudo mkfs.ext4 -L rootfs $rootpart
 
 		mkdir -p ${workdir}/root
 		sudo mount $rootpart ${workdir}/root && notice "Mounted root part"
