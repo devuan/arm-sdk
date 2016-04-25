@@ -23,7 +23,7 @@
 # -- settings --
 device_name="beagleboneblack"
 arch="armhf"
-size=1337
+size=1666
 extra_packages=()
 # Ones below should not need changing
 parted_boot=(fat32 2048s 264191s)
