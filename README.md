@@ -23,11 +23,13 @@ On any other, find the equivalents of the aforementioned packages.
 
 ## Quick start
 
-First clone the SDK repository:
-
 ```
 ; git clone https://github.com/dyne/arm-sdk.git
+# OR
+; git clone https://git.devuan.org/devuan/arm-sdk.git
 ```
+If you have cloned the repository before, please to a `git pull` in order
+to update to the latest versions. Your experience will be better.
 
 Edit the `config` file to match your crosscompile toolchain. Consult
 `arm/README.md` if you're in a need of a precompiled one, then
@@ -67,10 +69,31 @@ Once initialized, you will get further instructions.
 
 For more info, please consult the `README` included in the `arm` subdirectory.
 
+After the image is built, you will find it compressed, along with its sha256 sum
+in the `arm/finished/` directory. The default root password is `toor` and SSH
+with permitted root login is enabled on startup, along with DHCP to get you up
+and running headless if you require it.
+
 ## Configuration
 
 Edit the `config` file included in the root directory of arm-sdk to your liking.
 If you are using a custom toolchain, add it to the PATH as described.
+
+## Notes and quirks for specific devices
+
+### ODROID XU
+* The kernel refuses to build with Devuan's default toolchain `arm-none-eabi`.
+  Use `arm-linux-gnueabi-4.7` that I provide on https://pub.parazyd.cf/mirror
+  instead.
+
+### Raspberry Pi 2
+* This build script will create an image that also works on the Raspberry Pi 3.
+  It also includes the required firmware for getting onboard Wifi/Bluetooth
+  working.
+
+### Acer Chromebook
+* The Chromebook I tested this image on names the wireless interface `mlan0`, so
+  please keep note of it when you try connecting to an access point.
 
 ## Acknowledgments
 
@@ -79,21 +102,19 @@ Schumacher college in Dartington UK, greatly inspired by the laborious
 and mindful atmosphere of its wonderful premises.
 
 ARM SDK is Copyright (c) 2016 by the Dyne.org Foundation
-
 ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
 
-Inspiration taken from Devuan SDK and Kali Linux ARM buildscripts.
+The ARM SDK also uses code from Devuan SDK and Kali Linux ARM buildscripts.
 
-This source code is free software; you can redistribute it and/or
-modify it under the terms of the GNU Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at
-your option) any later version.
+This source code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-This source code is distributed in the hope that it will be useful,
+This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  Please refer to
-the GNU Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-You should have received a copy of the GNU Public License along with
-this source code; if not, write to: Free Software Foundation, Inc.,
-675 Mass Ave, Cambridge, MA 02139, USA.
+You should have received a copy of the GNU General Public License
+along with this source code. If not, see <http://www.gnu.org/licenses/>.

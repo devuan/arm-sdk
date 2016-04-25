@@ -1,31 +1,29 @@
 #!/usr/bin/env zsh
 #
-# ARM SDK
+# Copyright (c) 2016 Dyne.org Foundation
+# ARM SDK is written and maintained by parazyd <parazyd@dyne.org>
 #
-# Copyright (C) 2016 Dyne.org Foundation
+# This file is part of ARM SDK
 #
-# ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
-#
-# This source code is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# This source code is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# This source code is distributed in the hope that it will be useful,
+# This software is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  Please refer
-# to the GNU Public License for more details.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU Public License along with
-# this source code; if not, write to: Free Software Foundation, Inc.,
-# 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this source code. If not, see <http://www.gnu.org/licenses/>.
 #
 # Common functions for builds
 
 # -- settings --
 release=jessie
 section=main
-version=beta
+version=1.0.0-beta
 mirror=http://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
@@ -359,6 +357,8 @@ ${device_name}-pack-image() {
 	notice "Rechecking filesystem"
 	sudo e2fsck -f ${mappdevice}p2
 	sudo resize2fs ${mappdevice}p2
+
+	sleep 4
 
 	sudo kpartx -dv $loopdevice
 	[[ $? = 0 ]] || error "kpartx failed to remove $loopdevice"
