@@ -130,6 +130,9 @@ EOF
 	ARCH=arm make bb.org_defconfig
 	make modules_prepare
 
+	# hack
+	sudo cp .config ../${device_name}.config
+
 	notice "Grabbing script for using usb as an ethernet device"
 	sudo wget -c \
 		https://raw.github.com/RobertCNelson/tools/master/scripts/beaglebone-black-g-ether-load.sh \
