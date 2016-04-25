@@ -96,6 +96,13 @@ If you are using a custom toolchain, add it to the PATH as described.
 * The Chromebook I tested this image on names the wireless interface `mlan0`, so
   please keep note of it when you try connecting to an access point.
 
+### BeagleBone Black
+* The kernel refuses to build with Devuan's default toolchain `arm-none-eabi`.
+  Use `arm-linux-gnueabi-4.7` that I provide on https://pub.parazyd.cf/mirror
+  instead.
+* In `/root/` you will find the `xorg.conf` needed to run X properly. You will
+  also find a shell script that allows you to use USB as an ethernet device
+
 ## Acknowledgments
 
 The Devuan SDK was conceived during a period of residency at the
