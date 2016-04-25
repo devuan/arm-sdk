@@ -55,7 +55,9 @@ ${device_name}-build-kernel() {
 	sudo mkdir -p ${workdir}/bootp/dtbs
 	sudo cp arch/arm/boot/dts/*.dtb ${workdir}/bootp/dtbs/
 	notice "Installing kernel modules"
+	sudo chown $USER ${strapdir}/lib
 	make INSTALL_MOD_PATH=${strapdir} modules_install
+	sudo chown root ${strapdir}/lib
 
 	notice "Creating uEnv.txt file"
 	cat << EOF | sudo tee ${workdir}/bootp/uEnv.txt
