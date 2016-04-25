@@ -167,7 +167,7 @@ rm -f /debconf.set
 apt-get update
 apt-get -y install ${core_packages}
 
-echo "root:toor" | chpasswd
+echo "root:devuan" | chpasswd
 sed -i -e 's/KERNEL\!=\"eth\*|/KERNEL\!=\"/' /lib/udev/rules.d/75-persistent-net-generator.rules
 rm -fv /etc/udev/rules.d/70-persistent-net.rules
 export DEBIAN_FRONTEND=noninteractive

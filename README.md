@@ -70,7 +70,7 @@ Once initialized, you will get further instructions.
 For more info, please consult the `README` included in the `arm` subdirectory.
 
 After the image is built, you will find it compressed, along with its sha256 sum
-in the `arm/finished/` directory. The default root password is `toor` and SSH
+in the `arm/finished/` directory. The default root password is `devuan` and SSH
 with permitted root login is enabled on startup, along with DHCP to get you up
 and running headless if you require it.
 
