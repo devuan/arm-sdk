@@ -242,6 +242,9 @@ ${device_name}-secondstage() {
 	write-debconf
 	write-third-stage
 
+	export ARCH=arm
+	export CROSS_COMPILE=${compiler}
+
 	notice "Finished second-stage"
 	notice "Next step is: ${device_name}-thirdstage"
 }
@@ -411,9 +414,6 @@ copy-kernel-config() {
 	cd ${strapdir}/usr/src/kernel
 	cp -v ${workdir}/../kernel-configs/${device_name}.config .config
 	sudo cp -v ${workdir}/../kernel-configs/${device_name}.config ../${device_name}.config
-
-	export ARCH=arm
-	export CROSS_COMPILE=${compiler}
 }
 
 make-kernel-modules() {

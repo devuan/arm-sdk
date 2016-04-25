@@ -16,7 +16,7 @@ from shell scripts.
 For a Debian-based OS, install the following packages:
 
 ```
-gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils
+gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils lzop
 ```
 
 On any other, find the equivalents of the aforementioned packages.
@@ -53,13 +53,14 @@ you can choose between these distros:
 
 and one of the following devices:
 
-* `raspi2`
-* `bananapi`
-* `bananapro`
-* `cubieboard2`
-* `cubietruck`
-* `chromeacer`
-* `odroidxu`
+* `raspi2` - Raspberry Pi 2 and 3
+* `bananapi` - Banana Pi
+* `bananapro` - Banana Pi Pro
+* `cubieboard2` - Cubieboard 2
+* `cubietruck` - Cubietruck
+* `chromeacer` - Acer ARM Chromebook
+* `odroidxu` - ODROID-XU
+* `bbb`- BeagleBone Black
 
 ```
 ; init devuan raspi2
@@ -87,8 +88,8 @@ If you are using a custom toolchain, add it to the PATH as described.
   instead.
 
 ### Raspberry Pi 2
-* This build script will create an image that also works on the Raspberry Pi 3.
-  It also includes the required firmware for getting onboard Wifi/Bluetooth
+* This build script will create an image that works on the Raspberry Pi 3 as
+  well. It also includes the required firmware for getting onboard Wifi/Bluetooth
   working.
 
 ### Acer Chromebook
