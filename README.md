@@ -28,7 +28,7 @@ On any other, find the equivalents of the aforementioned packages.
 # OR
 ; git clone https://git.devuan.org/devuan/arm-sdk.git
 ```
-If you have cloned the repository before, please to a `git pull` in order
+If you have cloned the repository before, please do a `git pull` in order
 to update to the latest versions. Your experience will be better.
 
 Edit the `config` file to match your crosscompile toolchain. Consult
@@ -81,7 +81,7 @@ If you are using a custom toolchain, add it to the PATH as described.
 
 ## Notes and quirks for specific devices
 
-### ODROID XU
+### ODROID-XU
 * The kernel refuses to build with Devuan's default toolchain `arm-none-eabi`.
   Use `arm-linux-gnueabi-4.7` that I provide on https://pub.parazyd.cf/mirror
   instead.
@@ -102,6 +102,7 @@ Schumacher college in Dartington UK, greatly inspired by the laborious
 and mindful atmosphere of its wonderful premises.
 
 ARM SDK is Copyright (c) 2016 by the Dyne.org Foundation
+
 ARM SDK is designed, written and maintained by parazyd <parazyd@dyne.org>
 
 The ARM SDK also uses code from Devuan SDK and Kali Linux ARM buildscripts.
