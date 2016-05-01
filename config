@@ -2,7 +2,7 @@
 #
 # ARM SDK configuration
 
-# add here the info of the toolchain you are using
+# add here the info of the toolchain and qemu you are using
 
 # Devuan official toolchain
 compiler="arm-none-eabi-"

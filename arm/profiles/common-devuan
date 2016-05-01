@@ -363,6 +363,11 @@ ${device_name}-pack-image() {
 
 	sleep 4
 
+	[[ $gpt == 0 ]] || {
+		sudo cgpt repair $loopdevice
+		sleep 4
+	}
+
 	sudo kpartx -dv $loopdevice
 	[[ $? = 0 ]] || error "kpartx failed to remove $loopdevice"
 	sudo losetup -d $loopdevice

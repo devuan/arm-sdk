@@ -40,6 +40,7 @@ init() {
 		"cubieboard2"           "$R/arm/scripts/cubieboard2.sh"
 		"cubietruck"            "$R/arm/scripts/cubietruck.sh"
 		"chromeacer"            "$R/arm/scripts/chromebook-acer.sh"
+		"chromeveyron"          "$R/arm/scripts/chromebook-veyron.sh"
 		"odroidxu"              "$R/arm/scripts/odroid-xu.sh"
 		"bbb"                   "$R/arm/scripts/beaglebone-black.sh"
 	)

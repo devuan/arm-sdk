@@ -59,6 +59,7 @@ and one of the following devices:
 * `cubieboard2` - Cubieboard 2
 * `cubietruck` - Cubietruck
 * `chromeacer` - Acer ARM Chromebook
+* `chromeveyron` - Veyron ARM Chromebook (RK3288)
 * `odroidxu` - ODROID-XU
 * `bbb`- BeagleBone Black
 
