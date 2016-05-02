@@ -28,7 +28,7 @@ mirror=http://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
 core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)
-core_packages+=(locales console-common less nano git curl)
+core_packages+=(locales console-common less nano git curl vi)
 
 base_packages=(bzip2 dialog apt-utils fakeroot e2fsprogs parted)
 
@@ -42,8 +42,8 @@ DD=${DD:-/bin/dd}
 write-hostname() {
 	fn write-hostname
 
+	notice "Writing hostname"
 	print $os | sudo tee ${writebase}/etc/hostname
-	notice "Wrote $writebase/etc/hostname"
 }
 
 write-fstab() {
@@ -61,6 +61,7 @@ EOF
 write-hosts-file() {
 	fn write-hosts-file
 
+	notice "Writing /etc/hosts"
 	cat <<EOF | sudo tee ${writebase}/etc/hosts
 127.0.0.1    ${os}              localhost
 ::1          localhost          ip6-localhost ip6-loopback
@@ -69,12 +70,12 @@ fe00::0      ip6-mcastprefix
 fe02::1      ip6-allnodes
 fe02::1      ip6-allrouters
 EOF
-	notice "Wrote $writebase/etc/hosts"
 }
 
 write-network-ifaces() {
-	fn write-hosts-file
+	fn write-network-ifaces
 
+	notice "Writing /etc/network/interfaces"
 	cat <<EOF | sudo tee ${writebase}/etc/network/interfaces
 auto lo
 iface lo inet loopback
@@ -82,33 +83,33 @@ iface lo inet loopback
 auto eth0
 iface eth0 inet dhcp
 EOF
-	notice "Wrote $writebase/etc/network/interfaces"
 }
 
 write-resolvconf() {
 	fn write-resolvconf
 
+	notice "Writing /etc/resolv.conf"
 	cat <<EOF | sudo tee ${writebase}/etc/resolv.conf
 # foebud and ccc dns
 nameserver 85.214.20.141
 nameserver 213.73.91.35
 EOF
-	notice "Wrote $writebase/etc/resolv.conf"
 }
 
 write-debconf() {
 	fn write-debconf
 
+	notice "Writing debconf.set"
 	cat <<EOF | sudo tee ${writebase}/debconf.set
 console-common console-data/keymap/policy select Select keymap from full list
 console-common console-data/keymap/full select en-latin1-nodeadkeys
 EOF
-	[[ $? = 0 ]] || error "Failed writing $writebase/debconf.set"
 }
 
 write-cleanup() {
 	fn write-cleanup
 
+	notice "Writing chroot-cleanup"
 	cat <<EOF | sudo tee ${writebase}/cleanup
 #!/bin/bash
 rm -rf /root/.bash_history
@@ -120,18 +121,21 @@ rm -f cleanup
 rm -f /usr/bin/qemu*
 EOF
 	sudo chmod +x $writebase/cleanup
-	notice "Wrote $writebase/cleanup"
 }
 
 write-sources-list() {
 	fn write-sources-list
 
-#	cat <<EOF | sudo tee ${writebase}/$1etc/apt/sources.list
+	notice "Writing /etc/apt/sources.list"
 	cat <<EOF | sudo tee ${writebase}/etc/apt/sources.list
 deb ${mirror} ${release} ${section}
+deb ${mirror} ${release}-updates ${section}
+deb ${mirror} ${release}-security ${section}
+
 deb-src ${mirror} ${release} ${section}
+deb-src ${mirror} ${release}-updates ${section}
+deb-src ${mirror} ${release}-security ${section}
 EOF
-	notice "Wrote $writebase/etc/apt/sources.list"
 }
 
 copy-pkginclude() {
@@ -279,7 +283,7 @@ ${device_name}-thirdstage() {
 	copy-zram
 
 	sudo umount ${strapdir}/dev/pts && notice "Unmounted dev/pts"
-	sleep 5
+	sleep 2
 	sudo umount ${strapdir}/dev && notice "Unmounted dev"
 	sleep 2
 	sudo umount ${strapdir}/proc && notice "Unmounted proc"
@@ -297,7 +301,7 @@ ${device_name}-prepimg() {
 		bs=1M count=$size
 
 	notice "Partitioning..."
-	if [[ $gpt == 1 ]]; then
+	if [[ $gpt = 1 ]]; then
 		parted ${image_name}.img --script -- mklabel gpt
 		cgpt create -z ${image_name}.img
 		cgpt create ${image_name}.img
@@ -363,7 +367,7 @@ ${device_name}-pack-image() {
 
 	sleep 4
 
-	[[ $gpt == 0 ]] || {
+	[[ $gpt = 0 ]] || {
 		sudo cgpt repair $loopdevice
 		sleep 4
 	}
@@ -380,22 +384,28 @@ ${device_name}-pack-image() {
 	sha256sum ${image_name}.img.xz > ${image_name}.img.xz.sha
 
 	[[ -d $R/arm/finished ]] || mkdir -p $R/arm/finished
-	mv -v ${image_name}.img.xz $R/arm/finished/
+	mv -v ${image_name}.img.xz     $R/arm/finished/
 	mv -v ${image_name}.img.xz.sha $R/arm/finished/
 
-	cd $R
-	sudo rm -r ${strapdir}
-	sudo rm -r ${workdir}
+	[[ $DEBUG = 1 ]] || {
+		sudo rm -r ${strapdir}
+		sudo rm -r ${workdir}
+	}
 
 	notice "Finished building ${image_name}"
+	cd $R/arm/finished && ls -lht
 }
 
 get-kernel-firmware() {
 	fn get-kernel-firmware
 
-	[[ -d $R/tmp/firmware ]] || git clone \
+	if [[ -d $R/tmp/firmware ]]; then
+		pushd $R/tmp/firmware
+		git pull
+		popd
+	else
 		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git $R/tmp/firmware
-		rm -rf $R/tmp/firmware/.git
+	fi
 }
 
 clean-kernel-leftovers() {

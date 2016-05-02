@@ -72,3 +72,7 @@ else
     sdk_loaded=1
     export RPROMPT="ARM SDK"
 fi
+
+b0rk-clean() {
+	# TODO: figure out cleaning until the last step if toasting goes fubar
+}
