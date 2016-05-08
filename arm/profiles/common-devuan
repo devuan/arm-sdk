@@ -151,10 +151,23 @@ copy-pkginclude() {
 	}
 }
 
+copy-cust() {
+	fn copy-cust
+
+	sudo mkdir ${writebase}/cust
+	scrincludes=`find $R/arm/extra/scrinclude -type f -name "*.sh"`
+	[[ -z $scrincludes ]] || {
+		for i in ${scrincludes}; do
+			sudo cp -v ${i} ${writebase}/cust/
+		done
+	}
+}
+
 write-third-stage() {
 	fn write-third-stage
 
 	copy-pkginclude
+	copy-cust
 
 	cat <<EOF | sudo tee ${writebase}/third-stage
 #!/bin/bash
@@ -183,6 +196,7 @@ apt-get --yes --force-yes install ${extra_packages}
 apt-get --yes --force-yes dist-upgrade
 
 for package in `find /pkginclude`; do
+	# TODO: check resolution of deps
 	dpkg -i $package
 done
 
@@ -196,7 +210,12 @@ rm -fv /usr/sbin/policy-rc.d
 rm -fv /usr/sbin/invoke-rc.d
 dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
 
+for script in `find /cust`; do
+	source $script
+done
+
 rm -rfv /pkginclude/
+rm -rfv /cust/
 rm -fv /third-stage
 EOF
 	sudo chmod +x $writebase/third-stage
