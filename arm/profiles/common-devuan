@@ -28,7 +28,7 @@ mirror=http://packages.devuan.org/merged
 
 core_packages=(debian-keyring devuan-keyring)
 core_packages+=(git-core binutils ca-certificates initramfs-tools u-boot-tools)
-core_packages+=(locales console-common less nano git curl vi)
+core_packages+=(locales console-common less nano git curl vim)
 
 base_packages=(bzip2 dialog apt-utils fakeroot e2fsprogs parted)
 
@@ -211,7 +211,7 @@ rm -fv /usr/sbin/invoke-rc.d
 dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
 
 for script in `find /cust`; do
-	source $script
+	exec $script
 done
 
 rm -rfv /pkginclude/
