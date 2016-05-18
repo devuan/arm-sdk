@@ -43,6 +43,7 @@ init() {
 		"chromeveyron"          "$R/arm/scripts/chromebook-veyron.sh"
 		"odroidxu"              "$R/arm/scripts/odroid-xu.sh"
 		"bbb"                   "$R/arm/scripts/beaglebone-black.sh"
+		"ouya"                  "$R/arm/scripts/ouya.sh"
 	)
 
 	arm_build_device=${arm_map[$armdev]}
