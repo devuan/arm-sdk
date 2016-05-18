@@ -49,13 +49,15 @@ write-hostname() {
 write-fstab() {
 	fn write-fstab
 
-	notice "Writing fstab"
-	cat <<EOF | sudo tee ${workdir}/root/etc/fstab
+	[[ override_fstab = 1 ]] || {
+		notice "Writing fstab"
+		cat <<EOF | sudo tee ${workdir}/root/etc/fstab
 # <file system> <mount point> <type> <options> <dump> <pass>
 proc /proc proc nodev,noexec,nosuid 0 0
 /dev/mmcblk0p2 / ext4 errors=remount-ro 0 1
 /dev/mmcblk0p1 /boot vfat noauto 0 0
 EOF
+	}
 }
 
 write-hosts-file() {
@@ -195,9 +197,9 @@ apt-get --yes --force-yes install ${extra_packages}
 
 apt-get --yes --force-yes dist-upgrade
 
-for package in `find /pkginclude`; do
-	# TODO: check resolution of deps
-	dpkg -i $package
+for package in \$(find /pkginclude -name '*.deb'); do
+	dpkg -i \${package}
+	apt-get -f --yes --force-yes install
 done
 
 apt-get --yes --force-yes autoremove
@@ -210,8 +212,8 @@ rm -fv /usr/sbin/policy-rc.d
 rm -fv /usr/sbin/invoke-rc.d
 dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
 
-for script in `find /cust`; do
-	exec $script
+for script in \$(find /cust -name '*.sh'); do
+	exec \${script}
 done
 
 rm -rfv /pkginclude/
@@ -431,13 +433,13 @@ clean-kernel-leftovers() {
 	fn clean-kernel-leftovers
 
 	notice "Cleaning up from kernel build..."
-	sudo rm -r ${strapdir}/usr/src/kernel
-	sudo rm ${strapdir}/usr/src/${device_name}.config
+	[[ -d ${strapdir}/usr/src/kernel ]] && sudo rm -r ${strapdir}/usr/src/kernel
+	[[ -d ${strapdir}/usr/src/${device_name}.config ]] && sudo rm ${strapdir}/usr/src/${device_name}.config
 	#sudo rm ${strapdir}/usr/src/kernel-at-commit
 
 	sudo chown root ${strapdir}/lib
-	sudo chown -R root ${strapdir}/lib/modules
-	sudo chown -R root ${strapdir}/lib/firmware
+	[[ -d ${strapdir}/lib/modules ]] && sudo chown -R root ${strapdir}/lib/modules
+	[[ -d ${strapdir}/lib/firmware ]] && sudo chown -R root ${strapdir}/lib/firmware
 
 	cd ${workdir}
 }
