@@ -16,7 +16,7 @@ from shell scripts.
 For a Debian-based OS, install the following packages:
 
 ```
-build-essential gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils lzop
+; sudo apt-get install build-essential gnupg2 debootstrap curl rsync gcc-arm-none-eabi parted kpartx qemu-user-static sudo git-core parted gcc-multilib lib32z1 u-boot-tools device-tree-compiler cgpt xz-utils lzop
 ```
 
 On any other, find the equivalents of the aforementioned packages.

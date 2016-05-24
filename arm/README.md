@@ -27,6 +27,7 @@ build script.
 ### List of shellcodes for different architectures
 Consult the RaspberryPi2 build script to see how to use these. You will need to
 use the correct one, depending on the architecture you're building.
+
 ```
 print ':aarch64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xb7:\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff:/usr/bin/qemu-aarch64:' | sudo tee /proc/sys/fs/binfmt_misc/register
 

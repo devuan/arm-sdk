@@ -13,8 +13,10 @@ export PATH="$PATH:/sbin"
 #export PATH="$PATH:/sbin:$R/toolchains/gcc-arm-linux-gnueabihf-4.7/bin"
 
 # custom toolchain (armel) - https://pub.parazyd.cf/mirror/gcc-arm-eabi-linaro-4.6.2.txz
-compiler="arm-eabi-"
-export PATH="$PATH:/sbin/$R/toolchains/gcc-arm-eabi-linaro-4.6.2/bin"
+#compiler="arm-eabi-"
+#export PATH="$PATH:/sbin/$R/toolchains/gcc-arm-eabi-linaro-4.6.2/bin"
+
+# custom toolchain (arm64) - https://pub.parazyd.cf/mirror/gcc-linaro-aarch64-linux-gnu-4.9.txz
 
 # static qemu arm binary
 qemu_bin="/usr/bin/qemu-arm-static" # Devuan
