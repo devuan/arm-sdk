@@ -425,7 +425,7 @@ get-kernel-firmware() {
 		git pull
 		popd
 	else
-		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git $R/tmp/firmware
+		git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git $R/tmp/firmware
 	fi
 }
 
@@ -459,10 +459,6 @@ make-kernel-modules() {
 	sudo chown -R $USER ${strapdir}/lib/modules
 	sudo chown -R $USER ${strapdir}/lib/firmware
 	make modules_install INSTALL_MOD_PATH=${strapdir}
-	[[ $? = 0 ]] || {
-		error "Failed installing kernel modules"
-		return 1
-	}
 }
 
 copy-zram() {
