@@ -1,0 +1,9 @@
+kernel/crypto/tcrypt.ko:
+kernel/drivers/scsi/scsi_wait_scan.ko:
+kernel/drivers/net/usb/raw_ip_net.ko:
+kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko: kernel/net/wireless/cfg80211.ko
+kernel/drivers/usb/serial/baseband_usb_chr.ko:
+kernel/drivers/bluetooth/btwilink.ko:
+kernel/net/wireless/cfg80211.ko:
+kernel/net/wireless/lib80211.ko:
+kernel/net/mac80211/mac80211.ko: kernel/net/wireless/cfg80211.ko
