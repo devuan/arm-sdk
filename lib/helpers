@@ -17,29 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## arm-sdk configuration
-## ---------------------
+## helper functions for arm-sdk
 
-## options for `make` when building kernel
-MAKEOPTS="-j1"
+build-image() {
+	fn build-image "$@"
 
-## devuan official toolchain
-#compiler="arm-none-eabi-"
-#export PATH="$PATH:/sbin"
+	bootstrap $arch
+}
 
-## custom toolchain (armhf) - https://pub.parazyd.cf/mirror/
-#compiler="arm-linux-gnueabihf-"
-#export PATH="$R/gcc/gcc-arm-linux-gnueabihf-4.7/bin:$PATH:/sbin"
+get-kernel-firmware() {
+	fn get-kernel-firmware
 
-## custom toolchain (armel) - https://pub.parazyd.cf/mirror/
-#compiler="arm-eabi-"
-#export PATH="$R/gcc/gcc-arm-eabi-linaro-4.6.2/bin:$PATH:/sbin"
+	notice "grabbing latest linux-firmware"
 
-## custom toolchain (arm64) - https://pub.parazyd.cf/mirror/
-
-## static qemu arm binary
-#qemu_bin="/usr/bin/qemu-arm-static" # Devuan
-qemu_bin="/usr/bin/qemu-arm" # Gentoo
-
-## for developing (try not to use)
-compiler="x86_64-pc-linux-gnu-"
+	local gitsource="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+	if [[ -d $R/tmp/linux-firmware ]]; then
+		pushd $R/tmp/linux-firmware
+		git pull
+		popd
+	else
+		git clone $gitsource $R/tmp/linux-firmware
+	fi
+}

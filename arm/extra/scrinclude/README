@@ -1,4 +1,0 @@
-include scripts here you wish to execute in the third-stage, after finishing the
-system installation. the scripts will be sourced so call what you need.
-
-the naming scheme should be `foo.sh`

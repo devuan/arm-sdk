@@ -1,9 +1,8 @@
 #!/usr/bin/env zsh
-#
 # Copyright (c) 2016 Dyne.org Foundation
-# ARM SDK is written and maintained by parazyd <parazyd@dyne.org>
+# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
-# This file is part of ARM SDK
+# This file is part of arm-sdk
 #
 # This source code is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,61 +17,87 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-# setup zsh options
+armsdk_version="1.0-dev"
+
+## setup zsh options
 setopt pushdsilent
 
-# load zsh modules
-zmodload zsh/system
-zmodload zsh/regex
+R=${ARM_SDK:-$PWD}
 
-# adopts Zsh extension "Zuper"
-zkv=1
-helpers=1
-source arm/zuper
+## load zsh extension "Zuper"
+DEBUG=1
+source lib/zuper/zuper
 
-## declare global variables
+## global vars
+vars+=(armsdk_version)
+vars+=(R workdir strapdir)
+vars+=(os boardlib oslib)
+vars+=(MAKEOPTS)
 
-# config variables
-vars+=(os mirror release section version)
-# global variables
-vars+=(R sdk_loaded)
-# script variables
-vars+=(workdir strapdir writebase)
-vars+=(loopdevice mappdevice)
-vars+=(arm_build_device armdev)
-# script locals
-vars+=(device_name image_name arch size)
-vars+=(inittab)
+## global maps
+maps+=(board_map os_map)
 
-# we assume source sdk is always run from the source dir
-# which is the "root" of the program, $R, or env DEVUAN_SDK
-R=${ARM_SDK:-`pwd`}
+source $R/config
+source $R/lib/helpers
 
-# global maps (TODO in zuper)
-maps+=(arm_map)
+## conclude zuper initialization
+source $R/lib/zuper/zuper.init
 
-source config
+load() {
+	fn load "$@"
+	os="$1"
+	dev="$2"
+	req=(os dev)
+	ckreq || return 1
 
-# load all zlibs
-source arm/init-arm
+	## initialize binfmt_misc if not already, needed to run qemu
+	if [[ -f /etc/init.d/binfmt-support ]]; then
+		sudo /etc/init.d/binfmt-support start
+	else
+		[[ -d /proc/sys/fs/binfmt_misc ]] || sudo modprobe binfmt_misc
+		[[ -f /proc/sys/fs/binfmt_misc/register ]] || \
+			sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+	fi
 
-# complete zuper initialization
-source arm/zuper.init
+	board_map=(
+		"bananapi"        "$R/boards/bananapi.sh"
+		"bananapro"       "$R/boards/bananapro.sh"
+		"bbb"             "$R/boards/beagleboneblack.sh"
+		"chromeacer"      "$R/boards/chromebook-acer.sh"
+		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
+		"cubieboard2"     "$R/boards/cubieboard2.sh"
+		"cubietruck"      "$R/boards/cubietruck.sh"
+		"odroidxu"        "$R/boards/odroid-xu.sh"
+		"ouya"            "$R/boards/ouya.sh"
+		"raspi"           "$R/boards/raspberry-pi.sh"
+	)
 
-# unset DEBUG_BEFORE_CMD
+	os_map=(
+	    "devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+	)
 
-# exit on error of any function
+	boardlib="${board_map[$dev]}"
+	oslib="${os_map[$os]}"
+
+	[[ -f $boardlib ]] || die "no valid board specified"
+	[[ -f $oslib ]]    || die "no valid distro specified"
+
+	source $boardlib
+	source $oslib
+
+	workdir="$R/tmp/${device_name}-build"
+	strapdir="$workdir/bootstrap"
+	mkdir -p $strapdir
+
+	export LANG=C
+	export LC_ALL=C
+	export ARCH=arm
+	export CROSS_COMPILE=$compiler
+
+	source $R/lib/zuper/zuper.init
+}
+
 TRAPZERR() { zerr; return $? }
 
-if [[ $sdk_loaded = 1 ]]; then
-    act "ARM SDK reloaded"
-else
-    notice "ARM SDK loaded"
-    typeset -h sdk_loaded
-    sdk_loaded=1
-    export RPROMPT="ARM SDK"
-fi
-
-b0rk-clean() {
-	# TODO: figure out cleaning until the last step if toasting goes fubar
-}
+notice "arm-sdk loaded"
+export RPROMPT=":: arm-sdk"
