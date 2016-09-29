@@ -24,8 +24,8 @@
 MAKEOPTS="-j1"
 
 ## devuan official toolchain
-#compiler="arm-none-eabi-"
-#export PATH="$PATH:/sbin"
+compiler="arm-none-eabi-"
+export PATH="$PATH:/sbin"
 
 ## custom toolchain (armhf) - https://pub.parazyd.cf/mirror/
 #compiler="arm-linux-gnueabihf-"
@@ -38,8 +38,5 @@ MAKEOPTS="-j1"
 ## custom toolchain (arm64) - https://pub.parazyd.cf/mirror/
 
 ## static qemu arm binary
-#qemu_bin="/usr/bin/qemu-arm-static" # Devuan
-qemu_bin="/usr/bin/qemu-arm" # Gentoo
-
-## for developing (try not to use)
-compiler="x86_64-pc-linux-gnu-"
+qemu_bin="/usr/bin/qemu-arm-static" # Devuan
+#qemu_bin="/usr/bin/qemu-arm" # Gentoo

@@ -32,7 +32,7 @@ cd gcc
 wget https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz
 wget https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz.sha
 
-sha256sum -c gcc-arm-linux-gnueabihf-4.7.txz.sha \
+sha256sum -c  gcc-arm-linux-gnueabihf-4.7.txz.sha \
 	&& tar xf gcc-arm-linux-gnueabihf-4.7.txz \
 	|| echo "WARNING: sha256sum not correct!"
 
