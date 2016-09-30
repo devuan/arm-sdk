@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## kernel build script for Banana Pi boards
+## kernel build script for Banana Pro boards
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
 arrs+=(custmodules extra_packages)
 
-device_name="bananapi"
+device_name="bananapro"
 arch="armhf"
 size=1337
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
@@ -41,7 +41,6 @@ gitbranch="lemaker-3.4"
 sunxi_tools="https://github.com/linux-sunxi/sunxi-tools.git"
 sunxi_uboot="https://github.com/LeMaker/u-boot-bananapi.git"
 sunxi_boards="https://github.com/LeMaker/sunxi-boards.git"
-
 
 prebuild() {
 	fn prebuild
@@ -78,7 +77,7 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
 	act "running fex2bin"
 	make fex2bin
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/BananaPi.fex \
+	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/BananaPro.fex \
 		$strapdir/boot/script.bin
 	popd
 
@@ -111,7 +110,7 @@ build_kernel_armhf() {
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
 	make distclean
-	make BananaPi_config
+	make BananaPro_config 
 	make $MAKEOPTS
 	act "dd-ing to image..."
 	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8
