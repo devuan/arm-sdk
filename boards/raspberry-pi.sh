@@ -20,7 +20,7 @@
 ## kernel build script for Raspberry Pi 2/3 boards
 
 ## settings & config
-vars+=(device_name arch size parted_boot parted_root inittab)
+vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch rpifirmware)
 arrs+=(custmodules extra_packages)
 
@@ -29,6 +29,7 @@ arch="armhf"
 size=1337
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
+parted_type="dos"
 parted_boot="fat32 0 64"
 parted_root="ext4 64 -1"
 
@@ -39,11 +40,41 @@ gitkernel="https://github.com/raspberrypi/linux.git"
 gitbranch="rpi-4.4.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
+prebuild() {
+	fn prebuild
+	req=(device_name strapdir)
+	ckreq || return 1
+
+	notice "executing $device_name prebuild"
+
+	## fstab
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+## <file system>  <mount point> <type> <options>           <dump><pass>
+## proc
+proc              /proc         proc   nodev,noexec,nosuid    0    0
+
+## rootfs
+/dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
+
+## bootfs
+/dev/mmcblk0p1    /boot         vfat   noauto                 0    0
+EOF
+}
+
+postbuild() {
+	fn postbuild
+
+	notice "executing $device_name postbuild"
+	return 0
+}
+
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
 	req+=(workdir strapdir)
 	ckreq || return 1
+
+	prebuild || zerr
 
 	notice "building $arch kernel"
 
@@ -97,4 +128,6 @@ EOF
 	sudo mkdir -p $strapdir/lib/firmware/brcm
 	sudo cp -v $R/extra/rpi3/brcmfmac43430-sdio.txt $strapdir/lib/firmware/brcm/
 	sudo cp -v $R/extra/rpi3/brcmfmac43430-sdio.bin $strapdir/lib/firmware/brcm/
+
+	postbuild || zerr
 }

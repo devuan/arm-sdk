@@ -46,12 +46,28 @@ custmodules=() # add the snd module here perhaps
 gitkernel="https://github.com/raspberrypi/linux.git"
 gitbranch="rpi-4.4.y"
 
+## things you need to do before building the kernel
+prebuild() {
+	fn prebuild
+	notice "executing $device_name prebuild"
+	return 0
+}
+
+## things you need to do after building the kernel
+postbuild() {
+	fn postbuild
+	notice "executing $device_name postbuild"
+	return 0
+}
+
 ## kernel build function
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
 	req+=(workdir strapdir)
 	ckreq || return 1
+
+	prebuild
 
 	notice "building $arch kernel"
 
@@ -73,4 +89,6 @@ are
 	sudo rm -rf $strapdir/lib/firmware
 	get-kernel-firmware
 	sudo cp -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+
+	postbuild
 }
