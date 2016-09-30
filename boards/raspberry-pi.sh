@@ -93,7 +93,7 @@ EOF
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
-	req+=(workdir strapdir)
+	req+=(strapdir)
 	ckreq || return 1
 
 	prebuild || zerr
@@ -131,12 +131,12 @@ build_kernel_armhf() {
 			$R/tmp/kernels/$device_name/${device_name}-firmware
 	fi
 
-	sudo cp -rfv $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $workdir/boot/
+	sudo cp -rfv $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd ${device_name}-linux
-	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $workdir/boot/kernel7.img
-	sudo cp -v arch/arm/boot/dts/bcm*.dtb $workdir/boot
-	sudo cp -v arch/arm/boot/dts/overlays/*overlay*.dtb $workdir/boot/overlays/
+	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
+	sudo cp -v arch/arm/boot/dts/bcm*.dtb $strapdir/boot/
+	sudo cp -v arch/arm/boot/dts/overlays/*overlay*.dtb $strapdir/boot/overlays/
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -151,12 +151,12 @@ build_kernel_armhf() {
 	popd
 
 	notice "creating cmdline.txt"
-	cat <<EOF | sudo tee ${workdir}/boot/cmdline.txt
+	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
 dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
 EOF
 
 	notice "creating config.txt"
-	cat <<EOF | sudo tee ${workdir}/boot/config.txt
+	cat <<EOF | sudo tee ${strapdir}/boot/config.txt
 ## memory shared with the GPU
 gpu_mem=64
 
