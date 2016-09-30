@@ -21,7 +21,7 @@
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
-vars+=(gitkernel gitbranch sunxi-tools sunxi-uboot sunxi-boards)
+vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
 arrs+=(custmodules extra_packages)
 
 device_name="cubietruck"
