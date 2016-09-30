@@ -21,7 +21,7 @@
 ## ---------------------
 
 ## options for `make` when building kernel
-MAKEOPTS="-j1"
+MAKEOPTS="-j$(grep -c 'processor' /proc/cpuinfo)"
 
 ## devuan official toolchain
 compiler="arm-none-eabi-"
