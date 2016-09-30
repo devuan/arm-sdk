@@ -26,6 +26,12 @@ R=${ARM_SDK:-$PWD}
 
 ## load zsh extension "Zuper"
 DEBUG=1
+
+[[ $DEBUG = 1 ]] && {
+	## add -v to cp calls
+	CPVERBOSE="-v"
+}
+
 source lib/zuper/zuper
 
 ## global vars

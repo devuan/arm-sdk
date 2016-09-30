@@ -131,17 +131,17 @@ build_kernel_armhf() {
 			$R/tmp/kernels/$device_name/${device_name}-firmware
 	fi
 
-	sudo cp -rfv $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
+	sudo cp $CPVERBOSE -rf $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
-	pushd ${device_name}-linux
+	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
-	sudo cp -v arch/arm/boot/dts/bcm*.dtb $strapdir/boot/
-	sudo cp -v arch/arm/boot/dts/overlays/*overlay*.dtb $strapdir/boot/overlays/
+	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb $strapdir/boot/
+	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*overlay*.dtb $strapdir/boot/overlays/
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
 	get-kernel-firmware
-	sudo cp -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E make INSTALL_MOD_PATH=$strapdir firmware_install
@@ -169,8 +169,8 @@ EOF
 
 	notice "installing raspberry pi 3 firmware for bt/wifi"
 	sudo mkdir -p $strapdir/lib/firmware/brcm
-	sudo cp -v $R/extra/rpi3/brcmfmac43430-sdio.txt $strapdir/lib/firmware/brcm/
-	sudo cp -v $R/extra/rpi3/brcmfmac43430-sdio.bin $strapdir/lib/firmware/brcm/
+	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.txt $strapdir/lib/firmware/brcm/
+	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.bin $strapdir/lib/firmware/brcm/
 
 	postbuild || zerr
 }
