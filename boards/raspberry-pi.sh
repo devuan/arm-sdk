@@ -103,21 +103,33 @@ build_kernel_armhf() {
 	act "grabbing kernel sources"
 	mkdir -p $R/tmp/kernels/$device_name
 
-	git clone --depth 1 \
-		$gitkernel \
-		-b $gitbranch \
-		$R/tmp/kernels/$device_name/${device_name}-linux
+	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
+		pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		git pull
+		popd
+	else
+		git clone --depth 1 \
+			$gitkernel \
+			-b $gitbranch \
+			$R/tmp/kernels/$device_name/${device_name}-linux
+	fi
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	make bcm2709_defconfig
 	make $MAKEOPTS
-	sudo make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
+	sudo -E make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
 	popd
 
 	notice "grabbing rpi-firmware..."
-	git clone --depth 1 \
-		$rpifirmware \
-		$R/tmp/kernels/$device_name/${device_name}-firmware
+	if [[ -d $R/tmp/kernels/$device_name/${device_name}-firmware ]]; then
+		pushd $R/tmp/kernels/$device_name/${device_name}
+		git pull
+		popd
+	else
+		git clone --depth 1 \
+			$rpifirmware \
+			$R/tmp/kernels/$device_name/${device_name}-firmware
+	fi
 
 	sudo cp -rfv $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $workdir/boot/
 
@@ -132,7 +144,7 @@ build_kernel_armhf() {
 	sudo cp -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo make INSTALL_MOD_PATH=$strapdir firmware_install
+	sudo -E make INSTALL_MOD_PATH=$strapdir firmware_install
 	make mrproper
 	make bcm2709_defconfig
 	sudo make modules_prepare
