@@ -86,7 +86,8 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	wget -O .config $linux_defconfig
+	#wget -O .config $linux_defconfig
+	copy-kernel-config
 	make $MAKEOPTS
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
@@ -100,7 +101,8 @@ build_kernel_armhf() {
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir firmware_install
 	#make mrproper
-	wget -O .config $linux_defconfig
+	#wget -O .config $linux_defconfig
+	copy-kernel-config
 	sudo -E PATH="$PATH" \
 		make modules_prepare
 	popd

@@ -47,18 +47,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	## fstab
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab
-## <file system>  <mount point> <type> <options>           <dump><pass>
-## proc
-proc              /proc         proc   nodev,noexec,nosuid    0    0
-
-## rootfs
-/dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
-
-## bootfs
-/dev/mmcblk0p1    /boot         vfat   noauto                 0    0
-EOF
+	write-fstab
 }
 
 postbuild() {
@@ -103,16 +92,7 @@ build_kernel_armhf() {
 	act "grabbing kernel sources"
 	mkdir -p $R/tmp/kernels/$device_name
 
-	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
-		pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		git pull
-		popd
-	else
-		git clone --depth 1 \
-			$gitkernel \
-			-b $gitbranch \
-			$R/tmp/kernels/$device_name/${device_name}-linux
-	fi
+	get-kernel-sources
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	make bcm2709_defconfig
@@ -121,17 +101,7 @@ build_kernel_armhf() {
 		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
 	popd
 
-	notice "grabbing rpi-firmware..."
-	if [[ -d $R/tmp/kernels/$device_name/${device_name}-firmware ]]; then
-		pushd $R/tmp/kernels/$device_name/${device_name}-firmware
-		git pull
-		popd
-	else
-		git clone --depth 1 \
-			$rpifirmware \
-			$R/tmp/kernels/$device_name/${device_name}-firmware
-	fi
-
+	clone-git $rpifirmware "$R/tmp/kernels/$device_name/${device_name}-firmware"
 	sudo cp $CPVERBOSE -rf $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux

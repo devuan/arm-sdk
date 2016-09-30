@@ -82,6 +82,16 @@ clone-git() {
 	fi
 }
 
+copy-kernel-config() {
+	fn copy-kernel-config
+	req=(device_name)
+	ckreq || return 1
+
+	notice "copying available kernel config"
+	cp $R/boards/kernel-configs/${device_name}.config \
+		$R/tmp/kernels/$device_name/${device_name}-linux/.config
+}
+
 write-fstab() {
 	fn write-fstab
 	cat <<EOF | sudo tee ${strapdir}/etc/fstab
