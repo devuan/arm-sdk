@@ -35,6 +35,57 @@ By executing `init.sh` which is found in the base directory of arm-sdk, it
 will initialize all git submodules and gcc toolchains that are needed for
 arm-sdk to properly function.
 
+## Quick start
+
+Edit the `config` file to match your crosscompile toolchain. `init.sh` will
+provide you with precompiled ones. Then run zsh. In case you have conflicting
+extensions on your zsh configuration, safest way would be to run a vanilla one,
+using:
+
+```
+; zsh -f
+```
+
+then step inside the sdk, "source" it:
+
+```
+; cd arm-sdk && source sdk
+```
+
+Now is the time you choose the device and OS you want to build the image for.
+
+### Currently supported distros
+
+* `devuan`
+
+### Currently supported boards
+
+* `raspi` - Raspberry Pi 2 and 3
+* `bananapi` - Banana Pi
+* `bananapro` - Banana Pi Pro
+* `cubieboard2` - Cubieboard 2
+* `cubietruck` - Cubietruck
+* `chromeacer` - Acer ARM Chromebook
+* `chromeveyron` - Veyron ARM Chromebook (RK3288)
+* `odroidxu` - ODROID-XU
+* `bbb` - BeagleBone Black
+* `ouya` - OUYA gaming console
+
+```
+; init devuan cubietruck
+```
+
+Once initialized, you can run the helper command:
+
+```
+; build_image_dist
+```
+
+and the image will automatically be build for you. Once finished, you will be
+able to find it in the `dist/` directory in arm-sdk's root.
+
+For more info, see the `doc/` directory.
+
 ## Acknowledgments
 
 Devuan's SDK was originally conceived during a period of residency at the
