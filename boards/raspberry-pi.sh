@@ -133,8 +133,8 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo make INSTALL_MOD_PATH=$strapdir firmware_install
-	#make mrproper
-	#make bcm2709_defconfig
+	make mrproper
+	make bcm2709_defconfig
 	sudo make modules_prepare
 	popd
 
