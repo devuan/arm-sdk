@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## kernel build script for Cubieboard2 boards
+## kernel build script for Banana Pi boards
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
 arrs+=(custmodules extra_packages)
 
-device_name="cubietruck"
+device_name="bananapi"
 arch="armhf"
 size=1337
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
@@ -36,11 +36,11 @@ parted_root="ext4 264192s 100%"
 extra_packages=()
 custmodules=(sunxi_emac)
 
-gitkernel="https://github.com/linux-sunxi/linux-sunxi.git"
-gitbranch="sunxi-3.4"
+gitkernel="https://github.com/LeMaker/linux-sunxi.git"
+gitbranch="lemaker-3.4"
 sunxi_tools="https://github.com/linux-sunxi/sunxi-tools.git"
-sunxi_uboot="https://github.com/linux-sunxi/u-boot-sunxi.git"
-sunxi_boards="https://github.com/linux-sunxi/sunxi-boards.git"
+sunxi_uboot="https://github.com/LeMaker/u-boot-bananapi.git"
+sunxi_boards="https://github.com/LeMaker/sunxi-boards.git"
 
 ## official defconfig
 linux_defconfig="https://github.com/cubieboard/cubie_configs/raw/master/kernel-configs/3.4/cubieboard2_defconfig"
@@ -80,14 +80,15 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
 	act "running fex2bin"
 	make fex2bin
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
+	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/BananaPi.fex \
 		$strapdir/boot/script.bin
 	popd
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	wget -O .config $linux_defconfig
+	#wget -O .config $linux_defconfig
 	#copy-kernel-config
+	make sun7i_defconfig
 	make $MAKEOPTS uImage modules
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
@@ -100,9 +101,11 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir firmware_install
-	#make mrproper
-	wget -O .config $linux_defconfig
+	sudo cp -v arch/arm/boot/uImage $strapdir/boot/
+	make mrproper
+	#wget -O .config $linux_defconfig
 	#copy-kernel-config
+	make sun7i_defconfig
 	sudo -E PATH="$PATH" \
 		make modules_prepare
 	popd
