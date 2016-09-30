@@ -65,7 +65,29 @@ postbuild() {
 	fn postbuild
 
 	notice "executing $device_name postbuild"
-	return 0
+
+	cat <<EOF | sudo tee -a ${strapdir}/etc/apt/sources.list
+
+## raspbian repositories needed for certain packages
+deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
+#deb-src http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
+
+## for omxplayer
+deb http://linux.subogero.com/deb /
+
+deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /
+
+EOF
+
+	cat <<EOF | sudo tee ${strapdir}/postbuild
+#!/bin/sh
+apt-get update
+apt-get upgrade
+rm -f /postbuild
+rm -f /usr/bin/${qemu_bin}
+EOF
+	chmod +x $strapdir/postbuild
+	chroot $strapdir /postbuild || zerr
 }
 
 build_kernel_armhf() {
@@ -117,9 +139,18 @@ build_kernel_armhf() {
 	popd
 
 	notice "creating cmdline.txt"
-	## TODO: add other .txt too
 	cat <<EOF | sudo tee ${workdir}/boot/cmdline.txt
 dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
+EOF
+
+	notice "creating config.txt"
+	cat <<EOF | sudo tee ${workdir}/boot/config.txt
+## memory shared with the GPU
+gpu_mem=64
+
+dtparam=audio=on
+
+max_usb_current=1
 EOF
 
 	## TODO: remove systemd merda from raspi-config and add here
