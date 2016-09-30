@@ -73,9 +73,9 @@ build_kernel_armhf() {
 	notice "building $arch kernel"
 	mkdir -p $R/tmp/kernels/$device_name
 
-	clone-git $sunxi_boards master "$R/tmp/kernels/$device_name/sunxi-boards"
-	clone-git $sunxi_tools master "$R/tmp/kernels/$device_name/sunxi-tools"
-	clone-git $sunxi_uboot "mirror/next" "$R/tmp/kernels/$device_name/sunxi-uboot"
+	clone-git $sunxi_boards "$R/tmp/kernels/$device_name/sunxi-boards" master
+	clone-git $sunxi_tools  "$R/tmp/kernels/$device_name/sunxi-tools" master
+	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"
 
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
 	act "running fex2bin"

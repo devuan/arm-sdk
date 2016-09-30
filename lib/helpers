@@ -61,10 +61,10 @@ get-kernel-firmware() {
 
 clone-git() {
 	fn clone-git "$@"
-	req=(giturl gitbr clonepath)
+	req=(giturl clonepath)
 	local giturl="$1"
-	local gitbr="$2"
-	local clonepath="$3"
+	local clonepath="$2"
+	local gitbr="$3"
 	ckreq || return 1
 
 	notice "grabbing $(basename $clonepath)"
@@ -74,9 +74,10 @@ clone-git() {
 		git pull
 		popd
 	else
+		[[ -n $gitbr ]] && gitbr="-b $gitbr"
 		git clone --depth 1 \
 			$giturl \
-			-b $gitbr \
+			$gitbr \
 			$clonepath
 	fi
 }
