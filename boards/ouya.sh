@@ -30,7 +30,7 @@ size=1337
 
 inittab="T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux"
 
-## partition scheme for parted to use
+parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 

@@ -110,7 +110,7 @@ build_kernel_armhf() {
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
 	make distclean
-	make BananaPro_config 
+	make BananaPro_config
 	make $MAKEOPTS
 	act "dd-ing to image..."
 	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8
