@@ -117,7 +117,8 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	make bcm2709_defconfig
 	make $MAKEOPTS
-	sudo -E make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
+	sudo -E PATH="$PATH" \
+		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
 	popd
 
 	notice "grabbing rpi-firmware..."
@@ -144,10 +145,12 @@ build_kernel_armhf() {
 	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo -E make INSTALL_MOD_PATH=$strapdir firmware_install
+	sudo -E PATH="$PATH" \
+		make INSTALL_MOD_PATH=$strapdir firmware_install
 	#make mrproper
 	make bcm2709_defconfig
-	sudo make modules_prepare
+	sudo -E PATH="$PATH" \
+		make modules_prepare
 	popd
 
 	notice "creating cmdline.txt"
