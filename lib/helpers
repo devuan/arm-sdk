@@ -25,6 +25,25 @@ build-image() {
 	bootstrap $arch
 }
 
+get-kernel-sources() {
+	fn get-kernel-sources
+	req=(R device_name gitkernel gitbranch)
+	ckreq || return 1
+
+	notice "grabbing kernel sources"
+
+	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
+		pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		git pull
+		popd
+	else
+		git clone --depth 1 \
+			$gitkernel \
+			-b $gitbranch \
+			$R/tmp/kernels/$device_name/${device_name}-linux
+	fi
+}
+
 get-kernel-firmware() {
 	fn get-kernel-firmware
 
@@ -38,4 +57,41 @@ get-kernel-firmware() {
 	else
 		git clone $gitsource $R/tmp/linux-firmware
 	fi
+}
+
+clone-git() {
+	fn clone-git "$@"
+	req=(giturl gitbranch clonepath)
+	local giturl="$1"
+	local gitbranch="$2"
+	local clonepath="$3"
+	ckreq || return 1
+
+	notice "grabbing $(basename $clonepath)"
+
+	if [[ -d $clonepath ]]; then
+		pushd $clonepath
+		git pull
+		popd
+	else
+		git clone --depth 1 \
+			$giturl \
+			-b $gitbranch \
+			$clonepath
+	fi
+}
+
+write-fstab() {
+	fn write-fstab
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+## <file system>  <mount point> <type> <options>           <dump><pass>
+## proc
+proc              /proc         proc   nodev,noexec,nosuid    0    0
+
+## rootfs
+/dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
+
+## bootfs
+/dev/mmcblk0p1    /boot         vfat   noauto                 0    0
+EOF
 }
