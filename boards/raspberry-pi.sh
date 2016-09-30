@@ -122,7 +122,7 @@ build_kernel_armhf() {
 
 	notice "grabbing rpi-firmware..."
 	if [[ -d $R/tmp/kernels/$device_name/${device_name}-firmware ]]; then
-		pushd $R/tmp/kernels/$device_name/${device_name}
+		pushd $R/tmp/kernels/$device_name/${device_name}-firmware
 		git pull
 		popd
 	else
@@ -145,7 +145,7 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E make INSTALL_MOD_PATH=$strapdir firmware_install
-	make mrproper
+	#make mrproper
 	make bcm2709_defconfig
 	sudo make modules_prepare
 	popd
