@@ -43,7 +43,7 @@ sunxi_uboot="https://github.com/linux-sunxi/u-boot-sunxi.git"
 sunxi_boards="https://github.com/linux-sunxi/sunxi-boards.git"
 
 ## official defconfig
-linux_defconfig="https://github.com/cubieboard/cubie_configs/raw/master/kernel-configs/3.4/cubietruck_defconfig"
+linux_defconfig="https://github.com/cubieboard/cubie_configs/raw/master/kernel-configs/3.4/cubieboard2_defconfig"
 
 prebuild() {
 	fn prebuild
@@ -80,14 +80,14 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
 	act "running fex2bin"
 	make fex2bin
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubietruck.fex \
+	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
 		$strapdir/boot/script.bin
 	popd
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	#wget -O .config $linux_defconfig
-	copy-kernel-config
+	wget -O .config $linux_defconfig
+	#copy-kernel-config
 	make $MAKEOPTS uImage modules
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
@@ -101,8 +101,8 @@ build_kernel_armhf() {
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir firmware_install
 	#make mrproper
-	#wget -O .config $linux_defconfig
-	copy-kernel-config
+	wget -O .config $linux_defconfig
+	#copy-kernel-config
 	sudo -E PATH="$PATH" \
 		make modules_prepare
 	popd
@@ -110,7 +110,7 @@ build_kernel_armhf() {
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
 	make distclean
-	make Cubietruck_config
+	make Cubieboard2_config
 	make $MAKEOPTS
 	act "dd-ing to image..."
 	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8
