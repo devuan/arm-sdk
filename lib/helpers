@@ -61,9 +61,9 @@ get-kernel-firmware() {
 
 clone-git() {
 	fn clone-git "$@"
-	req=(giturl gitbranch clonepath)
+	req=(giturl gitbr clonepath)
 	local giturl="$1"
-	local gitbranch="$2"
+	local gitbr="$2"
 	local clonepath="$3"
 	ckreq || return 1
 
@@ -76,7 +76,7 @@ clone-git() {
 	else
 		git clone --depth 1 \
 			$giturl \
-			-b $gitbranch \
+			-b $gitbr \
 			$clonepath
 	fi
 }
