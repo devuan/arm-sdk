@@ -28,6 +28,10 @@ Notes and quirks for specific devices
 * You will need android tools
 * Run the bootloader
 
+## Nokia N900
+* Please read the following on what to do:
+  [http://talk.maemo.org/showthread.php?t=81613](http://talk.maemo.org/showthread.php?t=81613)
+
 ```
 adb reboot-bootloader
 ```

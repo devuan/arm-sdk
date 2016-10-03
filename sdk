@@ -68,7 +68,7 @@ load() {
 	board_map=(
 		"bananapi"        "$R/boards/bananapi.sh"
 		"bananapro"       "$R/boards/bananapro.sh"
-		"bbb"             "$R/boards/beagleboneblack.sh"
+		"bbb"             "$R/boards/beaglebone-black.sh"
 		"chromeacer"      "$R/boards/chromebook-acer.sh"
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"cubieboard2"     "$R/boards/cubieboard2.sh"
@@ -76,6 +76,7 @@ load() {
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
 		"raspi"           "$R/boards/raspberry-pi.sh"
+		"n900"            "$R/boards/nokia-n900.sh"
 	)
 
 	os_map=(
