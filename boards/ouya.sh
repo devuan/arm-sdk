@@ -37,15 +37,29 @@ parted_root="ext4 264192s 100%"
 extra_packages=(libasound2 libglib2.0-0 libgstreamer-plugins-base0.10-0 libxv1)
 custmodules=()
 
-postinst() {
-	fn postinst
+
+prebuild() {
+	fn prebuild
+	req=(device_name strapdir)
+	ckreq || return 1
+
+	notice "executing $device_name prebuild"
+
+	write-fstab
+	copy-zram-init
+}
+
+postbuild() {
+	fn postbuild
 	req=(strapdir)
 	ckreq || return 1
 
-	sudo mkdir -p $strapdir/ouya
-	sudo cp $R/extra/ouya/*.deb $strapdir/ouya/
+	notice "executing $device_name postbuild"
 
-	cat <<EOF | sudo tee ${strapdir}/ouya.sh
+	sudo mkdir -p $strapdir/ouya
+	sudo cp $CPVERBOSE $R/extra/ouya/*.deb $strapdir/ouya/
+
+	cat <<EOF | sudo tee ${strapdir}/ouya.sh ${TEEVERBOSE}
 #!/bin/sh
 for deb in /ouya/*.deb; do
 	dpkg -i $deb
@@ -57,27 +71,36 @@ EOF
 	sudo chmod +x $strapdir/ouya.sh
 	sudo chroot $strapdir /ouya.sh
 }
-
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req+=(workdir strapdir)
 	ckreq || return 1
 
-	# This device is a bit strange, because I do not want people to flash it on
-	# the device's NAND. You will brick it. Instead, we use the device's kernel
-	# and boot this image from a USB flash drive.
-	#
-	# Consult doc/quirks.md to find out how to boot this.
-	#
-	# https://github.com/kulve/tegra-debian
-	# http://tuomas.kulve.fi/blog/2013/09/12/debian-on-ouya-all-systems-go/
+	notice "building $arch kernel"
 
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+	prebuild || zerr
+
+	cat <<EOM
+  #############################################################################
+  # This device is a bit strange, because I do not want people to flash it on #
+  # the device's NAND. You will brick it. Instead, we use the device's kernel #
+  # and boot this image from a USB flash drive.                               #
+  #                                                                           #
+  # Consult doc/quirks.md to find out how to boot this.                       #
+  #                                                                           #
+  # https://github.com/kulve/tegra-debian                                     #
+  # http://tuomas.kulve.fi/blog/2013/09/12/debian-on-ouya-all-systems-go/     #
+  #############################################################################
+EOM
+
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab ${TEEVERBOSE}
 # <file system> <mount point> <type> <options> <dump> <pass>
 /dev/sda2 / ext4 noatime,errors=remount-ro 0 1
 tmpfs /tmp tmpfs defaults 0 0
 EOF
 
 	notice "copying some kernel modules"
-	sudo cp -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
+	sudo cp $CPVERBOSE -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
+
+	postbuild || zerr
 }

@@ -47,6 +47,9 @@ prebuild() {
 	notice "executing $device_name prebuild"
 
 	write-fstab
+	copy-zram-init
+
+	mkdir -p $R/tmp/kernels/$device_name
 }
 
 postbuild() {
@@ -54,8 +57,9 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
+	## {{{ uEnv.txt
 	notice "creating uEnv.txt file"
-	cat <<EOF | sudo tee ${strapdir}/boot/uEnv.txt
+	cat <<EOF | sudo tee ${strapdir}/boot/uEnv.txt ${TEEVERBOSE}
 #u-boot eMMC specific overrides; Angstrom Distribution (BeagleBone Black) 2013-06-20
 kernel_file=zImage
 initrd_file=uInitrd
@@ -84,9 +88,10 @@ uenvcmd=run loadzimage; run loadfdt; run mmcargs; bootz \${loadaddr} - \${fdtadd
 #boot_fdt=run loadzimage; run loadinitrd; run loadfdt
 #uenvcmd=run boot_fdt; run mmcargs; bootz \${loadaddr} 0x81000000:\${initrd_size} \${fdtaddr}
 EOF
-
+	## }}}
+	## {{{ xorg.conf
 	notice "writing xorg.conf for future use"
-	cat <<EOF | sudo tee ${strapdir}/root/xorg.conf
+	cat <<EOF | sudo tee ${strapdir}/root/xorg.conf ${TEEVERBOSE}
 # For using Xorg, move this file to /etc/X11/xorg.conf
 Section "Monitor"
     Identifier    "Builtin Default Monitor"
@@ -113,6 +118,12 @@ Section "ServerLayout"
     Screen        "Builtin Default fbdev Screen 0"
 EndSection
 EOF
+	## }}}
+
+	notice "grabbing script for using usb as ethernet device"
+	sudo wget -c \
+		https://raw.github.com/RobertCNelson/tools/master/scripts/beaglebone-black-g-ether-load.sh \
+		-O $strapdir/root/bbb-ether-load.sh
 }
 
 build_kernel_armhf() {
@@ -122,20 +133,19 @@ build_kernel_armhf() {
 	req+=(loopdevice)
 	ckreq || return 1
 
-	prebuild || zerr
-
 	notice "building $arch kernel"
-	mkdir -p $R/tmp/kernels/$device_name
+
+	prebuild || zerr
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	ARCH=arm make bb.org_defconfig
-	make $MAKEOPTS
-	sudo cp arch/arm/boot/zImage $strapdir/boot/zImage
+	make $MAKEOPTS || zerr
+	sudo cp $CPVERBOSE arch/arm/boot/zImage $strapdir/boot/zImage
 	sudo mkdir -p $strapdir/boot/dtbs
-	sudo cp arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
+	sudo cp $CPVERBOSE arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
+		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -144,17 +154,12 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install
+		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
 	make mrproper
 	ARCH=arm make bb.org_defconfig
 	sudo -E PATH="$PATH" \
-		make modules_prepare
+		make modules_prepare || zerr
 	popd
-
-	notice "grabbing script for using usb as ethernet device"
-	sudo wget -c \
-		https://raw.github.com/RobertCNelson/tools/master/scripts/beaglebone-black-g-ether-load.sh \
-		-O $strapdir/root/bbb-ether-load.sh
 
 	postbuild || zerr
 }

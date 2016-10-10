@@ -24,9 +24,9 @@ vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
 arrs+=(custmodules extra_packages)
 
-device_name="cubietruck"
+device_name="cubieboard2"
 arch="armhf"
-size=1337
+size=1391
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 
 parted_type="dos"
@@ -53,12 +53,48 @@ prebuild() {
 	notice "executing $device_name prebuild"
 
 	write-fstab
+	copy-zram-init
+
+	mkdir -p $R/tmp/kernels/$device_name
+
+	clone-git $sunxi_boards "$R/tmp/kernels/$device_name/sunxi-boards" || zerr
+	clone-git $sunxi_tools  "$R/tmp/kernels/$device_name/sunxi-tools"  || zerr
+	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"  || zerr
+
+	pushd $R/tmp/kernels/$device_name/sunxi-tools
+	act "running fex2bin"
+	make fex2bin || zerr
+	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
+		$strapdir/boot/script.bin || zerr
+	popd
+
+
 }
 
 postbuild() {
 	fn postbuild
 
 	notice "executing $device_name postbuild"
+
+	notice "building u-boot"
+	pushd $R/tmp/kernels/$device_name/sunxi-uboot
+	make distclean
+	make Cubieboard2_config
+	make $MAKEOPTS
+	act "dd-ing to image..."
+	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+
+	notice "creating boot.cmd"
+	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd ${TEEVERBOSE}
+setenv bootm_boot_mode sec
+setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 ${extra} rw rootfstype=ext4 net.ifnames=0
+fatload mmc 0 0x43000000 script.bin
+fatload mmc 0 0x48000000 uImage
+bootm 0x48000000
+EOF
+
+	notice "creating u-boot script image"
+	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 }
 
 build_kernel_armhf() {
@@ -68,29 +104,17 @@ build_kernel_armhf() {
 	req+=(loopdevice)
 	ckreq || return 1
 
-	prebuild || zerr
-
 	notice "building $arch kernel"
-	mkdir -p $R/tmp/kernels/$device_name
 
-	clone-git $sunxi_boards "$R/tmp/kernels/$device_name/sunxi-boards" master
-	clone-git $sunxi_tools  "$R/tmp/kernels/$device_name/sunxi-tools" master
-	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"
-
-	pushd $R/tmp/kernels/$device_name/sunxi-tools
-	act "running fex2bin"
-	make fex2bin
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
-		$strapdir/boot/script.bin
-	popd
+	prebuild || zerr
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	wget -O .config $linux_defconfig
-	#copy-kernel-config
-	make $MAKEOPTS uImage modules
+	#wget -O .config $linux_defconfig
+	copy-kernel-config
+	make $MAKEOPTS uImage modules || zerr
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
+		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -99,33 +123,13 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install
+		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
 	#make mrproper
-	wget -O .config $linux_defconfig
-	#copy-kernel-config
+	#wget -O .config $linux_defconfig
+	copy-kernel-config
 	sudo -E PATH="$PATH" \
-		make modules_prepare
+		make modules_prepare || zerr
 	popd
-
-	notice "building u-boot"
-	pushd $R/tmp/kernels/$device_name/sunxi-uboot
-	make distclean
-	make Cubieboard2_config
-	make $MAKEOPTS
-	act "dd-ing to image..."
-	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8
-
-	notice "creating boot.cmd"
-	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
-setenv bootm_boot_mode sec
-setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 ${extra} rw rootfstype=ext4 net.ifnames=0
-fatload mmc 0 0x43000000 script.bin
-fatload mmc 0 0x48000000 uImage
-bootm 0x48000000
-EOF
-
-	notice "creating u-boot script image"
-	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr
 
 	postbuild || zerr
 }
