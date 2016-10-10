@@ -33,7 +33,7 @@ parted_type="dos"
 parted_boot="fat32 0 64"
 parted_root="ext4 64 -1"
 
-extra_packages=(wpasupplicant)
+extra_packages=(wpasupplicant rdate)
 custmodules=() # add the snd module here perhaps
 
 gitkernel="https://github.com/raspberrypi/linux.git"
@@ -48,6 +48,9 @@ prebuild() {
 	notice "executing $device_name prebuild"
 
 	write-fstab
+	copy-zram-init
+
+	mkdir -p $R/tmp/kernels/$device_name
 }
 
 postbuild() {
@@ -55,7 +58,8 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	cat <<EOF | sudo tee -a ${strapdir}/etc/apt/sources.list
+	## {{{ apt.sources.list
+	cat <<EOF | sudo tee -a ${strapdir}/etc/apt/sources.list ${TEEVERBOSE}
 
 ## raspbian repositories needed for certain packages
 deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
@@ -65,71 +69,16 @@ deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmwa
 deb http://linux.subogero.com/deb /
 
 deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /
-
 EOF
-
-	cat <<EOF | sudo tee ${strapdir}/postbuild
-#!/bin/sh
-apt-get update
-apt-get upgrade
-rm -f /postbuild
-rm -f /usr/bin/${qemu_bin}
-EOF
-	chmod +x $strapdir/postbuild
-	chroot $strapdir /postbuild || zerr
-}
-
-build_kernel_armhf() {
-	fn build_kernel_armhf
-	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
-	req+=(strapdir)
-	ckreq || return 1
-
-	prebuild || zerr
-
-	notice "building $arch kernel"
-
-	act "grabbing kernel sources"
-	mkdir -p $R/tmp/kernels/$device_name
-
-	get-kernel-sources
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	make bcm2709_defconfig
-	make $MAKEOPTS
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install ## this replaces make-kernel-modules
-	popd
-
-	clone-git $rpifirmware "$R/tmp/kernels/$device_name/${device_name}-firmware"
-	sudo cp $CPVERBOSE -rf $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
-	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb $strapdir/boot/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*overlay*.dtb $strapdir/boot/overlays/
-	popd
-
-	sudo rm -rf $strapdir/lib/firmware
-	get-kernel-firmware
-	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install
-	#make mrproper
-	make bcm2709_defconfig
-	sudo -E PATH="$PATH" \
-		make modules_prepare
-	popd
+	## }}}
 
 	notice "creating cmdline.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
+	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt ${TEEVERBOSE}
 dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
 EOF
 
 	notice "creating config.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/config.txt
+	cat <<EOF | sudo tee ${strapdir}/boot/config.txt ${TEEVERBOSE}
 ## memory shared with the GPU
 gpu_mem=64
 
@@ -144,6 +93,58 @@ EOF
 	sudo mkdir -p $strapdir/lib/firmware/brcm
 	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.txt $strapdir/lib/firmware/brcm/
 	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.bin $strapdir/lib/firmware/brcm/
+
+	cat <<EOF | sudo tee ${strapdir}/postbuild ${TEEVERBOSE}
+
+#!/bin/sh
+apt-get update
+apt-get upgrade
+rm -f /postbuild
+rm -f /usr/bin/${qemu_bin}
+EOF
+	chmod +x $strapdir/postbuild || zerr
+	chroot $strapdir  /postbuild || zerr
+}
+
+build_kernel_armhf() {
+	fn build_kernel_armhf
+	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
+	req+=(strapdir)
+	ckreq || return 1
+
+	notice "building $arch kernel"
+
+	prebuild || zerr
+
+	get-kernel-sources
+	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	make bcm2709_defconfig
+	make $MAKEOPTS || zerr
+	sudo -E PATH="$PATH" \
+		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+	popd
+
+	clone-git $rpifirmware "$R/tmp/kernels/$device_name/${device_name}-firmware"
+	sudo cp $CPVERBOSE -rf $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
+
+	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
+	sudo cp $CPVERBOSE "arch/arm/boot/dts/bcm*.dtb"               $strapdir/boot/
+	sudo cp $CPVERBOSE "arch/arm/boot/dts/overlays/*overlay*.dtb" $strapdir/boot/overlays/
+	popd
+
+	sudo rm -rf $strapdir/lib/firmware
+	get-kernel-firmware
+	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+
+	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	sudo -E PATH="$PATH" \
+		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+	#make mrproper
+	make bcm2709_defconfig
+	sudo -E PATH="$PATH" \
+		make modules_prepare || zerr
+	popd
 
 	postbuild || zerr
 }
