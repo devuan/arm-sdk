@@ -13,7 +13,7 @@ arm-sdk is designed to be used interactively from a terminal, as well as
 from shell scripts. It requires the following packages to be installed:
 
 ```
-sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop
+sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools
 ```
 
 ## Initial setup

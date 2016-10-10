@@ -82,6 +82,16 @@ clone-git() {
 	fi
 }
 
+copy-zram-init() {
+	fn copy-zram-init
+	req=(R strapdir)
+	ckreq || return 1
+
+	notice "installing zram init"
+	sudo cp $R/extra/zram $strapdir/etc/init.d/zram
+	sudo chmod +x $strapdir/etc/init.d/zram
+}
+
 copy-kernel-config() {
 	fn copy-kernel-config
 	req=(device_name)
@@ -94,7 +104,7 @@ copy-kernel-config() {
 
 write-fstab() {
 	fn write-fstab
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab ${TEEVERBOSE}
 ## <file system>  <mount point> <type> <options>           <dump><pass>
 ## proc
 proc              /proc         proc   nodev,noexec,nosuid    0    0

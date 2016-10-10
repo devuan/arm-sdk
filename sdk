@@ -24,13 +24,19 @@ setopt pushdsilent
 
 R=${ARM_SDK:-$PWD}
 
-## load zsh extension "Zuper"
 DEBUG=1
+QUIET=0
 
 [[ $DEBUG = 1 ]] && {
 	## add -v to cp calls
 	CPVERBOSE="-v"
+	TEEVERBOSE=""
+} || [[ $DEBUG = 0 ]] && {
+	CPVERBOSE=""
+	TEEVERBOSE=">/dev/null"
 }
+
+
 
 source lib/zuper/zuper
 
@@ -58,7 +64,7 @@ load() {
 
 	## initialize binfmt_misc if not already, needed to run qemu
 	if [[ -f /etc/init.d/binfmt-support ]]; then
-		sudo /etc/init.d/binfmt-support start
+		sudo /etc/init.d/binfmt-support restart
 	else
 		[[ -d /proc/sys/fs/binfmt_misc ]] || sudo modprobe binfmt_misc
 		[[ -f /proc/sys/fs/binfmt_misc/register ]] || \

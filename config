@@ -21,21 +21,21 @@
 ## ---------------------
 
 ## options for `make` when building kernel
-MAKEOPTS="-j$(grep -c 'processor' /proc/cpuinfo)"
+MAKEOPTS="-j$(expr $(grep -c 'processor' /proc/cpuinfo) + 1)"
 
-## devuan official toolchain
-compiler="arm-none-eabi-"
-export PATH="$PATH:/sbin"
+## devuan packaged toolchain
+#compiler="arm-none-eabi-"
+#export PATH="$PATH:/sbin"
 
-## custom toolchain (armhf) - https://pub.parazyd.cf/mirror/
+## custom toolchain (armv7+armhf; gcc 4.9.3)
+## https://pub.parazyd.cf/mirror/
+compiler="armv7-devuan-linux-gnueabihf-"
+export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/sbin"
+
+## custom toolchain (DEPRECATED!)
+## https://pub.parazyd.cf/mirror/
 #compiler="arm-linux-gnueabihf-"
 #export PATH="$R/gcc/gcc-arm-linux-gnueabihf-4.7/bin:$PATH:/sbin"
-
-## custom toolchain (armel) - https://pub.parazyd.cf/mirror/
-#compiler="arm-eabi-"
-#export PATH="$R/gcc/gcc-arm-eabi-linaro-4.6.2/bin:$PATH:/sbin"
-
-## custom toolchain (arm64) - https://pub.parazyd.cf/mirror/
 
 ## static qemu arm binary
 qemu_bin="/usr/bin/qemu-arm-static" # Devuan
