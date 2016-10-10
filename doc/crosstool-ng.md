@@ -21,7 +21,7 @@ working toolchain:
 * Install the required dependencies for using ct-ng
 
 ```
-; sudo apt-get install build-essential autoconf automake ncurses-dev gperf flex texinfo help2man libtool-bin
+; sudo apt-get install build-essential autoconf automake ncurses-dev gperf flex texinfo help2man libtool-bin bison gawk
 ```
 * Compile crosstool-ng
 
