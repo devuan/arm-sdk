@@ -27,7 +27,7 @@ arrs+=(custmodules extra_packages)
 device_name="n900"
 arch="armhf"
 size=1337
-inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+#inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
@@ -47,6 +47,9 @@ prebuild() {
 	notice "executing $device_name prebuild"
 
 	write-fstab
+	copy-zram-init
+
+	mkdir -p $R/tmp/kernels/$device_name
 }
 
 postbuild() {
@@ -58,22 +61,21 @@ postbuild() {
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
-	req+=(strapdir sunxi_tools sunxi_uboot sunxi_boards)
+	req+=(strapdir)
 	req+=(loopdevice)
 	ckreq || return 1
 
-	prebuild || zerr
-
 	notice "building $arch kernel"
-	mkdir -p $R/tmp/kernels/$device_name
+
+	prebuild || zerr
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	#wget -O .config $linux_defconfig
 	make rx51_defconfig
-	make $MAKEOPTS zImage modules
+	make $MAKEOPTS zImage modules || zerr
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install
+		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -86,7 +88,7 @@ build_kernel_armhf() {
 	#make mrproper
 	make rx51_defconfig
 	sudo -E PATH="$PATH" \
-		make modules_prepare
+		make modules_prepare || zerr
 	popd
 
 	postbuild || zerr
