@@ -57,6 +57,7 @@ Now is the time you choose the device and OS you want to build the image for.
 * `odroidxu` - ODROID-XU
 * `bbb` - BeagleBone Black
 * `ouya` - OUYA gaming console
+* `n900` - Nokia N900
 
 ```
 ; init devuan cubietruck

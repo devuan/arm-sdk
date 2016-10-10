@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2016 Dyne.org Foundation
-# arm-sdk is written and maintained by parazyd <parazyd@dyne.org>
+# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
 #
@@ -20,20 +20,19 @@
 ## This script will setup arm-sdk and make it ready for usage.
 
 git submodule update --init
+cd lib/libdevuansdk && git checkout next && cd -
 
-armelsha="28d4c9fcd738faf295bda5ae837cf1ca67b221cf6c4c0e062b66b6892fab6553"
-armhfsha="f320388b574a311d71a78437f508deabd5c38f8b37ec8f1f048d08df3e4e1c44"
-arm64sha="d843aa7ec71c94d72663c42c21a509d549fe88ca5847ac392e6734b18a6acdcc"
+armhfsha="b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3"
 
-mkdir gcc
+mkdir -p gcc
 cd gcc
 
 ## armhf toolchain
-wget https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz
-wget https://pub.parazyd.cf/mirror/gcc-arm-linux-gnueabihf-4.7.txz.sha
+wget https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
+wget https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz.sha
 
-sha256sum -c  gcc-arm-linux-gnueabihf-4.7.txz.sha \
-	&& tar xf gcc-arm-linux-gnueabihf-4.7.txz \
+sha256sum -c  armv7-devuan-linux-gnueabihf.txz.sha \
+	&& tar xf armv7-devuan-linux-gnueabihf.txz \
 	|| echo "WARNING: sha256sum not correct!"
 
 cd -
