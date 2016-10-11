@@ -104,6 +104,8 @@ copy-kernel-config() {
 
 write-fstab() {
 	fn write-fstab
+	req=(strapdir)
+	ckreq || return 1
 	cat <<EOF | sudo tee ${strapdir}/etc/fstab ${TEEVERBOSE}
 ## <file system>  <mount point> <type> <options>           <dump><pass>
 ## proc
@@ -115,4 +117,14 @@ proc              /proc         proc   nodev,noexec,nosuid    0    0
 ## bootfs
 /dev/mmcblk0p1    /boot         vfat   noauto                 0    0
 EOF
+}
+
+rdate-to-rclocal() {
+	fn rdate-to-rclocal
+	req=(strapdir)
+	ckreq || return 1
+
+	notice "adding rdate to rc.local"
+	sed -i -e "s/exit 0/rdate -s pool.ntp.org &/" $strapdir/etc/rc.local
+	print "exit 0" | sudo tee -a $strapdir/etc/rc.local ${TEEVERBOSE}
 }

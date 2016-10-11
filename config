@@ -40,3 +40,6 @@ export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/sbin"
 ## static qemu arm binary
 qemu_bin="/usr/bin/qemu-arm-static" # Devuan
 #qemu_bin="/usr/bin/qemu-arm" # Gentoo
+
+## extra_packages for all images
+extra_packages=(wpasupplicant rdate)
