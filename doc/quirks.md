@@ -38,6 +38,6 @@ adb reboot-bootloader
 fastboot boot zImage-3.1.10-tk*
 ```
 ## Nokia N900
-* Please read the following on what to do:
-  [http://talk.maemo.org/showthread.php?t=81613](http://talk.maemo.org/showthread.php?t=81613)
+* [http://pub.parazyd.cf/N900/merlijnsdocs.txt](http://pub.parazyd.cf/N900/merlijnsdocs.txt)
+* [http://talk.maemo.org/showthread.php?t=81613](http://talk.maemo.org/showthread.php?t=81613)
 
