@@ -13,7 +13,7 @@ arm-sdk is designed to be used interactively from a terminal, as well as
 from shell scripts. It requires the following packages to be installed:
 
 ```
-sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools
+sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils
 ```
 
 ## Initial setup
@@ -47,20 +47,21 @@ Now is the time you choose the device and OS you want to build the image for.
 
 ### Currently supported boards
 
-* `raspi` - Raspberry Pi 2 and 3
 * `bananapi` - Banana Pi
 * `bananapro` - Banana Pi Pro
-* `cubieboard2` - Cubieboard 2
-* `cubietruck` - Cubietruck
+* `beagleboneblack` - BeagleBone Black
 * `chromeacer` - Acer ARM Chromebook
 * `chromeveyron` - Veyron ARM Chromebook (RK3288)
-* `odroidxu` - ODROID-XU
-* `bbb` - BeagleBone Black
-* `ouya` - OUYA gaming console
+* `cubieboard2` - Cubieboard 2
+* `cubietruck` - Cubietruck
 * `n900` - Nokia N900
+* `odroidxu` - ODROID-XU
+* `ouya` - OUYA gaming console
+* `raspi2` - Raspberry Pi 2 and 3
+* `raspi3` - Raspberry Pi 3 (64bit)
 
 ```
-; init devuan cubietruck
+; load devuan cubietruck
 ```
 
 Once initialized, you can run the helper command:
@@ -69,7 +70,7 @@ Once initialized, you can run the helper command:
 ; build_image_dist
 ```
 
-and the image will automatically be build for you. Once finished, you will be
+The image will automatically be build for you. Once finished, you will be
 able to find it in the `dist/` directory in arm-sdk's root.
 
 For more info, see the `doc/` directory.
