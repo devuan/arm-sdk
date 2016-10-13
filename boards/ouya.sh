@@ -22,7 +22,7 @@
 ## settings & config
 vars+=(device_name arch size parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch)
-arrs+=(custmodules extra_packages)
+arrs+=(custmodules)
 
 device_name="ouya"
 arch="armhf"
@@ -34,7 +34,7 @@ parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages=(libasound2 libglib2.0-0 libgstreamer-plugins-base0.10-0 libxv1)
+extra_packages+=(libasound2 libglib2.0-0 libgstreamer-plugins-base0.10-0 libxv1)
 custmodules=()
 
 
@@ -45,8 +45,20 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	write-fstab
+	enablessh
+	#write-fstab
 	copy-zram-init
+
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+# <file system> <mount point> <type> <options> <dump> <pass>
+/dev/sda2 / ext4 noatime,errors=remount-ro 0 1
+tmpfs /tmp tmpfs defaults 0 0
+EOF
+
+	notice "copying some kernel modules"
+	sudo cp $CPVERBOSE -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
+
+	print 1 | sudo tee $strapdir/boot/keep
 }
 
 postbuild() {
@@ -59,17 +71,20 @@ postbuild() {
 	sudo mkdir -p $strapdir/ouya
 	sudo cp $CPVERBOSE $R/extra/ouya/*.deb $strapdir/ouya/
 
-	cat <<EOF | sudo tee ${strapdir}/ouya.sh ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/ouya.sh
 #!/bin/sh
 for deb in /ouya/*.deb; do
-	dpkg -i $deb
+	dpkg -i \$deb
+	apt-get -f --yes --force-yes install
 done
 rm -rf /ouya
 rm -f /ouya.sh
 EOF
 
 	sudo chmod +x $strapdir/ouya.sh
-	sudo chroot $strapdir /ouya.sh
+	sudo -E chroot $strapdir /ouya.sh
+
+	postbuild-clean
 }
 build_kernel_armhf() {
 	fn build_kernel_armhf
@@ -81,26 +96,17 @@ build_kernel_armhf() {
 	prebuild || zerr
 
 	cat <<EOM
-  #############################################################################
-  # This device is a bit strange, because I do not want people to flash it on #
-  # the device's NAND. You will brick it. Instead, we use the device's kernel #
-  # and boot this image from a USB flash drive.                               #
-  #                                                                           #
-  # Consult doc/quirks.md to find out how to boot this.                       #
-  #                                                                           #
-  # https://github.com/kulve/tegra-debian                                     #
-  # http://tuomas.kulve.fi/blog/2013/09/12/debian-on-ouya-all-systems-go/     #
-  #############################################################################
+	#############################################################################
+	# This device is a bit strange, because I do not want people to flash it on #
+	# the device's NAND. You will brick it. Instead, we use the device's kernel #
+	# and boot this image from a USB flash drive.                               #
+	#                                                                           #
+	# Consult doc/quirks.md to find out how to boot this.                       #
+	#                                                                           #
+	# https://github.com/kulve/tegra-debian                                     #
+	# http://tuomas.kulve.fi/blog/2013/09/12/debian-on-ouya-all-systems-go/     #
+	#############################################################################
 EOM
-
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab ${TEEVERBOSE}
-# <file system> <mount point> <type> <options> <dump> <pass>
-/dev/sda2 / ext4 noatime,errors=remount-ro 0 1
-tmpfs /tmp tmpfs defaults 0 0
-EOF
-
-	notice "copying some kernel modules"
-	sudo cp $CPVERBOSE -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
 
 	postbuild || zerr
 }

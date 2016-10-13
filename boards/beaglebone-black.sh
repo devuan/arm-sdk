@@ -22,7 +22,7 @@
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch)
-arrs+=(custmodules extra_packages)
+arrs+=(custmodules)
 
 device_name="beagleboneblack"
 arch="armhf"
@@ -33,11 +33,12 @@ parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages=()
+extra_packages+=()
 custmodules=()
 
 gitkernel="https://github.com/beagleboard/linux"
 gitbranch="4.4"
+
 
 prebuild() {
 	fn prebuild
@@ -46,8 +47,10 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
+	enablessh
 	write-fstab
 	copy-zram-init
+	rdate-to-rclocal
 
 	mkdir -p $R/tmp/kernels/$device_name
 }
@@ -59,7 +62,7 @@ postbuild() {
 
 	## {{{ uEnv.txt
 	notice "creating uEnv.txt file"
-	cat <<EOF | sudo tee ${strapdir}/boot/uEnv.txt ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/boot/uEnv.txt
 #u-boot eMMC specific overrides; Angstrom Distribution (BeagleBone Black) 2013-06-20
 kernel_file=zImage
 initrd_file=uInitrd
@@ -91,31 +94,31 @@ EOF
 	## }}}
 	## {{{ xorg.conf
 	notice "writing xorg.conf for future use"
-	cat <<EOF | sudo tee ${strapdir}/root/xorg.conf ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/root/xorg.conf
 # For using Xorg, move this file to /etc/X11/xorg.conf
 Section "Monitor"
-    Identifier    "Builtin Default Monitor"
+	Identifier    "Builtin Default Monitor"
 EndSection
 
 Section "Device"
-    Identifier    "Builtin Default fbdev Device 0"
-    Driver        "fbdev"
-    Option        "SWCursor" "true"
+	Identifier    "Builtin Default fbdev Device 0"
+	Driver        "fbdev"
+	Option        "SWCursor" "true"
 EndSection
 
 Section "Screen"
-    Identifier    "Builtin Default fbdev Screen 0"
-    Device        "Builtin Default fbdev Device 0"
-    Monitor       "Builtin Default Monitor"
-    DefaultDepth  16
-    # Comment out the above and uncomment the below if using a
-    # bbb-view or bbb-exp
-    #DefaultDepth  24
+	Identifier    "Builtin Default fbdev Screen 0"
+	Device        "Builtin Default fbdev Device 0"
+	Monitor       "Builtin Default Monitor"
+	DefaultDepth  16
+	# Comment out the above and uncomment the below if using a
+	# bbb-view or bbb-exp
+	#DefaultDepth  24
 EndSection
 
 Section "ServerLayout"
-    Identifier    "Builtin Default Layout"
-    Screen        "Builtin Default fbdev Screen 0"
+	Identifier    "Builtin Default Layout"
+	Screen        "Builtin Default fbdev Screen 0"
 EndSection
 EOF
 	## }}}
@@ -124,6 +127,8 @@ EOF
 	sudo wget -c \
 		https://raw.github.com/RobertCNelson/tools/master/scripts/beaglebone-black-g-ether-load.sh \
 		-O $strapdir/root/bbb-ether-load.sh
+
+	postbuild-clean
 }
 
 build_kernel_armhf() {
@@ -139,13 +144,13 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	ARCH=arm make bb.org_defconfig
-	make $MAKEOPTS || zerr
-	sudo cp $CPVERBOSE arch/arm/boot/zImage $strapdir/boot/zImage
-	sudo mkdir -p $strapdir/boot/dtbs
-	sudo cp $CPVERBOSE arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		ARCH=arm make bb.org_defconfig
+		make $MAKEOPTS || zerr
+		sudo cp $CPVERBOSE arch/arm/boot/zImage $strapdir/boot/zImage
+		sudo mkdir -p $strapdir/boot/dtbs
+		sudo cp $CPVERBOSE arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -153,12 +158,12 @@ build_kernel_armhf() {
 	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-	make mrproper
-	ARCH=arm make bb.org_defconfig
-	sudo -E PATH="$PATH" \
-		make modules_prepare || zerr
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		make mrproper
+		ARCH=arm make bb.org_defconfig
+		sudo -E PATH="$PATH" \
+			make modules_prepare || zerr
 	popd
 
 	postbuild || zerr

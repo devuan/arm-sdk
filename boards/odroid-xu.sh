@@ -54,7 +54,6 @@ prebuild() {
 	enablessh
 	write-fstab
 	copy-zram-init
-	rdate-to-rclocal
 
 	mkdir -p $R/tmp/kernels/$device_name
 
