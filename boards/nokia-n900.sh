@@ -22,11 +22,11 @@
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch)
-arrs+=(custmodules extra_packages)
+arrs+=(custmodules)
 
 device_name="n900"
 arch="armhf"
-size=1337
+size=666
 #inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 
 parted_type="dos"
@@ -39,6 +39,7 @@ custmodules=()
 gitkernel="https://github.com/pali/linux-n900.git"
 gitbranch="v4.6-rc1-n900"
 
+
 prebuild() {
 	fn prebuild
 	req=(device_name strapdir)
@@ -46,10 +47,13 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
+	#enablessh
 	write-fstab
 	copy-zram-init
 
 	mkdir -p $R/tmp/kernels/$device_name
+
+	print 1 | sudo tee $strapdir/boot/keep
 }
 
 postbuild() {
@@ -71,21 +75,23 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	#wget -O .config $linux_defconfig
 	make rx51_defconfig
 	make $MAKEOPTS zImage modules || zerr
+	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+
+	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
+	sudo cp $CPVERBOSE uImage $strapdir/root/
 	popd
 
-	sudo rm -rf $strapdir/lib/firmware
-	get-kernel-firmware
-	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+	#sudo rm -rf $strapdir/lib/firmware
+	#get-kernel-firmware
+	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir firmware_install
-	#make mrproper
 	make rx51_defconfig
 	sudo -E PATH="$PATH" \
 		make modules_prepare || zerr
