@@ -17,25 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-armsdk_version="1.0-dev"
+armsdk_version="1.0"
 
-## setup zsh options
-setopt pushdsilent
 
 R=${ARM_SDK:-$PWD}
 
-DEBUG=1
+DEBUG=0
 QUIET=0
 
 [[ $DEBUG = 1 ]] && {
-	## add -v to cp calls
 	CPVERBOSE="-v"
-	TEEVERBOSE=""
+	LOG="armsdk.log"
 } || [[ $DEBUG = 0 ]] && {
 	CPVERBOSE=""
-	TEEVERBOSE=">/dev/null"
+	setopt pushdsilent
 }
-
 
 
 source lib/zuper/zuper
@@ -45,6 +41,9 @@ vars+=(armsdk_version)
 vars+=(R workdir strapdir)
 vars+=(os boardlib oslib)
 vars+=(MAKEOPTS)
+
+## global arrs
+arrs+=(extra_packages)
 
 ## global maps
 maps+=(board_map os_map)
@@ -74,15 +73,16 @@ load() {
 	board_map=(
 		"bananapi"        "$R/boards/bananapi.sh"
 		"bananapro"       "$R/boards/bananapro.sh"
-		"bbb"             "$R/boards/beaglebone-black.sh"
+		"beagleboneblack" "$R/boards/beaglebone-black.sh"
 		"chromeacer"      "$R/boards/chromebook-acer.sh"
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"cubieboard2"     "$R/boards/cubieboard2.sh"
 		"cubietruck"      "$R/boards/cubietruck.sh"
+		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
-		"raspi"           "$R/boards/raspberry-pi.sh"
-		"n900"            "$R/boards/nokia-n900.sh"
+		"raspi2"          "$R/boards/raspberry-pi2.sh"
+		"raspi3"          "$R/boards/raspberry-pi3.sh"
 	)
 
 	os_map=(
@@ -92,10 +92,11 @@ load() {
 	boardlib="${board_map[$dev]}"
 	oslib="${os_map[$os]}"
 
-	[[ -f $boardlib ]] || die "no valid board specified"
-	[[ -f $oslib ]]    || die "no valid distro specified"
+	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
+	[[ -f $oslib ]]    || { die "no valid distro specified"; exit 1 }
 
-	source $boardlib
+	source $boardlib && act "$device_name build script loaded"
+	export OS=$os
 	source $oslib
 
 	workdir="$R/tmp/${device_name}-build"

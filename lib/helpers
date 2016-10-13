@@ -118,12 +118,33 @@ proc              /proc         proc   nodev,noexec,nosuid    0    0
 EOF
 }
 
-rdate-to-rclocal() {
-	fn rdate-to-rclocal
-	req=(strapdir)
+postbuild-clean() {
+	fn postbuild-clean
+	req=(qemu_bin strapdir)
 	ckreq || return 1
 
-	notice "adding rdate to rc.local"
-	sed -i -e "s/exit 0/rdate -s pool.ntp.org &/" $strapdir/etc/rc.local
-	print "exit 0" | sudo tee -a $strapdir/etc/rc.local ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/postbuild
+#!/bin/sh
+dpkg-divert --add --local \
+	--divert /usr/sbin/invoke-rc.d.chroot \
+	--rename /usr/sbin/invoke-rc.d
+cp /bin/true /usr/sbin/invoke-rc.d
+echo -e "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
+
+apt-get update
+apt-get --yes --force-yes upgrade
+apt-get --yes --force-yes autoremove
+apt-get clean
+
+rm -f /usr/sbin/policy-rc.d
+rm -f /usr/sbin/invoke-rc.d
+dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
+
+rm -f postbuild
+rm -f ${qemu_bin}
+
+EOF
+	sudo chmod +x $strapdir/postbuild || zerr
+	sudo chroot $strapdir /postbuild  || zerr
 }
