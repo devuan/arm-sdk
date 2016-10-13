@@ -19,20 +19,57 @@
 
 ## This script will setup arm-sdk and make it ready for usage.
 
+if test $(which apt-get); then
+deps=$(grep '^sudo' ./README.md)
+
+	for dep in $deps; do
+		dpkg -l $dep >/dev/null || {
+			printf "(!!) '%s' not installed\nplease install and retry\n" $dep
+			exit 1
+		}
+	done
+else
+	printf "(!!) this distro is unsupported. check and install the dependencies manually"
+fi
+
 git submodule update --init
+mkdir -p gcc
 cd lib/libdevuansdk && git checkout next && cd -
 
-armhfsha="b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3"
-
-mkdir -p gcc
-cd gcc
-
+## ===============
 ## armhf toolchain
-wget https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
-wget https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz.sha
+## ===============
+armhfurldl=https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
+armhfshahc=b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3
+armhfshadl=$(curl -s ${armhfurldl}.sha | awk '{print $1}')
 
-sha256sum -c  armv7-devuan-linux-gnueabihf.txz.sha \
-	&& tar xf armv7-devuan-linux-gnueabihf.txz \
-	|| echo "WARNING: sha256sum not correct!"
+test $armhfshahc = $armhfshadl || {
+	printf "(!!) armhf sha256sum doesn't match with hardcoded one\n"
+	exit 1
+}
 
+cd gcc
+	curl -O ${armhfurldl} && \
+	curl -O ${armhfurldl}.sha && \
+	sha256sum   -c $(basename $armhfurldl).sha \
+		&& tar xfp $(basename $armhfurldl)
+cd -
+
+## ===============
+## arm64 toolchain
+## ===============
+arm64urldl=http://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
+arm64shahc=80ffad79dd8d9bf8cbd20b3e9f5914f5172d1d5252be8ad4eef078243206fe8f
+arm64shadl=$(curl -s ${arm64urldl}.sha | awk '{print $1}')
+
+test $arm64shahc = $arm64shadl || {
+	printf "(!!) arm64 sha256sum doesn't match with hardcoded one\n"
+	exit 1
+}
+
+cd gcc
+	curl -O ${arm64urldl} && \
+	curl -O ${arm64urldl}.sha && \
+	sha256sum   -c $(basename $arm64urldl).sha \
+		&& tar xfp $(basename $arm64urldl)
 cd -
