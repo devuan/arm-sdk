@@ -22,18 +22,18 @@
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
-arrs+=(custmodules extra_packages)
+arrs+=(custmodules)
 
 device_name="cubieboard2"
 arch="armhf"
-size=1391
+size=1337
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages=()
+extra_packages+=()
 custmodules=(sunxi_emac)
 
 gitkernel="https://github.com/linux-sunxi/linux-sunxi.git"
@@ -42,8 +42,6 @@ sunxi_tools="https://github.com/linux-sunxi/sunxi-tools.git"
 sunxi_uboot="https://github.com/linux-sunxi/u-boot-sunxi.git"
 sunxi_boards="https://github.com/linux-sunxi/sunxi-boards.git"
 
-## official defconfig
-linux_defconfig="https://github.com/cubieboard/cubie_configs/raw/master/kernel-configs/3.4/cubieboard2_defconfig"
 
 prebuild() {
 	fn prebuild
@@ -52,6 +50,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
+	enablessh
 	write-fstab
 	copy-zram-init
 
@@ -62,13 +61,12 @@ prebuild() {
 	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"  || zerr
 
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
-	act "running fex2bin"
-	make fex2bin || zerr
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
-		$strapdir/boot/script.bin || zerr
+		act "running fex2bin"
+		make fex2bin || zerr
+		sudo ./fex2bin \
+			$R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
+			$strapdir/boot/script.bin || zerr
 	popd
-
-
 }
 
 postbuild() {
@@ -78,23 +76,28 @@ postbuild() {
 
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
-	make distclean
-	make Cubieboard2_config
-	make $MAKEOPTS
-	act "dd-ing to image..."
-	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+		make distclean
+		make Cubieboard2_config
+		make $MAKEOPTS
+		act "dd-ing to image..."
+		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+	popd
 
+	## {{{ boot txts
 	notice "creating boot.cmd"
-	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
 setenv bootm_boot_mode sec
 setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 ${extra} rw rootfstype=ext4 net.ifnames=0
 fatload mmc 0 0x43000000 script.bin
 fatload mmc 0 0x48000000 uImage
 bootm 0x48000000
 EOF
+	## }}}
 
 	notice "creating u-boot script image"
 	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
+
+	postbuild-clean
 }
 
 build_kernel_armhf() {
@@ -110,11 +113,10 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	#wget -O .config $linux_defconfig
-	copy-kernel-config
-	make $MAKEOPTS uImage modules || zerr
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		copy-kernel-config
+		make $MAKEOPTS uImage modules || zerr
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -122,13 +124,12 @@ build_kernel_armhf() {
 	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-	#make mrproper
-	#wget -O .config $linux_defconfig
-	copy-kernel-config
-	sudo -E PATH="$PATH" \
-		make modules_prepare || zerr
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		make mrproper
+		copy-kernel-config
+		sudo -E PATH="$PATH" \
+			make modules_prepare || zerr
 	popd
 
 	postbuild || zerr
