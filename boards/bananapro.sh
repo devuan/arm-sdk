@@ -22,7 +22,7 @@
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
-arrs+=(custmodules extra_packages)
+arrs+=(custmodules)
 
 device_name="bananapro"
 arch="armhf"
@@ -33,7 +33,7 @@ parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages=()
+extra_packages+=()
 custmodules=(sunxi_emac)
 
 gitkernel="https://github.com/LeMaker/linux-sunxi.git"
@@ -42,6 +42,7 @@ sunxi_tools="https://github.com/linux-sunxi/sunxi-tools.git"
 sunxi_uboot="https://github.com/LeMaker/u-boot-bananapi.git"
 sunxi_boards="https://github.com/LeMaker/sunxi-boards.git"
 
+
 prebuild() {
 	fn prebuild
 	req=(device_name strapdir)
@@ -49,6 +50,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
+	enablessh
 	write-fstab
 	copy-zram-init
 
@@ -59,10 +61,11 @@ prebuild() {
 	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"  || zerr
 
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
-	act "running fex2bin"
-	make fex2bin || zerr
-	sudo ./fex2bin $R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/BananaPro.fex \
-		$strapdir/boot/script.bin || zerr
+		act "running fex2bin"
+		make fex2bin || zerr
+		sudo ./fex2bin \
+			$R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/BananaPro.fex \
+			$strapdir/boot/script.bin || zerr
 	popd
 }
 
@@ -73,23 +76,28 @@ postbuild() {
 
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
-	make distclean
-	make BananaPro_config
-	make $MAKEOPTS || zerr
-	act "dd-ing to image..."
-	sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+		make distclean
+		make BananaPro_config
+		make $MAKEOPTS || zerr
+		act "dd-ing to image..."
+		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+	popd
 
+	## {{{ boot txts
 	notice "creating boot.cmd"
-	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
 setenv bootm_boot_mode sec
 setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 ${extra} rw rootfstype=ext4 net.ifnames=0
 fatload mmc 0 0x43000000 script.bin
 fatload mmc 0 0x48000000 uImage
 bootm 0x48000000
 EOF
+	## }}}
 
 	notice "creating u-boot script image"
 	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
+
+	postbuild-clean
 }
 
 build_kernel_armhf() {
@@ -105,12 +113,10 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	#wget -O .config $linux_defconfig
-	#copy-kernel-config
-	make sun7i_defconfig
-	make $MAKEOPTS uImage modules || zerr
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		make sun7i_defconfig
+		make $MAKEOPTS uImage modules || zerr
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	sudo rm -rf $strapdir/lib/firmware
@@ -118,15 +124,13 @@ build_kernel_armhf() {
 	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-	sudo cp -v arch/arm/boot/uImage $strapdir/boot/
-	make mrproper
-	#wget -O .config $linux_defconfig
-	#copy-kernel-config
-	make sun7i_defconfig
-	sudo -E PATH="$PATH" \
-		make modules_prepare || zerr
+		sudo -E PATH="$PATH" \
+			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		sudo cp -v arch/arm/boot/uImage $strapdir/boot/
+		make mrproper
+		make sun7i_defconfig
+		sudo -E PATH="$PATH" \
+			make modules_prepare || zerr
 	popd
 
 	postbuild || zerr
