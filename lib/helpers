@@ -88,8 +88,7 @@ copy-zram-init() {
 	ckreq || return 1
 
 	notice "installing zram init"
-	sudo cp $R/extra/zram $strapdir/etc/init.d/zram
-	sudo chmod +x $strapdir/etc/init.d/zram
+	sudo cp $CPVERBOSE $R/extra/zram $strapdir/root/
 }
 
 copy-kernel-config() {
@@ -106,7 +105,7 @@ write-fstab() {
 	fn write-fstab
 	req=(strapdir)
 	ckreq || return 1
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab ${TEEVERBOSE}
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab
 ## <file system>  <mount point> <type> <options>           <dump><pass>
 ## proc
 proc              /proc         proc   nodev,noexec,nosuid    0    0

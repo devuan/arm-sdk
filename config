@@ -17,29 +17,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
+
 ## arm-sdk configuration
 ## ---------------------
+
 
 ## options for `make` when building kernel
 MAKEOPTS="-j$(expr $(grep -c 'processor' /proc/cpuinfo) + 1)"
 
-## devuan packaged toolchain
-#compiler="arm-none-eabi-"
-#export PATH="$PATH:/sbin"
 
 ## custom toolchain (armv7+armhf; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
 compiler="armv7-devuan-linux-gnueabihf-"
 export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/sbin"
 
-## custom toolchain (DEPRECATED!)
+
+## custom toolchain (aarch64+arm64; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
-#compiler="arm-linux-gnueabihf-"
-#export PATH="$R/gcc/gcc-arm-linux-gnueabihf-4.7/bin:$PATH:/sbin"
+#compiler="aarch64-devuan-linux-gnueabi-"
+#export PATH="$R/gcc/aarch64-devuan-linux-gnueabi/bin:$PATH:/sbin"
+
+
+## devuan packaged toolchain
+#compiler="arm-none-eabi-"
+#export PATH="$PATH:/sbin"
+
 
 ## static qemu arm binary
-qemu_bin="/usr/bin/qemu-arm-static" # Devuan
-#qemu_bin="/usr/bin/qemu-arm" # Gentoo
+qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
+#qemu_bin="/usr/bin/qemu-aarch64-static" # Devuan
+#qemu_bin="/usr/bin/qemu-arm"            # Gentoo
+#qemu_bin="/usr/bin/qemu-aarch"          # Gentoo
+
 
 ## extra_packages for all images
-extra_packages=(wpasupplicant rdate)
+extra_packages=()
