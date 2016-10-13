@@ -1,8 +1,6 @@
 arm-sdk
 =======
 
-# This branch is very unstable! Use at your own risk, I won't fix your shit!
-
 arm-sdk is simple distro build system aimed at embedded ARM devices. It was
 first conceived as a component of the Devuan SDK, but now it aims to
 support multiple Linux distributions.
