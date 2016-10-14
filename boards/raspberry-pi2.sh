@@ -144,9 +144,9 @@ build_kernel_armhf() {
 	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
 	popd
 
-	sudo rm -rf $strapdir/lib/firmware
-	get-kernel-firmware
-	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+	#sudo rm -rf $strapdir/lib/firmware
+	#get-kernel-firmware
+	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
