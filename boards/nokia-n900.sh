@@ -36,8 +36,8 @@ parted_root="ext4 264192s 100%"
 extra_packages=()
 custmodules=()
 
-gitkernel="https://github.com/pali/linux-n900.git"
-gitbranch="v4.6-rc1-n900"
+gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitbranch="linux-4.8.y"
 
 
 prebuild() {
@@ -75,14 +75,14 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	make rx51_defconfig
+	copy-kernel-config
 	make $MAKEOPTS zImage modules omap3-n900.dtb || zerr
-	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage
+	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage || zerr
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		make INSTALL_MOD_PATH=$strapdir INSTALL_MOD_STRIP=1 modules_install || zerr
 
 	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
-	sudo cp $CPVERBOSE uImage $strapdir/root/
+	sudo cp $CPVERBOSE uImage $strapdir/boot/
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
@@ -92,7 +92,6 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir firmware_install
-	make rx51_defconfig
 	sudo -E PATH="$PATH" \
 		make modules_prepare || zerr
 	popd
