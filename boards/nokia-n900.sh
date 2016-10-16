@@ -54,7 +54,10 @@ prebuild() {
 
 	mkdir -p $R/tmp/kernels/$device_name
 
-	print 1 | sudo tee $strapdir/boot/keep
+	## the wl1251 driver generates a random MAC address on every boot
+	## this "fixes" udev so it does not autoincrement the interface number each
+	## time the device boots
+	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules
 }
 
 postbuild() {
