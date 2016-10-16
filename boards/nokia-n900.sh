@@ -60,6 +60,10 @@ postbuild() {
 	fn postbuild
 
 	notice "executing $device_name postbuild"
+
+	sudo mkdir -p $strapdir/usr/share/keymaps/
+	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900.kmap $strapdir/etc/
+	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900-keymap.sh $strapdir/etc/profile.d/
 }
 
 build_kernel_armhf() {
