@@ -47,7 +47,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	#enablessh
+	enablessh
 	write-fstab
 	copy-zram-init
 
@@ -76,7 +76,7 @@ build_kernel_armhf() {
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	make rx51_defconfig
-	make $MAKEOPTS zImage modules || zerr
+	make $MAKEOPTS zImage modules omap3-n900.dtb || zerr
 	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage
 	sudo -E PATH="$PATH" \
 		make INSTALL_MOD_PATH=$strapdir modules_install || zerr
