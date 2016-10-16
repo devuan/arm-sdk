@@ -26,11 +26,14 @@ install-custom-packages() {
 
 	case $os in
 		devuan)
+			notice "checking for custom debs"
 			mkdir -p $R/extra/custom-packages
 			pushd $R/extra/custom-packages
 			local pkgs=$(find ../$device_name/*.deb)
 			[[ -n $pkgs ]] && {
+				notice "found!"
 				for deb in $pkgs; do
+					act "installing $deb"
 					ln -sf $deb .
 				done
 				install-custdebs
