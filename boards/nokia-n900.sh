@@ -33,7 +33,7 @@ parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages=()
+extra_packages+=()
 custmodules=()
 
 gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
@@ -50,6 +50,7 @@ prebuild() {
 	enablessh
 	write-fstab
 	copy-zram-init
+	install-custom-packages
 
 	mkdir -p $R/tmp/kernels/$device_name
 
