@@ -50,7 +50,7 @@ prebuild() {
 	enablessh
 	write-fstab
 	copy-zram-init
-	rdate-to-rclocal
+	install-custom-packages
 
 	mkdir -p $R/tmp/kernels/$device_name
 }

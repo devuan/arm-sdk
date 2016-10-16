@@ -28,7 +28,7 @@ arrs+=(gpt_root gpt_boot)
 device_name="chromeacer"
 arch="armhf"
 size=1730
-inittab=""
+#inittab=""
 
 parted_type="gpt"
 gpt_boot=(8192 32768)
@@ -53,6 +53,7 @@ prebuild() {
 	enablessh
 	write-fstab
 	copy-zram-init
+	install-custom-packages
 
 	mkdir -p $R/tmp/kernels/$device_name
 }
