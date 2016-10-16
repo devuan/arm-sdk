@@ -34,7 +34,7 @@ QUIET=0
 }
 
 
-source lib/zuper/zuper
+source $R/lib/zuper/zuper
 
 ## global vars
 vars+=(armsdk_version)

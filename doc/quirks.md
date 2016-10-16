@@ -30,7 +30,6 @@ adb reboot-bootloader
 fastboot boot zImage-3.1.10-tk*
 ```
 ## Nokia N900
+* To boot, dd the image to a microSD card, and in the uboot console, type: `run sdboot`
 * [http://pub.parazyd.cf/N900/merlijnsdocs.txt](http://pub.parazyd.cf/N900/merlijnsdocs.txt)
 * [http://talk.maemo.org/showthread.php?t=81613](http://talk.maemo.org/showthread.php?t=81613)
-* The `uImage` can be found in the `/root/` directory in the image.
-

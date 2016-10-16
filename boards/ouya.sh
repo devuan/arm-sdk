@@ -48,6 +48,7 @@ prebuild() {
 	enablessh
 	#write-fstab
 	copy-zram-init
+	install-custom-packages
 
 	cat <<EOF | sudo tee ${strapdir}/etc/fstab
 # <file system> <mount point> <type> <options> <dump> <pass>
