@@ -86,7 +86,7 @@ load() {
 	)
 
 	os_map=(
-	    "devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+		"devuan"          "$R/lib/libdevuansdk/libdevuansdk"
 	)
 
 	boardlib="${board_map[$dev]}"
@@ -99,7 +99,7 @@ load() {
 	export OS=$os
 	source $oslib
 
-	workdir="$R/tmp/${device_name}-build"
+	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
 	mkdir -p $strapdir
 
