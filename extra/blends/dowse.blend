@@ -1,0 +1,105 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2016 Dyne.org Foundation
+# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
+#
+# This file is part of arm-sdk
+#
+# This source code is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this source code. If not, see <http://www.gnu.org/licenses/>.
+
+## build script for Dowse
+
+blend=dowse
+
+extra_packages+=(
+	zsh
+	iptables
+	ebtables
+	sqlite3
+	procps
+	gettext-base
+	procps
+	net-tools
+	autoconf
+	automake
+	libssl-dev
+	libbind-dev
+	libpcap-dev
+	unzip
+	wget
+	gcc
+	g++
+	make
+	cmake
+	libtool
+	liblo-dev
+	libnetfilter-conntrack3
+	libnetfilter-queue-dev
+	libsqlite3-dev
+	sqlite3
+	libjemalloc-dev
+	libseccomp2
+	libsodium-dev
+	libhiredis-dev
+	libkmod-dev
+	bind9-host
+	bison
+	gawk
+	libevent-dev
+	libjansson-dev
+	asciidoc
+	uuid-dev
+	libldns-dev
+	python-redis
+	python-hiredis
+)
+
+preinst() {
+	fn preinst
+	req=(strapdir blend)
+	ckreq || return 1
+
+	notice "executing $blend preinst"
+
+	install_extra_pkgs
+
+	cat <<EOF | sudo tee ${strapdir}/${blend}-preinst
+#!/bin/sh
+useradd -m dowse
+echo "dowse:dowse" | chpasswd
+
+sudo -u dowse "git clone https://github.com/dyne/dowse.git /home/dowse/dowse-src"
+cd /home/dowse/dowse-src
+sudo -u dowse "make"
+make install
+EOF
+
+	sudo chmod +x $strapdir/${blend}-preinst
+	sudo -E chroot $strapdir /${blend}-preinst
+}
+
+postinst() {
+	fn postinst
+	req=(strapdir)
+	ckreq || return 1
+
+	notice "executing $blend postinst"
+
+	sudo sed -i -e 's/exit 0//' $strapdir/etc/rc.local
+	cat <<EOF | sudo tee -a ${strapdir}/etc/rc.local
+
+sudo -u dowse "/home/dowse/dowse-src/start.sh"
+
+exit 0
+EOF
+}

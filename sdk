@@ -27,7 +27,7 @@ QUIET=0
 
 [[ $DEBUG = 1 ]] && {
 	CPVERBOSE="-v"
-	LOG="armsdk.log"
+	#LOG="armsdk.log"
 } || [[ $DEBUG = 0 ]] && {
 	CPVERBOSE=""
 	setopt pushdsilent
@@ -58,6 +58,7 @@ load() {
 	fn load "$@"
 	os="$1"
 	dev="$2"
+	blend="$3"
 	req=(os dev)
 	ckreq || return 1
 
@@ -89,15 +90,22 @@ load() {
 		"devuan"          "$R/lib/libdevuansdk/libdevuansdk"
 	)
 
+	blend_map=(
+		"dowse"           "$R/extra/blends/dowse.blend"
+	)
+
 	boardlib="${board_map[$dev]}"
 	oslib="${os_map[$os]}"
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
 	[[ -f $oslib ]]    || { die "no valid distro specified"; exit 1 }
+	[[ -n $blend ]]    && { blendlib="${blend_map[$blend]}" }
 
-	source $boardlib && act "$device_name build script loaded"
-	export OS=$os
-	source $oslib
+	[[ -f $boardlib ]] && source $boardlib \
+		&& act "$device_name build script loaded"
+	[[ -f $oslib ]]    && source $oslib
+	[[ -f $blendlib ]] && source $blendlib \
+		&& act "blend $os loaded"
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
