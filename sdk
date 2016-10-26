@@ -39,14 +39,14 @@ source $R/lib/zuper/zuper
 ## global vars
 vars+=(armsdk_version)
 vars+=(R workdir strapdir)
-vars+=(os boardlib oslib)
+vars+=(os boardlib oslib blendlib)
 vars+=(MAKEOPTS)
 
 ## global arrs
 arrs+=(extra_packages)
 
 ## global maps
-maps+=(board_map os_map)
+maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
@@ -96,16 +96,15 @@ load() {
 
 	boardlib="${board_map[$dev]}"
 	oslib="${os_map[$os]}"
+	blendlib="${blend_map[$blend]}"
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
-	[[ -f $oslib ]]    || { die "no valid distro specified"; exit 1 }
-	[[ -n $blend ]]    && { blendlib="${blend_map[$blend]}" }
+	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
+	[[ -f $blendlib ]] || { warn "no valid blend specified"; exit 1 }
 
-	[[ -f $boardlib ]] && source $boardlib \
-		&& act "$device_name build script loaded"
-	[[ -f $oslib ]]    && source $oslib
-	[[ -f $blendlib ]] && source $blendlib \
-		&& act "blend $os loaded"
+	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
+	[[ -f $oslib    ]] && source $oslib
+	[[ -f $blendlib ]] && source $blendlib && act "$os blend loaded" && export BLEND=1
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
@@ -114,7 +113,7 @@ load() {
 	export LANG=C
 	export LC_ALL=C
 	export ARCH=arm
-	export CROSS_COMPILE=$compiler
+	export CROSS_COMPILE="$compiler"
 
 	source $R/lib/zuper/zuper.init
 }
