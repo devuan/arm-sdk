@@ -101,7 +101,7 @@ load() {
 	[[ $blendlib =~ '^http' ]] && {
 		notice "grabbing blend from the internetz"
 		pushd $R/extra/blends
-		curl -Ls $blendlib
+		curl -Ls -O $blendlib
 		popd
 		blendlib="$R/extra/blends/$(basename $blendlib)"
 	}
