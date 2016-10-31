@@ -98,9 +98,17 @@ load() {
 	oslib="${os_map[$os]}"
 	blendlib="${blend_map[$blend]}"
 
+	[[ $blendlib =~ '^http\:' ]] && {
+		notice "grabbing blend from the internetz"
+		pushd $R/extra/blends
+		curl -O $blendlib
+		popd
+		blendlib="$R/extra/blends/$(basename $blendlib)"
+	}
+
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
-	[[ -f $blendlib ]] || { warn "no valid blend specified"; exit 1 }
+	[[ -f $blendlib ]] ||  warn "no valid blend specified"
 
 	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
 	[[ -f $oslib    ]] && source $oslib
