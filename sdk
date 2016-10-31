@@ -91,17 +91,17 @@ load() {
 	)
 
 	blend_map=(
-		"dowse"           "$R/extra/blends/dowse.blend"
+		"dowse"           "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
 	oslib="${os_map[$os]}"
 	blendlib="${blend_map[$blend]}"
 
-	[[ $blendlib =~ '^http\:' ]] && {
+	[[ $blendlib =~ '^http' ]] && {
 		notice "grabbing blend from the internetz"
 		pushd $R/extra/blends
-		curl -O $blendlib
+		curl -Ls $blendlib
 		popd
 		blendlib="$R/extra/blends/$(basename $blendlib)"
 	}
