@@ -60,9 +60,9 @@ cd -
 ## ===============
 armelurldl=http://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
 armelshahc=9aa5095f6587fea4e79e8894557044879e98917be5fa37000cf2f474c00d451f
-armhfshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
+armelshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
 
-test $armhfshahc = $armhfshadl || {
+test $armelshahc = $armelshadl || {
 	printf "(!!) armel sha256sum doesn't match with hardcoded one\n"
 	exit 1
 }
