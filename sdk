@@ -27,7 +27,7 @@ QUIET=0
 
 [[ $DEBUG = 1 ]] && {
 	CPVERBOSE="-v"
-	LOG="armsdk.log"
+	#LOG="armsdk.log"
 } || [[ $DEBUG = 0 ]] && {
 	CPVERBOSE=""
 	setopt pushdsilent
@@ -39,14 +39,14 @@ source $R/lib/zuper/zuper
 ## global vars
 vars+=(armsdk_version)
 vars+=(R workdir strapdir)
-vars+=(os boardlib oslib)
+vars+=(os boardlib oslib blendlib)
 vars+=(MAKEOPTS)
 
 ## global arrs
 arrs+=(extra_packages)
 
 ## global maps
-maps+=(board_map os_map)
+maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
@@ -58,6 +58,7 @@ load() {
 	fn load "$@"
 	os="$1"
 	dev="$2"
+	blend="$3"
 	req=(os dev)
 	ckreq || return 1
 
@@ -81,32 +82,47 @@ load() {
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
+		"raspi1"          "$R/boards/raspberry-pi1.sh"
 		"raspi2"          "$R/boards/raspberry-pi2.sh"
 		"raspi3"          "$R/boards/raspberry-pi3.sh"
 	)
 
 	os_map=(
-	    "devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+		"devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+	)
+
+	blend_map=(
+		"dowse"           "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
 	oslib="${os_map[$os]}"
+	blendlib="${blend_map[$blend]}"
+
+	[[ $blendlib =~ '^http' ]] && {
+		notice "grabbing blend from the internetz"
+		pushd $R/extra/blends
+		curl -Ls -O $blendlib
+		popd
+		blendlib="$R/extra/blends/$(basename $blendlib)"
+	}
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
-	[[ -f $oslib ]]    || { die "no valid distro specified"; exit 1 }
+	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
+	[[ -f $blendlib ]] ||  warn "no valid blend specified"
 
-	source $boardlib && act "$device_name build script loaded"
-	export OS=$os
-	source $oslib
+	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
+	[[ -f $oslib    ]] && source $oslib
+	[[ -f $blendlib ]] && source $blendlib && act "$os blend loaded" && export BLEND=1
 
-	workdir="$R/tmp/${device_name}-build"
+	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
 	mkdir -p $strapdir
 
 	export LANG=C
 	export LC_ALL=C
 	export ARCH=arm
-	export CROSS_COMPILE=$compiler
+	export CROSS_COMPILE="$compiler"
 
 	source $R/lib/zuper/zuper.init
 }
