@@ -32,6 +32,12 @@ compiler="armv7-devuan-linux-gnueabihf-"
 export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/sbin"
 
 
+## custom toolchain (armv6+armel; gcc 4.9.3)
+## https://pub.parazyd.cf/mirror/
+#compiler="armv6-devuan-linux-gnueabi-"
+#export PATH="$R/gcc/armv6-devuan-linux-gnueabi/bin:$PATH:/sbin"
+
+
 ## custom toolchain (aarch64+arm64; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
 #compiler="aarch64-devuan-linux-gnueabi-"

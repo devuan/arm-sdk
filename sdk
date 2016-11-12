@@ -82,6 +82,7 @@ load() {
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
+		"raspi1"          "$R/boards/raspberry-pi1.sh"
 		"raspi2"          "$R/boards/raspberry-pi2.sh"
 		"raspi3"          "$R/boards/raspberry-pi3.sh"
 	)

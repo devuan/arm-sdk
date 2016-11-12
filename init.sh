@@ -56,6 +56,25 @@ cd gcc
 cd -
 
 ## ===============
+## armel toolchain
+## ===============
+armelurldl=http://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
+armelshahc=9aa5095f6587fea4e79e8894557044879e98917be5fa37000cf2f474c00d451f
+armhfshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
+
+test $armhfshahc = $armhfshadl || {
+	printf "(!!) armel sha256sum doesn't match with hardcoded one\n"
+	exit 1
+}
+
+cd gcc
+	curl -O ${armelurldl} && \
+	curl -O ${armelurldl}.sha && \
+	sha256sum   -c $(basename $armelurldl).sha \
+		&& tar xfp $(basename $armelurldl)
+cd -
+
+## ===============
 ## arm64 toolchain
 ## ===============
 arm64urldl=http://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
