@@ -64,7 +64,7 @@ postbuild() {
 	## {{{ boot txts
 	notice "creating cmdline.txt"
 	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
-dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
+dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0
 EOF
 
 	notice "creating config.txt"
@@ -96,8 +96,9 @@ build_kernel_armel() {
 	prebuild || zerr
 
 	get-kernel-sources
+	export KERNEL=kernel
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make bcm2709_defconfig
+		make bcmrpi_defconfig
 		make $MAKEOPTS || zerr
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
@@ -107,7 +108,7 @@ build_kernel_armel() {
 	sudo cp $CPVERBOSE -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage       $strapdir/boot/kernel7.img
+	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage       $strapdir/boot/kernel.img
 	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb                $strapdir/boot/
 	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*.dtbo $strapdir/boot/overlays/
 	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
@@ -121,7 +122,7 @@ build_kernel_armel() {
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
 		make mrproper
-		make bcm2709_defconfig
+		make bcmrpi_defconfig
 		sudo -E PATH="$PATH" \
 			make modules_prepare || zerr
 	popd
