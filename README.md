@@ -55,6 +55,7 @@ Now is the time you choose the device and OS you want to build the image for.
 * `n900` - Nokia N900
 * `odroidxu` - ODROID-XU
 * `ouya` - OUYA gaming console
+* `raspi1` - Raspberry Pi 1 and 0 (armel)
 * `raspi2` - Raspberry Pi 2 and 3
 * `raspi3` - Raspberry Pi 3 (64bit)
 
@@ -81,7 +82,7 @@ mindful atmosphere of its wonderful premises.
 
 The Devuan SDK is Copyright (c) 2015-2016 by the Dyne.org Foundation
 
-Devuan SDK components are designed, written and maintained by:
+Devuan SDK components were designed, and are written and maintained by:
 
 - Ivan J. <parazyd@dyne.org>
 - Denis Roio <jaromil@dyne.org>
