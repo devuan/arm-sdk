@@ -64,7 +64,7 @@ postbuild() {
 	## {{{ boot txts
 	notice "creating cmdline.txt"
 	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
-dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0
+dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
 EOF
 
 	notice "creating config.txt"
