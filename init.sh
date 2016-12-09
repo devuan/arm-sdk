@@ -34,7 +34,7 @@ fi
 
 git submodule update --init
 mkdir -p gcc
-cd lib/libdevuansdk && git checkout next && cd -
+#cd lib/libdevuansdk && git checkout next && cd -
 
 ## ===============
 ## armhf toolchain

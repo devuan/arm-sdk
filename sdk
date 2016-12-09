@@ -130,4 +130,4 @@ load() {
 TRAPZERR() { zerr; return $? }
 
 notice "arm-sdk loaded"
-export RPROMPT=":: arm-sdk"
+export PROMPT="%F{yellow}%(?..%? )%{$reset_color%}armsdk@%{$fg[red]%}%m %{$reset_color%} %{$fg[blue]%}%#%{$fg_bold[blue]%}%{$reset_color%} "
