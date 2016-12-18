@@ -110,8 +110,8 @@ curl pipplware.pplware.pt/pipplware/key.asc | gpg --import -
 gpg --export -a D9A264BCBAA567BB | apt-key add -
 rm -f /addkeys
 EOF
-	sudo chmod +x $strapdir/addkeys || zerr
-	sudo chroot $strapdir /addkeys  || zerr
+
+	chroot-script addkeys || zerr
 
 	postbuild-clean
 }

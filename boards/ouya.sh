@@ -82,8 +82,7 @@ rm -rf /ouya
 rm -f /ouya.sh
 EOF
 
-	sudo chmod +x $strapdir/ouya.sh
-	sudo -E chroot $strapdir /ouya.sh
+	chroot-script ouya.sh || zerr
 
 	postbuild-clean
 }

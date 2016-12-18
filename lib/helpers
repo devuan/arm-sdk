@@ -137,7 +137,7 @@ proc              /proc         proc   nodev,noexec,nosuid    0    0
 /dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
 
 ## bootfs
-/dev/mmcblk0p1    /boot         vfat   noauto                 0    0
+/dev/mmcblk0p1    /boot         vfat   defaults               0    0
 EOF
 }
 
@@ -168,6 +168,6 @@ rm -f postbuild
 rm -f ${qemu_bin}
 
 EOF
-	sudo chmod +x $strapdir/postbuild || zerr
-	sudo chroot $strapdir /postbuild  || zerr
+
+	chroot-script postbuild || zerr
 }
