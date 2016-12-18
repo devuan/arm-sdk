@@ -18,6 +18,7 @@
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
 ## kernel build script for OUYA Game console
+## NOTE: see 'doc/quirks.md' for more info on this device
 
 ## settings & config
 vars+=(device_name arch size parted_boot parted_root inittab)

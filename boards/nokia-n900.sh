@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="n900"
 arch="armhf"
 size=666
-#inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+#inittab=""
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
@@ -57,6 +57,8 @@ prebuild() {
 	## the wl1251 driver generates a random MAC address on every boot
 	## this "fixes" udev so it does not autoincrement the interface number each
 	## time the device boots
+	## NOTE: comment the below line for a cool feature of having a random MAC
+	## every time :)
 	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules
 }
 

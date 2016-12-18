@@ -17,22 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-armsdk_version="1.0"
-
+armsdk_version="0.6"
 
 R=${ARM_SDK:-$PWD}
 
 DEBUG=0
 QUIET=0
 
-[[ $DEBUG = 1 ]] && {
+if [[ $DEBUG = 1 ]]; then
 	CPVERBOSE="-v"
-	#LOG="armsdk.log"
-} || [[ $DEBUG = 0 ]] && {
+else
 	CPVERBOSE=""
 	setopt pushdsilent
-}
-
+fi
 
 source $R/lib/zuper/zuper
 
@@ -109,7 +106,7 @@ load() {
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
-	[[ -f $blendlib ]] ||  warn "no valid blend specified"
+	[[ -f $blendlib ]] || { warn "no valid blend specified" }
 
 	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
 	[[ -f $oslib    ]] && source $oslib

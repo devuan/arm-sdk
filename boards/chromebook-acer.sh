@@ -34,7 +34,7 @@ parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 
-extra_packages+=(abootimg cgpt fake-hwclock u-boot-tools)
+extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)
 extra_packages+=(laptop-mode-tools usbutils)
 custmodules=()
@@ -117,8 +117,8 @@ EOF
 	## }}}
 
 	notice "grabbing some coreboot stuff"
-	#clone-git "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
-	git clone https://chromium.googlesource.com/chromiumos/third_party/coreboot $R/tmp/chromiumos-coreboot
+	clone-git "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
+	#git clone https://chromium.googlesource.com/chromiumos/third_party/coreboot $R/tmp/chromiumos-coreboot
 
 	pushd $R/tmp/chromiumos-coreboot
 		notice "copying coreboot tegra"

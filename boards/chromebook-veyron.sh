@@ -28,13 +28,13 @@ arrs+=(gpt_root gpt_boot)
 device_name="chromeveyron"
 arch="armhf"
 size=1730
-inittab=""
+#inittab=""
 
 parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 
-extra_packages+=(abootimg cgpt fake-hwclock u-boot-tools)
+extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)
 extra_packages+=(laptop-mode-tools usbutils)
 custmodules=()
@@ -147,7 +147,6 @@ build_kernel_armhf() {
 	notice "building $arch kernel"
 
 	prebuild || zerr
-
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
