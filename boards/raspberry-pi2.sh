@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="raspi2"
 arch="armhf"
-size=1337
+size=1988
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
 parted_type="dos"
@@ -66,7 +66,7 @@ postbuild() {
 
 ## raspbian repositories needed for certain packages
 deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
-#deb-src http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
+deb-src http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
 
 ## for omxplayer
 deb http://linux.subogero.com/deb /
@@ -140,8 +140,8 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage       $strapdir/boot/kernel7.img
 	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb                $strapdir/boot/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*.dtbo $strapdir/boot/overlays/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
+	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*.dtbo         $strapdir/boot/overlays/
+	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README         $strapdir/boot/overlays/
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
@@ -149,12 +149,10 @@ build_kernel_armhf() {
 	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		sudo -E PATH="$PATH" make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
 		make mrproper
 		make bcm2709_defconfig
-		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+		sudo -E PATH="$PATH" make modules_prepare || zerr
 	popd
 
 	postbuild || zerr

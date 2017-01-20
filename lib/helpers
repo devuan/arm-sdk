@@ -146,6 +146,12 @@ postbuild-clean() {
 	req=(qemu_bin strapdir)
 	ckreq || return 1
 
+	conf_print_rclocal | sudo tee ${strapdir}/etc/rc.local
+
+	# add -s to forcefully sync from 1970
+	sed -i /etc/default/openntpd \
+		-e 's:DAEMON_OPTS.*:DAEMON_OPTS="-f /etc/openntpd/ntpd.conf -s":'
+
 	cat <<EOF | sudo tee ${strapdir}/postbuild
 #!/bin/sh
 dpkg-divert --add --local \
@@ -166,7 +172,6 @@ dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
 
 rm -f postbuild
 rm -f ${qemu_bin}
-
 EOF
 
 	chroot-script postbuild || zerr

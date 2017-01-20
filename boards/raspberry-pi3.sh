@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="raspi3"
 arch="arm64"
-size=1337
+size=1988
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
 parted_type="dos"
@@ -103,7 +103,7 @@ build_kernel_arm64() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make ARCH=arm64 bcmrpi3_defconfig
+		make ARCH=arm64 bcmrpi3_defconfig || zerr
 		make ARCH=arm64 $MAKEOPTS || zerr
 		sudo -E PATH="$PATH" \
 			make \
