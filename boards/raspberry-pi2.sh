@@ -69,9 +69,9 @@ deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmwa
 deb-src http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
 
 ## for omxplayer
-deb http://linux.subogero.com/deb /
+#deb http://linux.subogero.com/deb /
 
-deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /
+#deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /
 EOF
 	## }}}
 	## {{{ boot txts
@@ -106,8 +106,8 @@ EOF
 gpg --keyserver pgp.mit.edu --recv-keys 9165938D90FDDD2E
 gpg --export -a 9165938D90FDDD2E | apt-key add -
 ## pipplware key
-curl pipplware.pplware.pt/pipplware/key.asc | gpg --import -
-gpg --export -a D9A264BCBAA567BB | apt-key add -
+#curl pipplware.pplware.pt/pipplware/key.asc | gpg --import -
+#gpg --export -a D9A264BCBAA567BB | apt-key add -
 rm -f /addkeys
 EOF
 
