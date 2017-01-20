@@ -34,12 +34,12 @@ fi
 
 git submodule update --init
 mkdir -p gcc
-cd lib/libdevuansdk && git checkout next && cd -
+#cd lib/libdevuansdk && git checkout next && cd -
 
 ## ===============
 ## armhf toolchain
 ## ===============
-armhfurldl=https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
+armhfurldl=http://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
 armhfshahc=b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3
 armhfshadl=$(curl -s ${armhfurldl}.sha | awk '{print $1}')
 
