@@ -57,5 +57,5 @@ qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 
 
 ## extra_packages for all images
-extra_packages+=(fake-hwclock busybox-syslogd busybox-static udhcpc)
-purge_packages+=(rsyslog isc-dhcp-client isc-dhcp-common)
+extra_packages+=(fake-hwclock busybox-syslogd busybox-static)
+purge_packages+=(rsyslog)
