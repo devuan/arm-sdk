@@ -24,13 +24,6 @@ R=${ARM_SDK:-$PWD}
 DEBUG=0
 QUIET=0
 
-if [[ $DEBUG = 1 ]]; then
-	CPVERBOSE="-v"
-else
-	CPVERBOSE=""
-	setopt pushdsilent
-fi
-
 source $R/lib/zuper/zuper
 
 ## global vars
@@ -70,6 +63,7 @@ load() {
 
 	board_map=(
 		"bananapi"        "$R/boards/bananapi.sh"
+		"bananapi-m2plus" "$R/boards/bananapi-m2plus.sh"
 		"bananapro"       "$R/boards/bananapro.sh"
 		"beagleboneblack" "$R/boards/beaglebone-black.sh"
 		"chromeacer"      "$R/boards/chromebook-acer.sh"

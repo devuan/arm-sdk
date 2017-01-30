@@ -29,7 +29,7 @@ install-custom-packages() {
 			notice "checking for custom debs"
 			mkdir -p $R/extra/custom-packages
 			pushd $R/extra/custom-packages
-			local pkgs=$(find ../$device_name/*.deb)
+			local pkgs="$(find ../$device_name -name '*.deb')"
 			[[ -n $pkgs ]] && {
 				notice "found!"
 				for deb in $pkgs; do
@@ -57,7 +57,7 @@ get-kernel-sources() {
 
 	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
 		pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		git pull
+			git pull
 		popd
 	else
 		git clone --depth 1 \
@@ -75,7 +75,7 @@ get-kernel-firmware() {
 	local gitsource="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
 	if [[ -d $R/tmp/linux-firmware ]]; then
 		pushd $R/tmp/linux-firmware
-		git pull
+			git pull
 		popd
 	else
 		git clone $gitsource $R/tmp/linux-firmware
@@ -94,7 +94,7 @@ clone-git() {
 
 	if [[ -d $clonepath ]]; then
 		pushd $clonepath
-		git pull
+			git pull
 		popd
 	else
 		[[ -n $gitbr ]] && gitbr="-b $gitbr"
@@ -111,7 +111,7 @@ copy-zram-init() {
 	ckreq || return 1
 
 	notice "installing zram init"
-	sudo cp $CPVERBOSE $R/extra/zram $strapdir/root/
+	sudo ${=cp} $R/extra/zram $strapdir/root/
 }
 
 copy-kernel-config() {
@@ -120,7 +120,7 @@ copy-kernel-config() {
 	ckreq || return 1
 
 	notice "copying available kernel config"
-	cp $R/boards/kernel-configs/${device_name}.config \
+	${=cp} $R/boards/kernel-configs/${device_name}.config \
 		$R/tmp/kernels/$device_name/${device_name}-linux/.config
 }
 
@@ -128,7 +128,7 @@ write-fstab() {
 	fn write-fstab
 	req=(strapdir)
 	ckreq || return 1
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab
+	cat <<EOF | sudo tee ${strapdir}/etc/fstab >/dev/null
 ## <file system>  <mount point> <type> <options>           <dump><pass>
 ## proc
 proc              /proc         proc   nodev,noexec,nosuid    0    0
@@ -152,7 +152,7 @@ postbuild-clean() {
 	sed -i /etc/default/openntpd \
 		-e 's:DAEMON_OPTS.*:DAEMON_OPTS="-f /etc/openntpd/ntpd.conf -s":'
 
-	cat <<EOF | sudo tee ${strapdir}/postbuild
+	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh
 dpkg-divert --add --local \
 	--divert /usr/sbin/invoke-rc.d.chroot \
