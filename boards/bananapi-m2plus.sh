@@ -61,7 +61,7 @@ prebuild() {
 	clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
 	pushd $R/tmp/kernels/$device_name/u-boot
 		#git checkout "$(git tag | tail -n1)" ## to a stable release
-		cp -f $R/extra/m2plus/uboot_defconfig $R/tmp/kernels/$device_name/configs/Sinovoip_BPI_M2_plus_defconfig
+		cp -f $R/extra/m2plus/uboot_defconfig $R/tmp/kernels/$device_name/u-boot/configs/Sinovoip_BPI_M2_plus_defconfig
 	popd
 }
 
@@ -74,7 +74,7 @@ postbuild() {
 	pushd $R/tmp/kernels/$device_name/u-boot
 		make distclean
 		make CROSS_COMPILE=$compiler Sinovoip_BPI_M2_plus_defconfig
-		make $MAKEOPTS CROSS_COMPILE=$compiler || zerr
+		make CROSS_COMPILE=$compiler || zerr
 		act "dd-ing to image..."
 		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
 	popd
@@ -115,6 +115,8 @@ build_kernel_armhf() {
 			uImage modules || zerr
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+
+		sudo cp arch/arm/boot/uImage $strapdir/boot/
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
