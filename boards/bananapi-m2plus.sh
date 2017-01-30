@@ -121,19 +121,19 @@ build_kernel_armhf() {
 	#get-kernel-firmware
 	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-			ARCH=arm CROSS_COMPILE=$compiler
-			INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		sudo cp $CPVERBOSE arch/arm/boot/uImage $strapdir/boot/
-		make ARCH=arm CROSS_COMPILE=$compiler mrproper
-		make ARCH=arm CROSS_COMPILE=$compiler sun8i_h3_defconfig
-		sudo -E PATH="$PATH" \
-			make \
-				ARCH=arm CROSS_COMPILE=$compiler \
-				modules_prepare || zerr
-	popd
+	#pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	#	sudo -E PATH="$PATH" \
+	#		make \
+	#		ARCH=arm CROSS_COMPILE=$compiler
+	#		INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+	#	sudo cp $CPVERBOSE arch/arm/boot/uImage $strapdir/boot/
+	#	make ARCH=arm CROSS_COMPILE=$compiler mrproper
+	#	make ARCH=arm CROSS_COMPILE=$compiler sun8i_h3_defconfig
+	#	sudo -E PATH="$PATH" \
+	#		make \
+	#			ARCH=arm CROSS_COMPILE=$compiler \
+	#			modules_prepare || zerr
+	#popd
 
 	postbuild || zerr
 }

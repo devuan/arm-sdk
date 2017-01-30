@@ -57,5 +57,5 @@ qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 
 
 ## extra_packages for all images
-extra_packages+=(fake-hwclock busybox-syslogd busybox-static)
+extra_packages+=(fake-hwclock busybox-syslogd busybox-static openntpd)
 purge_packages+=(rsyslog)
