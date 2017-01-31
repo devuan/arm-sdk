@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="raspi1"
 arch="armel"
-size=1337
+size=1891
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
 parted_type="dos"
@@ -40,6 +40,7 @@ gitkernel="https://github.com/raspberrypi/linux.git"
 gitbranch="rpi-4.4.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
+make="make ARCH=arm CROSS_COMPILE=$compiler"
 
 prebuild() {
 	fn prebuild
@@ -48,12 +49,9 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
 	install-custom-packages
 
-	mkdir -p $R/tmp/kernels/$device_name
+	${=mkdir}-p $R/tmp/kernels/$device_name
 }
 
 postbuild() {
@@ -61,33 +59,14 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	## {{{ boot txts
-	notice "creating cmdline.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
-dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
-EOF
-
-	notice "creating config.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/config.txt
-## memory shared with the GPU
-gpu_mem=64
-
-## always audio
-dtparam=audio=on
-
-## maximum amps on usb ports
-max_usb_current=1
-EOF
-	## }}}
-
-	## TODO: remove systemd merda from raspi-config and add here
+	copy-root-overlay
 
 	postbuild-clean
 }
 
 build_kernel_armel() {
 	fn build_kernel_armel
-	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
+	req=(R arch device_name gitkernel gitbranch rpifirmware)
 	req+=(strapdir)
 	ckreq || return 1
 
@@ -95,36 +74,29 @@ build_kernel_armel() {
 
 	prebuild || zerr
 
-	get-kernel-sources
+	get-kernel-sources || zerr
 	export KERNEL=kernel
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make bcmrpi_defconfig
-		make $MAKEOPTS || zerr
-		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		${=make} bcmrpi_defconfig
+		${=make} $MAKEOPTS || zerr
+		${=sudo} ${=make} INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	clone-git $rpifirmware "$R/tmp/kernels/$device_name/${device_name}-firmware"
-	sudo cp $CPVERBOSE -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
+	${=sudo} ${=cp} -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage       $strapdir/boot/kernel.img
-	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb                $strapdir/boot/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*.dtbo $strapdir/boot/overlays/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
+		${=sudo} perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel.img
+		${=sudo} ${=cp} arch/arm/boot/dts/bcm*.dtb        $strapdir/boot/
+		${=sudo} ${=cp} arch/arm/boot/dts/overlays/*.dtbo $strapdir/boot/overlays/
+		${=sudo} ${=cp} arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
 	popd
 
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
-
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make mrproper
-		make bcmrpi_defconfig
-		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+		${=sudo} ${=make} INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		${=make} mrproper
+		${=make} bcmrpi_defconfig
+		${=sudo} ${=make} modules_prepare || zerr
 	popd
 
 	postbuild || zerr

@@ -1,0 +1,8 @@
+## memory shared with the GPU
+gpu_mem=32
+
+## always audio
+dtparam=audio=on
+
+## maximum amps on usb ports
+max_usb_current=1

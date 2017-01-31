@@ -58,4 +58,15 @@ qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 
 ## extra_packages for all images
 extra_packages+=(fake-hwclock busybox-syslogd busybox-static openntpd)
+extra_packages+=(fbterm)
 purge_packages+=(rsyslog)
+
+
+## linux kernel firmware
+linuxfirmware="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+
+## linux mainline kernel
+linuxmainline="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+
+## u-boot mainline
+ubootmainline="git://git.denx.de/u-boot.git"
