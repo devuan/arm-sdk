@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -56,20 +56,21 @@ load() {
 	if [[ -f /etc/init.d/binfmt-support ]]; then
 		sudo /etc/init.d/binfmt-support restart
 	else
-		[[ -d /proc/sys/fs/binfmt_misc ]] || sudo modprobe binfmt_misc
-		[[ -f /proc/sys/fs/binfmt_misc/register ]] || \
-			sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+		[[ -d /proc/sys/fs/binfmt_misc ]] \
+			|| sudo modprobe binfmt_misc
+		[[ -f /proc/sys/fs/binfmt_misc/register ]] \
+			|| sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
 	fi
 
 	board_map=(
 		"bananapi"        "$R/boards/bananapi.sh"
-		"bananapi-m2plus" "$R/boards/bananapi-m2plus.sh"
 		"bananapro"       "$R/boards/bananapro.sh"
 		"beagleboneblack" "$R/boards/beaglebone-black.sh"
 		"chromeacer"      "$R/boards/chromebook-acer.sh"
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"cubieboard2"     "$R/boards/cubieboard2.sh"
 		"cubietruck"      "$R/boards/cubietruck.sh"
+		"m2plus"          "$R/boards/bananapi-m2plus.sh"
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
@@ -93,7 +94,7 @@ load() {
 	[[ $blendlib =~ '^http' ]] && {
 		notice "grabbing blend from the internetz"
 		pushd $R/extra/blends
-		curl -Ls -O $blendlib
+			curl -Ls -O $blendlib
 		popd
 		blendlib="$R/extra/blends/$(basename $blendlib)"
 	}
@@ -102,13 +103,13 @@ load() {
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
 	[[ -f $blendlib ]] || { warn "no valid blend specified" }
 
-	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
-	[[ -f $oslib    ]] && source $oslib
+	source $boardlib && act "$device_name build script loaded"
+	source $oslib
 	[[ -f $blendlib ]] && source $blendlib && act "$os blend loaded" && export BLEND=1
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
-	mkdir -p $strapdir
+	${=mkdir} -p $strapdir
 
 	export LANG=C
 	export LC_ALL=C

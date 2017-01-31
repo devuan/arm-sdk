@@ -24,28 +24,29 @@ install-custom-packages() {
 	req=(R os device_name strapdir)
 	ckreq || return 1
 
-	case $os in
-		devuan)
-			notice "checking for custom debs"
-			mkdir -p $R/extra/custom-packages
-			pushd $R/extra/custom-packages
-			local pkgs="$(find ../$device_name -name '*.deb')"
-			[[ -n $pkgs ]] && {
-				notice "found!"
-				for deb in $pkgs; do
-					act "installing $deb"
-					ln -sf $deb .
-				done
-				install-custdebs
-			}
-			popd
-			rm -rf $R/extra/custom-packages
-			;;
-		*)
-			warn "skipping custom packages. os unsupported."
-			;;
-	esac
+	#case $os in
+	#	devuan)
+	#		notice "checking for custom debs"
+	#		mkdir -p $R/extra/custom-packages
+	#		pushd $R/extra/custom-packages
+	#		local pkgs="$(find ../$device_name -name '*.deb')"
+	#		[[ -n $pkgs ]] && {
+	#			notice "found!"
+	#			for deb in $pkgs; do
+	#				act "installing $deb"
+	#				ln -sf $deb .
+	#			done
+	#			install-custdebs
+	#		}
+	#		popd
+	#		rm -rf $R/extra/custom-packages
+	#		;;
+	#	*)
+	#		warn "skipping custom packages. os unsupported."
+	#		;;
+	#esac
 
+	return 0
 }
 
 get-kernel-sources() {
@@ -55,31 +56,21 @@ get-kernel-sources() {
 
 	notice "grabbing kernel sources"
 
-	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
-		pushd $R/tmp/kernels/$device_name/${device_name}-linux
-			git pull
-		popd
+	if [[ $kernel = mainline ]]; then
+		clone-git "$linuxmainline" "$R/tmp/kernels/$device_name/${device_name}-linux"
 	else
-		git clone --depth 1 \
-			$gitkernel \
-			-b $gitbranch \
-			$R/tmp/kernels/$device_name/${device_name}-linux
+		clone-git "$gitkernel" "$R/tmp/kernels/$device_name/${device_name}-linux" "$gitbranch"
 	fi
 }
 
 get-kernel-firmware() {
 	fn get-kernel-firmware
+	req=(linuxfirmware R)
+	ckreq || return 1
 
 	notice "grabbing latest linux-firmware"
 
-	local gitsource="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
-	if [[ -d $R/tmp/linux-firmware ]]; then
-		pushd $R/tmp/linux-firmware
-			git pull
-		popd
-	else
-		git clone $gitsource $R/tmp/linux-firmware
-	fi
+	clone-git "$linuxfirmware" "$R/tmp/linux-firmware"
 }
 
 clone-git() {
@@ -105,15 +96,6 @@ clone-git() {
 	fi
 }
 
-copy-zram-init() {
-	fn copy-zram-init
-	req=(R strapdir)
-	ckreq || return 1
-
-	notice "installing zram init"
-	sudo ${=cp} $R/extra/zram $strapdir/root/
-}
-
 copy-kernel-config() {
 	fn copy-kernel-config
 	req=(device_name)
@@ -124,33 +106,21 @@ copy-kernel-config() {
 		$R/tmp/kernels/$device_name/${device_name}-linux/.config
 }
 
-write-fstab() {
-	fn write-fstab
-	req=(strapdir)
+copy-root-overlay() {
+	fn copy-root-overlay
+	req=(strapdir device_name R)
 	ckreq || return 1
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab >/dev/null
-## <file system>  <mount point> <type> <options>           <dump><pass>
-## proc
-proc              /proc         proc   nodev,noexec,nosuid    0    0
 
-## rootfs
-/dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
-
-## bootfs
-/dev/mmcblk0p1    /boot         vfat   defaults               0    0
-EOF
+	[[ -d $R/extra/generic-root ]] && \
+		${=sudo} ${=cp} -rfl $R/extra/generic-root/* $strapdir
+	[[ -d $R/extra/$device_name ]] && \
+		${=sudo} ${=cp} -rfL $R/extra/$device_name/* $strapdir
 }
 
 postbuild-clean() {
 	fn postbuild-clean
 	req=(qemu_bin strapdir)
 	ckreq || return 1
-
-	conf_print_rclocal | sudo tee ${strapdir}/etc/rc.local
-
-	# add -s to forcefully sync from 1970
-	sed -i /etc/default/openntpd \
-		-e 's:DAEMON_OPTS.*:DAEMON_OPTS="-f /etc/openntpd/ntpd.conf -s":'
 
 	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh

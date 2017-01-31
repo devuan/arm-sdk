@@ -1,4 +1,3 @@
 This directory holds the build scripts and kernel configs for various boards.
-An example script is aptly named `example.sh` and is a bit more commented
-than the others. However, as each board is different, so is each build script,
-so try and read as many as you can until you get the hang of it :)
+As each board is different, so is each build script, so try and read as many
+as you can until you get the hang of it :)
