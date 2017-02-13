@@ -89,10 +89,7 @@ clone-git() {
 		popd
 	else
 		[[ -n $gitbr ]] && gitbr="-b $gitbr"
-		git clone --depth 1 \
-			$giturl \
-			$gitbr \
-			$clonepath
+		git clone --depth 1 "$giturl" ${=gitbr} "$clonepath"
 	fi
 }
 

@@ -70,6 +70,7 @@ load() {
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"cubieboard2"     "$R/boards/cubieboard2.sh"
 		"cubietruck"      "$R/boards/cubietruck.sh"
+		"lime2"           "$R/boards/olinuxino-a20.sh"
 		"m2plus"          "$R/boards/bananapi-m2plus.sh"
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
