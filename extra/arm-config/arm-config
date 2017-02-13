@@ -1,0 +1,63 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2016 Dyne.org Foundation
+# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
+#
+# This file is part of arm-sdk
+#
+# This source code is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this source code. If not, see <http://www.gnu.org/licenses/>.
+
+## wannabe raspi-config
+
+#[[ $UID = 0 ]] || {
+#	dialog --msgbox "$(basename $0) must be ran with root privileges." 10 50
+#}
+
+do_about() {
+	dialog --msgbox \
+	"This tool provides a straightforward way of doing initial configuration of your ARM board.
+Although it can be run at any time, some of the options may have difficulties if you have heavily customized your installation." 20 70
+}
+
+calc_wt_size() {
+	WT_HEIGHT=17
+	WT_WIDTH=$(tput cols)
+
+	if [[ -z "$WT_WIDTH" ]] || [[ "$WT_WIDTH" -lt 60 ]]; then
+		WT_WIDTH=80
+	fi
+
+	if [[ "$WT_WIDTH" -gt 178 ]]; then
+		WT_WIDTH=120
+	fi
+
+	WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+}
+
+do_expand_rootfs() {
+	
+}
+
+calc_wt_size
+FUN=$(\
+	dialog --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT \
+	"1 Expand Filesystem" "Ensures that all of the SD card storage is available to the user." \
+	"2 Change root password" "Change password for the root user" \
+	3>&1 1>&2 2>&3 \
+)
+
+case "$FUN" in
+	1\ *) do_expand_rootfs;;
+	2\ *) do_change_rootpw;;
+	*) print "fail"; exit 1;;
+esac

@@ -1,6 +1,10 @@
 Notes and quirks for specific devices
 =====================================
 
+## Lamobo R1 (BananaPi Router)
+* https://github.com/igorpecovnik/lib/issues/511#issuecomment-262571252
+* https://github.com/hknaack/lib/commit/485f48957df5de317a04943ffaeeb259b78604e7
+
 ## Raspberry Pi 2
 * This build script will create an image that works on the Raspberry Pi 3 as
   well. It also includes the required firmware for getting onboard Wifi/Bluetooth

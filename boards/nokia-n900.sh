@@ -57,9 +57,8 @@ prebuild() {
 	## the wl1251 driver generates a random MAC address on every boot
 	## this "fixes" udev so it does not autoincrement the interface number each
 	## time the device boots
-	## NOTE: comment the below line for a cool feature of having a random MAC
-	## every time :)
-	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules
+	## NOTE: comment the below line for having a random wifi MAC address every time :)
+	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules >/dev/null
 }
 
 postbuild() {
@@ -68,8 +67,8 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	sudo mkdir -p $strapdir/usr/share/keymaps/
-	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900.kmap $strapdir/etc/
-	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900-keymap.sh $strapdir/etc/profile.d/
+	sudo ${=cp} $R/extra/n900/nokia-n900.kmap $strapdir/etc/
+	sudo ${=cp} $R/extra/n900/nokia-n900-keymap.sh $strapdir/etc/profile.d/
 }
 
 build_kernel_armhf() {

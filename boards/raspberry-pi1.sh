@@ -51,7 +51,7 @@ prebuild() {
 
 	install-custom-packages
 
-	${=mkdir}-p $R/tmp/kernels/$device_name
+	${=mkdir} -p $R/tmp/kernels/$device_name
 }
 
 postbuild() {
