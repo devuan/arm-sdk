@@ -80,7 +80,7 @@ Devuan's SDK was originally conceived during a period of residency at the
 Schumacher college in Dartington, UK. Greatly inspired by the laborious and
 mindful atmosphere of its wonderful premises.
 
-The Devuan SDK is Copyright (c) 2015-2016 by the Dyne.org Foundation
+The Devuan SDK is Copyright (c) 2015-2017 by the Dyne.org Foundation
 
 Devuan SDK components were designed, and are written and maintained by:
 
