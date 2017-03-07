@@ -39,7 +39,7 @@ mkdir -p gcc
 ## ===============
 ## armhf toolchain
 ## ===============
-armhfurldl=http://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
+armhfurldl=https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
 armhfshahc=b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3
 armhfshadl=$(curl -s ${armhfurldl}.sha | awk '{print $1}')
 
@@ -58,7 +58,7 @@ cd -
 ## ===============
 ## armel toolchain
 ## ===============
-armelurldl=http://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
+armelurldl=https://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
 armelshahc=9aa5095f6587fea4e79e8894557044879e98917be5fa37000cf2f474c00d451f
 armelshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
 
@@ -77,7 +77,7 @@ cd -
 ## ===============
 ## arm64 toolchain
 ## ===============
-arm64urldl=http://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
+arm64urldl=https://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
 arm64shahc=80ffad79dd8d9bf8cbd20b3e9f5914f5172d1d5252be8ad4eef078243206fe8f
 arm64shadl=$(curl -s ${arm64urldl}.sha | awk '{print $1}')
 
