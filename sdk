@@ -111,7 +111,7 @@ load() {
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
-	${=mkdir} -p $strapdir
+	mkdir -p $strapdir
 
 	export LANG=C
 	export LC_ALL=C
