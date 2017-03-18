@@ -89,7 +89,7 @@ clone-git() {
 		popd
 	else
 		[[ -n $gitbr ]] && gitbr="-b $gitbr"
-		git clone --depth 1 "$giturl" ${=gitbr} "$clonepath"
+		git clone --depth 1 "$giturl" ${gitbr} "$clonepath"
 	fi
 }
 
@@ -99,7 +99,7 @@ copy-kernel-config() {
 	ckreq || return 1
 
 	notice "copying available kernel config"
-	${=cp} $R/boards/kernel-configs/${device_name}.config \
+	cp -f $R/boards/kernel-configs/${device_name}.config \
 		$R/tmp/kernels/$device_name/${device_name}-linux/.config
 }
 
@@ -109,9 +109,9 @@ copy-root-overlay() {
 	ckreq || return 1
 
 	[[ -d $R/extra/generic-root ]] && \
-		${=sudo} ${=cp} -rfl $R/extra/generic-root/* $strapdir
+		sudo cp -rfl $R/extra/generic-root/* $strapdir
 	[[ -d $R/extra/$device_name ]] && \
-		${=sudo} ${=cp} -rfL $R/extra/$device_name/* $strapdir
+		sudo cp -rfL $R/extra/$device_name/* $strapdir
 }
 
 postbuild-clean() {
