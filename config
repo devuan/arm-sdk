@@ -23,7 +23,7 @@
 
 
 ## options for `make` when building kernel
-MAKEOPTS="-j$(expr $(grep -c 'processor' /proc/cpuinfo) + 1)"
+MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
 
 ## custom toolchain (armv7+armhf; gcc 4.9.3)

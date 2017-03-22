@@ -82,11 +82,11 @@ load() {
 	)
 
 	os_map=(
-		"devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+		"devuan" "$R/lib/libdevuansdk/libdevuansdk"
 	)
 
 	blend_map=(
-		"dowse"           "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
+		"dowse"  "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
@@ -107,7 +107,11 @@ load() {
 
 	source $boardlib && act "$device_name build script loaded"
 	source $oslib
-	[[ -f $blendlib ]] && source $blendlib && act "$os blend loaded" && export BLEND=1
+	[[ -f $blendlib ]] && {
+		source $blendlib || zerr
+		act "$os blend loaded"
+		export BLEND=1
+	}
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
