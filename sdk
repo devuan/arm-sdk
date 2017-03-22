@@ -105,8 +105,9 @@ load() {
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
 	[[ -f $blendlib ]] || { warn "no valid blend specified" }
 
-	source $boardlib && act "$device_name build script loaded"
+	source $boardlib ## XXX: remove this line
 	source $oslib
+	source $boardlib && act "$device_name build script loaded"
 	[[ -f $blendlib ]] && {
 		source $blendlib || zerr
 		act "$os blend loaded"
