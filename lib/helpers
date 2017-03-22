@@ -19,36 +19,6 @@
 
 ## helper functions for arm-sdk
 
-install-custom-packages() {
-	fn install-custom-packages
-	req=(R os device_name strapdir)
-	ckreq || return 1
-
-	#case $os in
-	#	devuan)
-	#		notice "checking for custom debs"
-	#		mkdir -p $R/extra/custom-packages
-	#		pushd $R/extra/custom-packages
-	#		local pkgs="$(find ../$device_name -name '*.deb')"
-	#		[[ -n $pkgs ]] && {
-	#			notice "found!"
-	#			for deb in $pkgs; do
-	#				act "installing $deb"
-	#				ln -sf $deb .
-	#			done
-	#			install-custdebs
-	#		}
-	#		popd
-	#		rm -rf $R/extra/custom-packages
-	#		;;
-	#	*)
-	#		warn "skipping custom packages. os unsupported."
-	#		;;
-	#esac
-
-	return 0
-}
-
 get-kernel-sources() {
 	fn get-kernel-sources
 	req=(R device_name gitkernel gitbranch)
@@ -88,8 +58,8 @@ clone-git() {
 			git pull
 		popd
 	else
-		[[ -n $gitbr ]] && gitbr="-b $gitbr"
-		git clone --depth 1 "$giturl" ${gitbr} "$clonepath"
+		[[ -n $gitbr ]] && gitbr="$gitbr" || gitbr="master"
+		git clone --depth 1 -b "$gitbr" "$giturl" "$clonepath"
 	fi
 }
 
@@ -109,9 +79,9 @@ copy-root-overlay() {
 	ckreq || return 1
 
 	[[ -d $R/extra/generic-root ]] && \
-		sudo cp -rfl $R/extra/generic-root/* $strapdir
+		sudo cp -rf $R/extra/generic-root/* $strapdir
 	[[ -d $R/extra/$device_name ]] && \
-		sudo cp -rfL $R/extra/$device_name/* $strapdir
+		sudo cp -rf $R/extra/$device_name/* $strapdir
 }
 
 postbuild-clean() {
