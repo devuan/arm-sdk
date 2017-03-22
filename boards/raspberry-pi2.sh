@@ -49,8 +49,6 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	install-custom-packages
-
 	mkdir -p $R/tmp/kernels/$device_name
 }
 
@@ -80,9 +78,9 @@ build_kernel_armhf() {
 
 	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make $makeopts bcm2709_defconfig || zerr
-		make -j$(nproc) $makeopts || zerr
-		sudo -E make $makeopts INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		make ${=makeopts} bcm2709_defconfig || zerr
+		make -j$(nproc) ${=makeopts} || zerr
+		sudo -E make ${=makeopts} INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
@@ -96,10 +94,10 @@ build_kernel_armhf() {
 	popd
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E make $makeopts INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make $makeopts mrproper
-		make $makeopts bcm2709_defconfig
-		sudo -E make $makeopts modules_prepare || zerr
+		sudo -E make ${=makeopts} INSTALL_MOD_PATH=$strapdir firmware_install || zerr
+		make ${=makeopts} mrproper
+		make ${=makeopts} bcm2709_defconfig
+		sudo -E make ${=makeopts} modules_prepare || zerr
 	popd
 
 	postbuild || zerr
