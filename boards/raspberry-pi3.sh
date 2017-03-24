@@ -87,7 +87,7 @@ build_kernel_arm64() {
 	sudo cp -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
+		sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel8.img
 		sudo cp arch/arm/boot/dts/bcm*.dtb                 $strapdir/boot/
 		sudo cp arch/arm/boot/dts/overlays/*.dtbo          $strapdir/boot/overlays/
 		sudo cp arch/arm/boot/dts/overlays/README          $strapdir/boot/overlays/
