@@ -9,6 +9,7 @@ Notes and quirks for specific devices
 * This build script will create an image that works on the Raspberry Pi 3 as
   well. It also includes the required firmware for getting onboard Wifi/Bluetooth
   working.
+* To get a serial console: https://git.devuan.org/sdk/arm-sdk/issues/4
 
 ## Acer Chromebook
 * The Chromebook I tested this image on names the wireless interface `mlan0`, so
