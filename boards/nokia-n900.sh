@@ -47,7 +47,6 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 
@@ -62,7 +61,7 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	return 0
+	copy-root-overlay
 }
 
 build_kernel_armhf() {
