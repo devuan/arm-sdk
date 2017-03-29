@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -18,7 +18,7 @@
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
 ## kernel build script for Olimex A20 OLinuXino-Micro boards
-##  http://linux-sunxi.org/Olimex_A20-OLinuXino-Micro
+##  http://linux-sunxi.org/Olimex_A20_OLinuXino-Micro
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
@@ -45,73 +45,85 @@ sunxi_uboot="git://git.denx.de/u-boot.git"
 
 prebuild() {
 	fn prebuild
-	req=(device_name strapdir)
-	ckreq || return 1
+    req=(device_name strapdir)
+    ckreq || return 1
 
-	notice "executing $device_name prebuild"
-
-	install-custom-packages
-
-	mkdir -p $R/tmp/kernels/$device_name
-
-}
-
-postbuild() {
-	fn postbuild
-
-	notice "executing $device_name postbuild"
+    notice "executing $device_name prebuild"
 
 	copy-root-overlay
 
-	notice "building u-boot"
-	clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
-	pushd $R/tmp/kernels/$device_name/u-boot
-		make distclean
-		make CROSS_COMPILE=$compiler A20-OLinuXino-Micro_defconfig
-		make CROSS_COMPILE=$compiler || zerr
-		act "dd-ing to image..."
-		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
-	popd
+	mkdir -p $R/tmp/kernels/$device_name
+}
 
-	notice "creating boot.cmd"
-	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
+    fn postbuild
+
+    notice "executing $device_name postbuild"
+
+    copy-root-overlay
+
+    notice "building u-boot"
+    clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
+    pushd $R/tmp/kernels/$device_name/u-boot
+        make distclean
+        make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				A20-OLinuXino-MICRO_defconfig
+        make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
+
+        act "dd-ing to image..."
+        sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+    popd
+
+    notice "creating boot.cmd"
+    cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
 setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10
 load mmc 0:1 0x43000000 \${fdtfile} || load mmc 0:1 0x43000000 boot/\${fdtfile}
 load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
 bootz 0x42000000 - 0x43000000
 EOF
 
-	notice "creating u-boot script image"
-	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
+    notice "creating u-boot script image"
+    sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zer
+r
 
-	postbuild-clean
+    postbuild-clean
 }
 
 build_kernel_armhf() {
-	fn build_kernel_armhf
-	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
-	req+=(strapdir sunxi_uboot)
-	req+=(loopdevice)
-	ckreq || return 1
+    fn build_kernel_armhf
+    req=(R arch device_name gitkernel gitbranch MAKEOPTS)
+    req+=(strapdir sunxi_uboot)
+    req+=(loopdevice)
+    ckreq || return 1
 
-	notice "building $arch kernel"
+    notice "building $arch kernel"
 
-	prebuild || zerr
+    prebuild || zerr
 
-	get-kernel-sources
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make \
-			ARCH=arm CROSS_COMPILE=$compiler \
-			sunxi_defconfig || zerr
-		make $MAKEOPTS \
-			ARCH=arm CROSS_COMPILE=$compiler \
-			zImage dtbs modules || zerr
-		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+    get-kernel-sources
+    pushd $R/tmp/kernels/$device_name/${device_name}-linux
+        copy-kernel-config
+        make \
+			$MAKEOPTS \
+            ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				zImage dtbs modules || zerr
+        sudo -E PATH="$PATH" \
+            make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 
-		sudo ${=cp} arch/arm/boot/zImage $strapdir/boot/ || zerr
-		sudo ${=cp} arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dtb $strapdir/boot/ || zerr
-	popd
+        sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
+        sudo cp -v arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dtb $strapdir/boot/ || zerr
+    popd
 
-	postbuild || zerr
+    postbuild || zerr
 }
