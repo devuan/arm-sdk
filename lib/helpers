@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -79,9 +79,14 @@ copy-root-overlay() {
 	ckreq || return 1
 
 	[[ -d $R/extra/generic-root ]] && \
-		sudo cp -rf $R/extra/generic-root/* $strapdir
+		notice "copying generic-root" && \
+		sudo cp -rfv $R/extra/generic-root/* $strapdir
+
 	[[ -d $R/extra/$device_name ]] && \
-		sudo cp -rf $R/extra/$device_name/* $strapdir
+		notice "copying ${device_name}-root" && \
+		sudo cp -rfv $R/extra/$device_name/* $strapdir
+
+	return 0
 }
 
 postbuild-clean() {
@@ -91,25 +96,15 @@ postbuild-clean() {
 
 	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh
-dpkg-divert --add --local \
-	--divert /usr/sbin/invoke-rc.d.chroot \
-	--rename /usr/sbin/invoke-rc.d
-cp /bin/true /usr/sbin/invoke-rc.d
-echo -e "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d
-chmod +x /usr/sbin/policy-rc.d
-
 apt-get update
 apt-get --yes --force-yes upgrade
 apt-get --yes --force-yes autoremove
-apt-get clean
+#apt-get clean
 
-rm -f /usr/sbin/policy-rc.d
-rm -f /usr/sbin/invoke-rc.d
-dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
+updatedb
 
-rm -f postbuild
 rm -f ${qemu_bin}
 EOF
 
-	chroot-script postbuild || zerr
+	chroot-script -d postbuild || zerr
 }
