@@ -40,6 +40,7 @@ maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
+source $R/lib/overrides
 
 ## conclude zuper initialization
 source $R/lib/zuper/zuper.init
@@ -83,6 +84,7 @@ load() {
 
 	os_map=(
 		"devuan" "$R/lib/libdevuansdk/libdevuansdk"
+		"alpine" "$R/lib/libalpine/libalpine"
 	)
 
 	blend_map=(

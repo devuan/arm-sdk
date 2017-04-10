@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -28,7 +28,6 @@ arrs+=(custmodules)
 device_name="ouya"
 arch="armhf"
 size=1337
-
 inittab="T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux"
 
 parted_type="dos"
@@ -46,10 +45,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	#write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	cat <<EOF | sudo tee ${strapdir}/etc/fstab
 # <file system> <mount point> <type> <options> <dump> <pass>
@@ -58,9 +54,9 @@ tmpfs /tmp tmpfs defaults 0 0
 EOF
 
 	notice "copying some kernel modules"
-	sudo cp $CPVERBOSE -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
+	sudo cp -ra $R/extra/ouya/3.1.10-tk3+ $strapdir/lib/modules/
 
-	print 1 | sudo tee $strapdir/boot/keep
+	print 1 | sudo tee $strapdir/boot/.keep
 }
 
 postbuild() {
@@ -71,7 +67,7 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	sudo mkdir -p $strapdir/ouya
-	sudo cp $CPVERBOSE $R/extra/ouya/*.deb $strapdir/ouya/
+	sudo cp -f $R/extra/ouya/*.deb $strapdir/ouya/
 
 	cat <<EOF | sudo tee ${strapdir}/ouya.sh
 #!/bin/sh
@@ -80,10 +76,9 @@ for deb in /ouya/*.deb; do
 	apt-get -f --yes --force-yes install
 done
 rm -rf /ouya
-rm -f /ouya.sh
 EOF
 
-	chroot-script ouya.sh || zerr
+	chroot-script -d ouya.sh || zerr
 
 	postbuild-clean
 }
