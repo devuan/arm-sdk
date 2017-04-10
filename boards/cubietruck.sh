@@ -50,10 +50,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 
@@ -78,8 +75,15 @@ postbuild() {
 	notice "building u-boot"
 	pushd $R/tmp/kernels/$device_name/sunxi-uboot
 		make distclean
-		make Cubietruck_config
-		make $MAKEOPTS
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				Cubietruck_config || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
 		act "dd-ing to image..."
 		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
 	popd
@@ -115,9 +119,18 @@ build_kernel_armhf() {
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		copy-kernel-config
-		make $MAKEOPTS uImage modules || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				uImage modules || zerr
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
@@ -126,11 +139,24 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make mrproper
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				mrproper
 		copy-kernel-config
 		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr
