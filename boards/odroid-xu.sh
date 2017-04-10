@@ -51,10 +51,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 
@@ -124,12 +121,23 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		#copy-kernel-config
-		make odroidxu_ubuntu_defconfig
-		make $MAKEOPTS || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				odroidxu_ubuntu_defconfig || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
-		sudo cp $CPVERBOSE arch/arm/boot/zImage $strapdir/boot/
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
+		sudo cp -v arch/arm/boot/zImage $strapdir/boot/
 	popd
 
 	notice "building hwcomposer"
@@ -138,9 +146,18 @@ build_kernel_armhf() {
 	sed -i -e 's/if 1/if 0/g' include log.h
 	sed -i -e 's/#define ALOGD/#define ALOGD\r#define ALOGF/g' include/log.h
 
-	./configure --prefix=/usr --build x86_64-pc-linux-gnu --host $hosttuple
-	make ${MAKEOPTS}
-	sudo -E make DESTDIR=$strapdir install
+	./configure --prefix=/usr --build x86_64-pc-linux-gnu --host $hosttuple || zerr
+	make \
+		$MAKEOPTS \
+		ARCH=arm \
+		CROSS_COMPILE=$compiler || zerr
+	sudo -E PATH="$PATH" \
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			DESTDIR=$strapdir \
+				install || zerr
 	sudo sed -i -e \
 		's:^exit 0:exynos5-hwcomposer > /dev/null 2\&1 \&\nexit 0:' \
 		$strapdir/etc/rc.local
@@ -151,12 +168,29 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make mrproper
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				mrproper
 		#copy-kernel-config
-		make odroidxu_ubuntu_defconfig
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				odroidxu_ubuntu_defconfig || zerr
 		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr
