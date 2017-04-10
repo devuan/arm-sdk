@@ -37,10 +37,9 @@ extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux"
-gitbranch="rpi-4.9.y"
+gitbranch="rpi-4.10.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
-makeopts="ARCH=arm64 CROSS_COMPILE=$compiler"
 
 prebuild() {
 	fn prebuild
@@ -78,9 +77,22 @@ build_kernel_arm64() {
 
 	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make ${=makeopts} bcm2709_defconfig || zerr
-		make -j$(nproc) ${=makeopts} || zerr
-		sudo -E make ${=makeopts} INSTALL_MOD_PATH=$strapdir modules_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm64 \
+			CROSS_COMPILE=$compiler \
+				bcm2709_defconfig || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm64 \
+			CROSS_COMPILE=$compiler || zerr
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm64 \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
@@ -94,10 +106,29 @@ build_kernel_arm64() {
 	popd
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E make ${=makeopts} INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make ${=makeopts} mrproper
-		make ${=makeopts} bcm2709_defconfig
-		sudo -E make ${=makeopts} modules_prepare || zerr
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm64 \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm64 \
+			CROSS_COMPILE=$compiler \
+				mrproper
+		make \
+			$MAKEOPTS \
+			ARCH=arm64 \
+			CROSS_COMPILE=$compiler \
+				bcm2709_defconfig
+		sudo -E PATH="$PATH"\
+			make \
+				$MAKEOPTS \
+				ARCH=arm64 \
+				CROSS_COMPILE=$compiler \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr
