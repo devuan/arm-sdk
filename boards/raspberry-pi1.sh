@@ -87,7 +87,7 @@ build_kernel_armel() {
 				$MAKEOPTS \
 				ARCH=arm \
 				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir
+				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
 	popd
 
