@@ -30,8 +30,8 @@ size=1891
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
 parted_type="dos"
-parted_boot="fat32 0 64"
-parted_root="ext4 64 -1"
+parted_boot="fat32 2048s 264191s"
+parted_root="ext4 264192s 100%"
 
 extra_packages+=()
 custmodules=(snd_bcm2835)
