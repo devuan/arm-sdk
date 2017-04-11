@@ -56,6 +56,7 @@ prebuild() {
 	mkdir -p $R/tmp/kernels/$device_name
 }
 
+postbuild() {
     fn postbuild
 
     notice "executing $device_name postbuild"
@@ -89,8 +90,7 @@ bootz 0x42000000 - 0x43000000
 EOF
 
     notice "creating u-boot script image"
-    sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zer
-r
+    sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 
     postbuild-clean
 }
