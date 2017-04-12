@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="cubietruck"
 arch="armhf"
-size=1337
+size=1891
 inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
 
 parted_type="dos"
@@ -56,7 +56,7 @@ prebuild() {
 
 	clone-git $sunxi_boards "$R/tmp/kernels/$device_name/sunxi-boards" || zerr
 	clone-git $sunxi_tools  "$R/tmp/kernels/$device_name/sunxi-tools"  || zerr
-	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot"  || zerr
+	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot" "mirror/next" || zerr
 
 	pushd $R/tmp/kernels/$device_name/sunxi-tools
 		act "running fex2bin"
