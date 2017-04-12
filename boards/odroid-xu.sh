@@ -143,7 +143,7 @@ build_kernel_armhf() {
 	notice "building hwcomposer"
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux/tools/hardkernel/exynos5-hwcomposer
 	## it's quite chatty still, so we if 0 the logging, and also add a missing #define
-	sed -i -e 's/if 1/if 0/g' include log.h
+	sed -i -e 's/if 1/if 0/g' include/log.h
 	sed -i -e 's/#define ALOGD/#define ALOGD\r#define ALOGF/g' include/log.h
 
 	./configure --prefix=/usr --build x86_64-pc-linux-gnu --host $hosttuple || zerr
