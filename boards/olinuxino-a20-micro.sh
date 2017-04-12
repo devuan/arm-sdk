@@ -70,7 +70,7 @@ postbuild() {
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				A20-OLinuXino-MICRO_defconfig
+				A20-OLinuXino_MICRO_defconfig
         make \
 			$MAKEOPTS \
 			ARCH=arm \
