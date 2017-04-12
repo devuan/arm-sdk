@@ -34,7 +34,7 @@ parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 
-extra_packages+=(abootimg cgpt fake-hwclock u-boot-tools)
+extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)
 extra_packages+=(laptop-mode-tools usbutils)
 custmodules=()
@@ -50,10 +50,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 }
@@ -63,70 +60,15 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	## {{{ yo dawg i heard you like hacks
-	## lid switch
-	notice "yo dawg i heard you like hacks"
-	act "writing 99-tegra-lid-switch.rules"
-	cat << EOF | sudo tee ${strapdir}/etc/udev/rules.d/99-tegra-lid-switch.rules ${TEEVERBOSE}
-ACTION=="remove", GOTO="tegra_lid_switch_end"
-SUBSYSTEM=="input", KERNEL=="event*", SUBSYSTEMS=="platform", KERNELS=="gpio-keys.4", TAG+="power-switch"
-LABEL="tegra_lid_switch_end"
-EOF
-
-	## hack in a hack
-	act "writing hide-emmc-partitions.rules"
-	cat << EOF | sudo tee ${strapdir}/etc/udev/rules.d/99-hide-emmc-partitions.rules ${TEEVERBOSE}
-KERNEL=="mmcblk0*", ENV{UDISKS_IGNORE}="1"
-EOF
-
-	## nvidia device nodes
-	act "writing nvrm.rules"
-	cat << EOF | sudo tee ${strapdir}/lib/udev/rules.d/51-nvrm.rules ${TEEVERBOSE}
-KERNEL=="knvmap", GROUP="video", MODE="0660"
-KERNEL=="nvhdcp1", GROUP="video", MODE="0660"
-KERNEL=="nvhost-as-gpu", GROUP="video", MODE="0660"
-KERNEL=="nvhost-ctrl", GROUP="video", MODE="0660"
-KERNEL=="nvhost-ctrl-gpu", GROUP="video", MODE="0660"
-KERNEL=="nvhost-dbg-gpu", GROUP="video", MODE="0660"
-KERNEL=="nvhost-gpu", GROUP="video", MODE="0660"
-KERNEL=="nvhost-msenc", GROUP="video", MODE=0660"
-KERNEL=="nvhost-prof-gpu", GROUP="video", MODE=0660"
-KERNEL=="nvhost-tsec", GROUP="video", MODE="0660"
-KERNEL=="nvhost-vic", GROUP="video", MODE="0660"
-KERNEL=="nvmap", GROUP="video", MODE="0660"
-KERNEL=="tegra_dc_0", GROUP="video", MODE="0660"
-KERNEL=="tegra_dc_1", GROUP="video", MODE="0660"
-KERNEL=="tegra_dc_ctrl", GROUP="video", MODE="0660"
-EOF
-
-	sudo mkdir -p ${strapdir}/etc/X11/xorg.conf.d
-	act "writing synaptics-chromebook.conf (xorg)"
-	cat <<EOF | sudo tee ${strapdir}/etc/X11/xorg.conf.d/10-synaptics-chromebook.conf ${TEEVERBOSE}
-Section "InputClass"
-	Identifier "touchpad"
-	MatchIsTouchpad "on"
-	Driver "synaptics"
-	Option "TapButton1"    "1"
-	Option "TapButton2"    "3"
-	Option "TapButton3"    "2"
-	Option "FingerLow"     "15"
-	Option "FingerHigh"    "20"
-	Option "FingerPress"   "256"
-EndSection
-EOF
-	## }}}
-
 	notice "grabbing some coreboot stuff"
-	#clone-git "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
-	git clone https://chromium.googlesource.com/chromiumos/third_party/coreboot $R/tmp/chromiumos-coreboot
-
+	git clone "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
 	pushd $R/tmp/chromiumos-coreboot
 		notice "copying coreboot tegra"
 		git checkout 071167b667685c26106641e6899984c7bd91e84b
 
 		make GCC_PREFIX=${compiler} -C src/soc/nvidia/tegra124/lp0 || zerr
 		sudo mkdir -p $strapdir/lib/firmware/tegra12x
-		sudo cp -f $CPVERBOSE src/soc/nvidia/tegra124/lp0/tegra_lp0_resume.fw $strapdir/lib/firmware/tegra/12x/
+		sudo cp -fv src/soc/nvidia/tegra124/lp0/tegra_lp0_resume.fw $strapdir/lib/firmware/tegra/12x/
 	popd
 
 	sudo dd if=$workdir/kernel.bin of=$bootpart || { die "unable to dd to $bootpart"; zerr }
@@ -152,11 +94,25 @@ build_kernel_armhf() {
 		copy-kernel-config
 		mkdir -p firmware/nvidia/tegra124/
 		cp -f $R/extra/chromebook-acer/xusb.bin firmware/nvidia/tegra124/
-		WIFIVERSION="-3.8" make $MAKEOPTS || zerr
-		WIFIVERSION="-3.8" make $MAKEOPTS dtbs || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			WIFIVERSION="-3.8" || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			WIFIVERSION="-3.8"\
+				dtbs || zerr
 		sudo -E PATH="$PATH" \
-			WIFIVERSION="-3.8" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				WIFIVERSION="-3.8" \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
@@ -165,7 +121,7 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux/arch/arm/boot
 	## {{{ kernel-nyan.its
-	cat << EOF | sudo tee kernel-nyan.its
+	cat << EOF | sudo tee kernel-nyan.its >/dev/null
 /dts-v1/;
 / {
 	description = "Chrome OS kernel image with one or more FDT blobs";
@@ -322,8 +278,12 @@ EOF
 		#WIFIVERSION="-3.8" make exynos_defconfig || zerr
 		copy-kernel-config
 		sudo -E PATH="$PATH" \
-			WIFIVERSION="-3.8" \
-			make modules_prepare || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				WIFIVERSION="-3.8" \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr

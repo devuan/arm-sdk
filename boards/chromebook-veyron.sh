@@ -28,13 +28,13 @@ arrs+=(gpt_root gpt_boot)
 device_name="chromeveyron"
 arch="armhf"
 size=1730
-inittab=""
+#inittab=""
 
 parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 
-extra_packages+=(abootimg cgpt fake-hwclock u-boot-tools)
+extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)
 extra_packages+=(laptop-mode-tools usbutils)
 custmodules=()
@@ -50,10 +50,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 }
@@ -62,75 +59,6 @@ postbuild() {
 	fn postbuild
 
 	notice "executing $device_name postbuild"
-
-	## {{{ yo dawg i heard you like hacks
-	## hack in a hack
-	act "writing hide-emmc-partitions.rules"
-	cat << EOF | sudo tee ${strapdir}/etc/udev/rules.d/99-hide-emmc-partitions.rules ${TEEVERBOSE}
-KERNEL=="mmcblk0*", ENV{UDISKS_IGNORE}="1"
-EOF
-
-	## proper audio config (with pulse)
-	act "Copying (pulse)audio config"
-	sudo mkdir -p ${strapdir}/var/lib/alsa
-	sudo cp -v $R/extra/veyron-audio.cfg ${strapdir}/var/lib/alsa/asound.state
-	sudo mkdir -p ${strapdir}/etc/pulse
-	sudo cp -v $R/extra/veyron-pulse.cfg ${strapdir}/etc/pulse/default.pa
-
-	## Video rules aka media-rules package in ChromeOS
-	act "Making video udev rules (media-rules)"
-	cat << EOF | sudo tee ${strapdir}/etc/udev/rules.d/50-media.rules
-ATTR{name}=="s5p-mfc-dec", SYMLINK+="video-dec"
-ATTR{name}=="s5p-mfc-enc", SYMLINK+="video-enc"
-ATTR{name}=="s5p-jpeg-dec", SYMLINK+="jpeg-dec"
-ATTR{name}=="exynos-gsc.0*", SYMLINK+="image-proc0"
-ATTR{name}=="exynos-gsc.1*", SYMLINK+="image-proc1"
-ATTR{name}=="exynos-gsc.2*", SYMLINK+="image-proc2"
-ATTR{name}=="exynos-gsc.3*", SYMLINK+="image-proc3"
-ATTR{name}=="rk3288-vpu-dec", SYMLINK+="video-dec"
-ATTR{name}=="rk3288-vpu-enc", SYMLINK+="video-enc"
-ATTR{name}=="go2001-dec", SYMLINK+="video-dec"
-ATTR{name}=="go2001-enc", SYMLINK+="video-enc"
-ATTR{name}=="mt81xx-vcodec-dec", SYMLINK+="video-dec"
-ATTR{name}=="mt81xx-vcodec-enc", SYMLINK+="video-enc"
-ATTR{name}=="mt81xx-image-proc", SYMLINK+="image-proc0"
-EOF
-
-	## Touchpad config
-	act "Making touchpad config"
-	sudo mkdir -p ${strapdir}/etc/X11/xorg.conf.d
-	cat << EOF | sudo tee ${strapdir}/etc/X11/xorg.conf.d/10-synaptics-chromebook.conf
-Section "InputClass"
-	Identifier        "touchpad"
-	MatchIsTouchpad   "on"
-	Driver            "synaptics"
-	Option            "TapButton1"    "1"
-	Option            "TapButton2"	  "3"
-	Option            "TapButton3"	  "2"
-	Option            "FingerLow"	  "15"
-	Option            "FingerHigh"	  "20"
-	Option            "FingerPress"	  "256"
-EndSection
-EOF
-
-	## }}}
-
-	notice "configuring extra firmware"
-	act "broadcom..."
-	sudo mkdir -p $strapdir/lib/firmware/brcm/
-	sudo cp $CPVERBOSE $R/extra/brcm/* $strapdir/lib/firmware/brcm/
-	act "elan..."
-	sudo cp $CPVERBOSE $R/extra/elan* $strapdir/lib/firmware/
-	act "max..."
-	sudo cp $CPVERBOSE $R/extra/max* $strapdir/lib/firmware/
-
-
-	## We need to kick start the sdio chip to get bluetooth/wifi going. This is ugly
-	## but bear with me
-	sudo cp $R/extra/bins/* ${strapdir}/usr/sbin/
-	cat << EOF | sudo tee ${strapdir}/etc/udev/rules.d/80-brcm-sdio-added.rules
-ACTION=="add", SUBSYSTEM=="sdio", ENV{SDIO_CLASS}=="02", ENV{SDIO_ID}=="02D0:4354", RUN+="/usr/sbin/brcm_patchram_plus -d --patchram /lib/firmware/brcm/BCM4354_003.001.012.0306.0659.hcd --no2bytes --enable_hci --enable_lpm --scopcm=1,2,0,1,1,0,0,0,0,0 --baudrate 3000000 --use_baudrate_for_download --tosleep=50000 /dev/ttyS0"
-EOF
 
 	sudo dd if=$workdir/kernel.bin of=$bootpart || { die "unable to dd to $bootpart"; zerr }
 
@@ -148,7 +76,6 @@ build_kernel_armhf() {
 
 	prebuild || zerr
 
-
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 
@@ -158,20 +85,33 @@ build_kernel_armhf() {
 
 		#WIFIVERSION="-3.8" make multi_v7_defconfig || zerr
 		copy-kernel-config
-		WIFIVERSION="-3.8" make $MAKEOPTS || zerr
-		WIFIVERSION="-3.8" make $MAKEOPTS dtbs || zerr
-		sudo -E PATH="$PATH" \
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			WIFIVERSION="-3.8"
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
 			WIFIVERSION="-3.8" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+				dtbs || zerr
+		sudo -E PATH="$PATH" \
+			make \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				WIFIVERSION="-3.8" \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 	popd
 
-	sudo rm -rf $strapdir/lib/firmware
-	get-kernel-firmware
-	sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
+	#sudo rm -rf $strapdir/lib/firmware
+	#get-kernel-firmware
+	#sudo cp -rav $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux/arch/arm/boot
 # {{{ kernel-veyron.its
-	cat << EOF | sudo tee kernel-veyron.its
+	cat << EOF | sudo tee kernel-veyron.its >/dev/null
 /dts-v1/;
 / {
 	description = "Chrome OS kernel image with one or more FDT blobs";
@@ -456,8 +396,12 @@ EOF
 		#WIFIVERSION="-3.8" make multi_v7_defconfig || zerr
 		copy-kernel-config
 		sudo -E PATH="$PATH" \
-			WIFIVERSION="-3.8" \
-			make modules_prepare || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				WIFIVERSION="-3.8" \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr

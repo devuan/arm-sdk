@@ -127,7 +127,7 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		sudo cp -v arch/arm/boot/uImage $strapdir/boot/
+		sudo cp $CPVERBOSE arch/arm/boot/uImage $strapdir/boot/
 		make mrproper
 		make sun7i_defconfig
 		sudo -E PATH="$PATH" \

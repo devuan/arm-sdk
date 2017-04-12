@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -26,18 +26,18 @@ arrs+=(custmodules)
 
 device_name="raspi2"
 arch="armhf"
-size=1337
+size=1891
 inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
 
 parted_type="dos"
-parted_boot="fat32 0 64"
-parted_root="ext4 64 -1"
+parted_boot="fat32 2048s 264191s"
+parted_root="ext4 264192s 100%"
 
 extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux.git"
-gitbranch="rpi-4.4.y"
+gitbranch="rpi-4.10.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
@@ -48,11 +48,6 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
-
 	mkdir -p $R/tmp/kernels/$device_name
 }
 
@@ -61,64 +56,18 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	## {{{ apt.sources.list
-	cat <<EOF | sudo tee -a ${strapdir}/etc/apt/sources.list
-
-## raspbian repositories needed for certain packages
-deb http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
-#deb-src http://archive.raspbian.org/raspbian jessie main contrib non-free rpi firmware
-
-## for omxplayer
-deb http://linux.subogero.com/deb /
-
-deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /
-EOF
-	## }}}
-	## {{{ boot txts
-	notice "creating cmdline.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/cmdline.txt
-dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 quiet
-EOF
-
-	notice "creating config.txt"
-	cat <<EOF | sudo tee ${strapdir}/boot/config.txt
-## memory shared with the GPU
-gpu_mem=64
-
-## always audio
-dtparam=audio=on
-
-## maximum amps on usb ports
-max_usb_current=1
-EOF
-	## }}}
-
-	## TODO: remove systemd merda from raspi-config and add here
+	copy-root-overlay
 
 	notice "installing raspberry pi 3 firmware for bt/wifi"
 	sudo mkdir -p $strapdir/lib/firmware/brcm
-	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.txt $strapdir/lib/firmware/brcm/
-	sudo cp $CPVERBOSE $R/extra/rpi3/brcmfmac43430-sdio.bin $strapdir/lib/firmware/brcm/
-
-	cat <<EOF | sudo tee ${strapdir}/addkeys
-#!/bin/sh
-## Raspberry Pi Debian armhf
-gpg --keyserver pgp.mit.edu --recv-keys 9165938D90FDDD2E
-gpg --export -a 9165938D90FDDD2E | apt-key add -
-## pipplware key
-curl pipplware.pplware.pt/pipplware/key.asc | gpg --import -
-gpg --export -a D9A264BCBAA567BB | apt-key add -
-rm -f /addkeys
-EOF
-	sudo chmod +x $strapdir/addkeys || zerr
-	sudo chroot $strapdir /addkeys  || zerr
+	sudo cp $R/extra/raspberry-fw/brcmfmac43430-sdio.{bin,txt} $strapdir/lib/firmware/brcm/
 
 	postbuild-clean
 }
 
 build_kernel_armhf() {
 	fn build_kernel_armhf
-	req=(R arch device_name gitkernel gitbranch MAKEOPTS rpifirmware)
+	req=(R arch device_name gitkernel gitbranch rpifirmware)
 	req+=(strapdir)
 	ckreq || return 1
 
@@ -126,35 +75,60 @@ build_kernel_armhf() {
 
 	prebuild || zerr
 
-	get-kernel-sources
+	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		make bcm2709_defconfig
-		make $MAKEOPTS || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				bcm2709_defconfig || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
 	popd
 
-	clone-git $rpifirmware "$R/tmp/kernels/$device_name/${device_name}-firmware"
-	sudo cp $CPVERBOSE -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
+	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
+	sudo cp -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage       $strapdir/boot/kernel7.img
-	sudo cp $CPVERBOSE arch/arm/boot/dts/bcm*.dtb                $strapdir/boot/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/*.dtbo $strapdir/boot/overlays/
-	sudo cp $CPVERBOSE arch/arm/boot/dts/overlays/README $strapdir/boot/overlays/
+		sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
+		sudo cp arch/arm/boot/dts/bcm*.dtb                 $strapdir/boot/
+		sudo cp arch/arm/boot/dts/overlays/*.dtbo          $strapdir/boot/overlays/
+		sudo cp arch/arm/boot/dts/overlays/README          $strapdir/boot/overlays/
 	popd
 
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
-
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make mrproper
-		make bcm2709_defconfig
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				mrproper
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				bcm2709_defconfig
 		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr

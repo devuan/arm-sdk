@@ -27,17 +27,17 @@ arrs+=(custmodules)
 device_name="n900"
 arch="armhf"
 size=666
-#inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+#inittab=""
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
-extra_packages+=()
+extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
 gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.8.y"
+gitbranch="linux-4.10.y"
 
 
 prebuild() {
@@ -47,17 +47,13 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
 
 	mkdir -p $R/tmp/kernels/$device_name
 
 	## the wl1251 driver generates a random MAC address on every boot
 	## this "fixes" udev so it does not autoincrement the interface number each
 	## time the device boots
-	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules
+	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules >/dev/null
 }
 
 postbuild() {
@@ -65,9 +61,7 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
-	sudo mkdir -p $strapdir/usr/share/keymaps/
-	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900.kmap $strapdir/etc/
-	sudo cp $CPVERBOSE $R/extra/n900/nokia-n900-keymap.sh $strapdir/etc/profile.d/
+	copy-root-overlay
 }
 
 build_kernel_armhf() {
@@ -84,13 +78,23 @@ build_kernel_armhf() {
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	copy-kernel-config
-	make $MAKEOPTS zImage modules omap3-n900.dtb || zerr
+	make \
+		$MAKEOPTS \
+		ARCH=arm \
+		CROSS_COMPILE=$compiler \
+			zImage modules omap3-n900.dtb || zerr
 	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage || zerr
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir INSTALL_MOD_STRIP=1 modules_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			INSTALL_MOD_PATH=$strapdir \
+			INSTALL_MOD_STRIP=1 \
+				modules_install || zerr
 
 	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
-	sudo cp $CPVERBOSE uImage $strapdir/boot/
+	sudo cp -v uImage $strapdir/boot/
 	popd
 
 	#sudo rm -rf $strapdir/lib/firmware
@@ -99,9 +103,18 @@ build_kernel_armhf() {
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	sudo -E PATH="$PATH" \
-		make INSTALL_MOD_PATH=$strapdir firmware_install
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			INSTALL_MOD_PATH=$strapdir \
+				firmware_install
 	sudo -E PATH="$PATH" \
-		make modules_prepare || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				modules_prepare || zerr
 	popd
 
 	postbuild || zerr

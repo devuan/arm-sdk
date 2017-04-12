@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -17,22 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-armsdk_version="0.6"
-
+armsdk_version="0.7"
 
 R=${ARM_SDK:-$PWD}
 
 DEBUG=0
 QUIET=0
-
-[[ $DEBUG = 1 ]] && {
-	CPVERBOSE="-v"
-	#LOG="armsdk.log"
-} || [[ $DEBUG = 0 ]] && {
-	CPVERBOSE=""
-	setopt pushdsilent
-}
-
 
 source $R/lib/zuper/zuper
 
@@ -50,6 +40,7 @@ maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
+source $R/lib/overrides
 
 ## conclude zuper initialization
 source $R/lib/zuper/zuper.init
@@ -66,9 +57,10 @@ load() {
 	if [[ -f /etc/init.d/binfmt-support ]]; then
 		sudo /etc/init.d/binfmt-support restart
 	else
-		[[ -d /proc/sys/fs/binfmt_misc ]] || sudo modprobe binfmt_misc
-		[[ -f /proc/sys/fs/binfmt_misc/register ]] || \
-			sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+		[[ -d /proc/sys/fs/binfmt_misc ]] \
+			|| sudo modprobe binfmt_misc
+		[[ -f /proc/sys/fs/binfmt_misc/register ]] \
+			|| sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
 	fi
 
 	board_map=(
@@ -79,6 +71,9 @@ load() {
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"cubieboard2"     "$R/boards/cubieboard2.sh"
 		"cubietruck"      "$R/boards/cubietruck.sh"
+		"olinuxino-lime2" "$R/boards/olinuxino-a20-lime2.sh"
+		"olinuxino-micro" "$R/boards/olinuxino-a20-micro.sh"
+		"m2plus"          "$R/boards/bananapi-m2plus.sh"
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"ouya"            "$R/boards/ouya.sh"
@@ -88,11 +83,12 @@ load() {
 	)
 
 	os_map=(
-		"devuan"          "$R/lib/libdevuansdk/libdevuansdk"
+		"devuan" "$R/lib/libdevuansdk/libdevuansdk"
+		"alpine" "$R/lib/libalpine/libalpine"
 	)
 
 	blend_map=(
-		"dowse"           "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
+		"dowse"  "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
@@ -102,18 +98,23 @@ load() {
 	[[ $blendlib =~ '^http' ]] && {
 		notice "grabbing blend from the internetz"
 		pushd $R/extra/blends
-		curl -Ls -O $blendlib
+			curl -Ls -O $blendlib
 		popd
 		blendlib="$R/extra/blends/$(basename $blendlib)"
 	}
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
-	[[ -f $blendlib ]] ||  warn "no valid blend specified"
+	[[ -f $blendlib ]] || { warn "no valid blend specified" }
 
-	[[ -f $boardlib ]] && source $boardlib && act "$device_name build script loaded"
-	[[ -f $oslib    ]] && source $oslib
-	[[ -f $blendlib ]] && source $blendlib && act "$os blend loaded" && export BLEND=1
+	source $boardlib ## XXX: remove this line
+	source $oslib
+	source $boardlib && act "$device_name build script loaded"
+	[[ -f $blendlib ]] && {
+		source $blendlib || zerr
+		act "$os blend loaded"
+		export BLEND=1
+	}
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"

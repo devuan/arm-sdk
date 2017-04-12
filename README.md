@@ -14,6 +14,8 @@ from shell scripts. It requires the following packages to be installed:
 sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils
 ```
 
+`sudo` permissions are required for the user that is running the build.
+
 ## Initial setup
 
 By executing `init.sh` which is found in the base directory of arm-sdk, it
@@ -80,7 +82,7 @@ Devuan's SDK was originally conceived during a period of residency at the
 Schumacher college in Dartington, UK. Greatly inspired by the laborious and
 mindful atmosphere of its wonderful premises.
 
-The Devuan SDK is Copyright (c) 2015-2016 by the Dyne.org Foundation
+The Devuan SDK is Copyright (c) 2015-2017 by the Dyne.org Foundation
 
 Devuan SDK components were designed, and are written and maintained by:
 

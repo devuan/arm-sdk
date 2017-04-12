@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -58,7 +58,7 @@ cd -
 ## ===============
 ## armel toolchain
 ## ===============
-armelurldl=http://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
+armelurldl=https://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
 armelshahc=9aa5095f6587fea4e79e8894557044879e98917be5fa37000cf2f474c00d451f
 armelshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
 
@@ -77,7 +77,7 @@ cd -
 ## ===============
 ## arm64 toolchain
 ## ===============
-arm64urldl=http://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
+arm64urldl=https://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
 arm64shahc=80ffad79dd8d9bf8cbd20b3e9f5914f5172d1d5252be8ad4eef078243206fe8f
 arm64shadl=$(curl -s ${arm64urldl}.sha | awk '{print $1}')
 

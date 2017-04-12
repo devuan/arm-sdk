@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -23,30 +23,30 @@
 
 
 ## options for `make` when building kernel
-MAKEOPTS="-j$(expr $(grep -c 'processor' /proc/cpuinfo) + 1)"
+MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
 
 ## custom toolchain (armv7+armhf; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
-compiler="armv7-devuan-linux-gnueabihf-"
-export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/sbin"
+#compiler="armv7-devuan-linux-gnueabihf-"
+#export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/usr/sbin:/sbin"
 
 
 ## custom toolchain (armv6+armel; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
 #compiler="armv6-devuan-linux-gnueabi-"
-#export PATH="$R/gcc/armv6-devuan-linux-gnueabi/bin:$PATH:/sbin"
+#export PATH="$R/gcc/armv6-devuan-linux-gnueabi/bin:$PATH:/usr/sbin:/sbin"
 
 
 ## custom toolchain (aarch64+arm64; gcc 4.9.3)
 ## https://pub.parazyd.cf/mirror/
 #compiler="aarch64-devuan-linux-gnueabi-"
-#export PATH="$R/gcc/aarch64-devuan-linux-gnueabi/bin:$PATH:/sbin"
+#export PATH="$R/gcc/aarch64-devuan-linux-gnueabi/bin:$PATH:/usr/sbin:/sbin"
 
 
 ## devuan packaged toolchain
-#compiler="arm-none-eabi-"
-#export PATH="$PATH:/sbin"
+compiler="arm-none-eabi-"
+export PATH="$PATH:/usr/sbin:/sbin"
 
 
 ## static qemu arm binary
@@ -57,4 +57,16 @@ qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 
 
 ## extra_packages for all images
-extra_packages=(fake-hwclock)
+extra_packages+=(fake-hwclock busybox-static openntpd)
+extra_packages+=(fbterm pciutils usbutils)
+purge_packages+=()
+
+
+## linux kernel firmware
+linuxfirmware="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+
+## linux mainline kernel
+linuxmainline="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+
+## u-boot mainline
+ubootmainline="git://git.denx.de/u-boot.git"

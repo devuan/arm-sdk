@@ -1,6 +1,9 @@
-[submodule "zuper"]
-	path = lib/zuper
-	url = https://github.com/dyne/zuper
 [submodule "lib/libdevuansdk"]
 	path = lib/libdevuansdk
 	url = git://git.parazyd.cf/libdevuansdk.git
+[submodule "lib/zuper"]
+	path = lib/zuper
+	url = https://github.com/dyne/zuper.git
+[submodule "lib/libalpine"]
+	path = lib/libalpine
+	url = https://github.com/parazyd/libalpine

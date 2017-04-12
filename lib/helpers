@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -19,35 +19,6 @@
 
 ## helper functions for arm-sdk
 
-install-custom-packages() {
-	fn install-custom-packages
-	req=(R os device_name strapdir)
-	ckreq || return 1
-
-	case $os in
-		devuan)
-			notice "checking for custom debs"
-			mkdir -p $R/extra/custom-packages
-			pushd $R/extra/custom-packages
-			local pkgs=$(find ../$device_name/*.deb)
-			[[ -n $pkgs ]] && {
-				notice "found!"
-				for deb in $pkgs; do
-					act "installing $deb"
-					ln -sf $deb .
-				done
-				install-custdebs
-			}
-			popd
-			rm -rf $R/extra/custom-packages
-			;;
-		*)
-			warn "skipping custom packages. os unsupported."
-			;;
-	esac
-
-}
-
 get-kernel-sources() {
 	fn get-kernel-sources
 	req=(R device_name gitkernel gitbranch)
@@ -55,31 +26,21 @@ get-kernel-sources() {
 
 	notice "grabbing kernel sources"
 
-	if [[ -d $R/tmp/kernels/$device_name/${device_name}-linux ]]; then
-		pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		git pull
-		popd
+	if [[ $kernel = mainline ]]; then
+		clone-git "$linuxmainline" "$R/tmp/kernels/$device_name/${device_name}-linux"
 	else
-		git clone --depth 1 \
-			$gitkernel \
-			-b $gitbranch \
-			$R/tmp/kernels/$device_name/${device_name}-linux
+		clone-git "$gitkernel" "$R/tmp/kernels/$device_name/${device_name}-linux" "$gitbranch"
 	fi
 }
 
 get-kernel-firmware() {
 	fn get-kernel-firmware
+	req=(linuxfirmware R)
+	ckreq || return 1
 
 	notice "grabbing latest linux-firmware"
 
-	local gitsource="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
-	if [[ -d $R/tmp/linux-firmware ]]; then
-		pushd $R/tmp/linux-firmware
-		git pull
-		popd
-	else
-		git clone $gitsource $R/tmp/linux-firmware
-	fi
+	clone-git "$linuxfirmware" "$R/tmp/linux-firmware"
 }
 
 clone-git() {
@@ -94,24 +55,12 @@ clone-git() {
 
 	if [[ -d $clonepath ]]; then
 		pushd $clonepath
-		git pull
+			git pull
 		popd
 	else
-		[[ -n $gitbr ]] && gitbr="-b $gitbr"
-		git clone --depth 1 \
-			$giturl \
-			$gitbr \
-			$clonepath
+		[[ -n $gitbr ]] && gitbr="$gitbr" || gitbr="master"
+		git clone --depth 1 -b "$gitbr" "$giturl" "$clonepath"
 	fi
-}
-
-copy-zram-init() {
-	fn copy-zram-init
-	req=(R strapdir)
-	ckreq || return 1
-
-	notice "installing zram init"
-	sudo cp $CPVERBOSE $R/extra/zram $strapdir/root/
 }
 
 copy-kernel-config() {
@@ -120,25 +69,24 @@ copy-kernel-config() {
 	ckreq || return 1
 
 	notice "copying available kernel config"
-	cp $R/boards/kernel-configs/${device_name}.config \
+	cp -f $R/boards/kernel-configs/${device_name}.config \
 		$R/tmp/kernels/$device_name/${device_name}-linux/.config
 }
 
-write-fstab() {
-	fn write-fstab
-	req=(strapdir)
+copy-root-overlay() {
+	fn copy-root-overlay
+	req=(strapdir device_name R)
 	ckreq || return 1
-	cat <<EOF | sudo tee ${strapdir}/etc/fstab
-## <file system>  <mount point> <type> <options>           <dump><pass>
-## proc
-proc              /proc         proc   nodev,noexec,nosuid    0    0
 
-## rootfs
-/dev/mmcblk0p2    /             ext4   errors=remount-ro      0    1
+	[[ -d $R/extra/generic-root ]] && \
+		notice "copying generic-root" && \
+		sudo cp -rfv $R/extra/generic-root/* $strapdir
 
-## bootfs
-/dev/mmcblk0p1    /boot         vfat   noauto                 0    0
-EOF
+	[[ -d $R/extra/$device_name ]] && \
+		notice "copying ${device_name}-root" && \
+		sudo cp -rfv $R/extra/$device_name/* $strapdir
+
+	return 0
 }
 
 postbuild-clean() {
@@ -146,28 +94,16 @@ postbuild-clean() {
 	req=(qemu_bin strapdir)
 	ckreq || return 1
 
-	cat <<EOF | sudo tee ${strapdir}/postbuild
+	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh
-dpkg-divert --add --local \
-	--divert /usr/sbin/invoke-rc.d.chroot \
-	--rename /usr/sbin/invoke-rc.d
-cp /bin/true /usr/sbin/invoke-rc.d
-echo -e "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d
-chmod +x /usr/sbin/policy-rc.d
-
 apt-get update
 apt-get --yes --force-yes upgrade
 apt-get --yes --force-yes autoremove
-apt-get clean
+#apt-get clean
 
-rm -f /usr/sbin/policy-rc.d
-rm -f /usr/sbin/invoke-rc.d
-dpkg-divert --remove --rename /usr/sbin/invoke-rc.d
-
-rm -f postbuild
-rm -f ${qemu_bin}
-
+updatedb
 EOF
-	sudo chmod +x $strapdir/postbuild || zerr
-	sudo chroot $strapdir /postbuild  || zerr
+
+	chroot-script -d postbuild || zerr
+	sudo rm -f $strapdir/$qemu_bin
 }
