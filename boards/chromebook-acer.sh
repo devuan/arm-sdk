@@ -61,7 +61,7 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	notice "grabbing some coreboot stuff"
-	clone-git "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
+	git clone "https://chromium.googlesource.com/chromiumos/third_party/coreboot" "$R/tmp/chromiumos-coreboot"
 	pushd $R/tmp/chromiumos-coreboot
 		notice "copying coreboot tegra"
 		git checkout 071167b667685c26106641e6899984c7bd91e84b
