@@ -81,7 +81,7 @@ build_kernel_arm64() {
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
-				bcm2709_defconfig || zerr
+				bcmrpi3_defconfig || zerr
 		make \
 			$MAKEOPTS \
 			ARCH=arm64 \
@@ -122,7 +122,7 @@ build_kernel_arm64() {
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
-				bcm2709_defconfig
+				bcmrpi3_defconfig
 		sudo -E PATH="$PATH"\
 			make \
 				$MAKEOPTS \
