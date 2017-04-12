@@ -108,7 +108,7 @@ build_kernel_armhf() {
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				zImge dtbs modules || zerr
+				zImage dtbs modules || zerr
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \

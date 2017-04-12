@@ -34,14 +34,13 @@ parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
 
 extra_packages+=()
-custmodules=(sunxi_emac)
+custmodules=()
 
-gitkernel="https://github.com/linux-sunxi/linux-sunxi.git"
-gitbranch="sunxi-3.4"
-sunxi_tools="https://github.com/linux-sunxi/sunxi-tools.git"
-sunxi_uboot="https://github.com/linux-sunxi/u-boot-sunxi.git"
-sunxi_boards="https://github.com/linux-sunxi/sunxi-boards.git"
+gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitbranch="linux-4.10.y"
 
+uboot=mainline
+sunxi_uboot="git://git.denx.de/u-boot.git"
 
 prebuild() {
 	fn prebuild
@@ -53,18 +52,6 @@ prebuild() {
 	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
-
-	clone-git $sunxi_boards "$R/tmp/kernels/$device_name/sunxi-boards" || zerr
-	clone-git $sunxi_tools  "$R/tmp/kernels/$device_name/sunxi-tools"  || zerr
-	clone-git $sunxi_uboot  "$R/tmp/kernels/$device_name/sunxi-uboot" "mirror/next" || zerr
-
-	pushd $R/tmp/kernels/$device_name/sunxi-tools
-		act "running fex2bin"
-		make fex2bin || zerr
-		sudo ./fex2bin \
-			$R/tmp/kernels/$device_name/sunxi-boards/sys_config/a20/cubieboard2.fex \
-			$strapdir/boot/script.bin || zerr
-	popd
 }
 
 postbuild() {
@@ -73,31 +60,30 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	notice "building u-boot"
-	pushd $R/tmp/kernels/$device_name/sunxi-uboot
+	clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
+	pushd $R/tmp/kernels/$device_name/u-boot
 		make distclean
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				Cubieboard2_config || zerr
+				Cubieboard2_defconfig || zerr
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler || zerr
+
 		act "dd-ing to image..."
 		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
 	popd
 
-	## {{{ boot txts
 	notice "creating boot.cmd"
 	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
-setenv bootm_boot_mode sec
-setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 ${extra} rw rootfstype=ext4 net.ifnames=0
-fatload mmc 0 0x43000000 script.bin
-fatload mmc 0 0x48000000 uImage
-bootm 0x48000000
+setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10
+load mmc 0:1 0x43000000 \${fdtfile} || load mmc 0:1 0x43000000 boot/\${fdtfile}
+load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
+bootz 0x42000000 - 0x43000000
 EOF
-	## }}}
 
 	notice "creating u-boot script image"
 	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
@@ -108,7 +94,7 @@ EOF
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
-	req+=(strapdir sunxi_tools sunxi_uboot sunxi_boards)
+	req+=(strapdir sunxi_uboot)
 	req+=(loopdevice)
 	ckreq || return 1
 
@@ -123,7 +109,7 @@ build_kernel_armhf() {
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				uImage modules || zerr
+				zImage dtbs modules || zerr
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -131,32 +117,8 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
-	popd
-
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					firmware_install || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				mrproper
-		copy-kernel-config
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-					modules_prepare || zerr
+		sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
+		sudo cp -v arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb $strapdir/boot/ || zerr
 	popd
 
 	postbuild || zerr
