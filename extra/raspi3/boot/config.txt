@@ -6,3 +6,6 @@ dtparam=audio=on
 
 ## maximum amps on usb ports
 max_usb_current=1
+
+## kernel
+kernel=kernel8.img
