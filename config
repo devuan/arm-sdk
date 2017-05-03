@@ -71,6 +71,7 @@ linuxmainline="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable
 ## u-boot mainline
 ubootmainline="git://git.denx.de/u-boot.git"
 
+arrs+=(uboot_configs board_dtbs)
 uboot_configs=(
 	A10-OLinuXino-Lime_defconfig
 	A20-OLinuXino-Lime2_defconfig
