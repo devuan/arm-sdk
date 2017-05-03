@@ -76,7 +76,7 @@ uboot_configs=(
 	A10-OLinuXino-Lime_defconfig
 	A20-OLinuXino-Lime2_defconfig
 	A20-OLinuXino-Lime_defconfig
-	A20-OLinuXino-MICRO_defconfig
+	A20-OLinuXino_MICRO_defconfig
 	Bananapi_defconfig
 	Bananapro_defconfig
 	CHIP_defconfig

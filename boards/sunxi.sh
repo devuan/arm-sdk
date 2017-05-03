@@ -60,11 +60,9 @@ postbuild() {
 
     notice "executing $device_name postbuild"
 
-    copy-root-overlay
-
     notice "building u-boot"
-	mkdir -p $R/dist/u-boot
-    clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
+	mkdir $R/dist/u-boot
+	pushd $R/extra/u-boot
     pushd $R/tmp/kernels/$device_name/u-boot
 		for board in $uboot_configs; do
 			notice "building u-boot for $board"
@@ -86,6 +84,7 @@ postbuild() {
 			mv -v u-boot-sunxi-with-spl.bin $R/dist/u-boot/${board}.bin
 		done
     popd
+
 
     notice "creating boot.cmd"
     cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
