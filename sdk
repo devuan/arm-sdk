@@ -56,6 +56,8 @@ load() {
 	## initialize binfmt_misc if not already, needed to run qemu
 	if [[ -f /etc/init.d/binfmt-support ]]; then
 		sudo /etc/init.d/binfmt-support restart
+	elif [[ -f /etc/init.d/qemu-binfmt ]]; then
+		sudo /etc/init.d/qemu-binfmt restart
 	else
 		[[ -d /proc/sys/fs/binfmt_misc ]] \
 			|| sudo modprobe binfmt_misc
