@@ -10,8 +10,16 @@ support multiple Linux distributions.
 arm-sdk is designed to be used interactively from a terminal, as well as
 from shell scripts. It requires the following packages to be installed:
 
+
+### Devuan
+
 ```
 sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils
+```
+
+### Gentoo
+```
+app-admin/sudo dev-vcs/git app-shells/zsh net-misc/curl net-misc/wget dev-util/debootstrap sys-boot/vboot-utils app-arch/xz-utils sys-block/parted app-emulation/qemu(static-user) net-misc/rsync sys-libs/zlib dev-embedded/u-boot-tools sys-apps/dtc app-arch/lzop sys-fs/dosfstools
 ```
 
 `sudo` permissions are required for the user that is running the build.
