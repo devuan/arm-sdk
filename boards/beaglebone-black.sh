@@ -67,8 +67,12 @@ postbuild() {
 kernel_file=zImage
 initrd_file=uInitrd
 
+loadaddr=0x82000000
+fdtaddr=0x88000000
+initrd_addr=0x88080000
+
 loadzimage=load mmc \${mmcdev}:\${mmcpart} \${loadaddr} \${kernel_file}
-loadinitrd=load mmc \${mmcdev}:\${mmcpart} 0x81000000 \${initrd_file}; setenv initrd_size \${filesize}
+loadinitrd=load mmc \${mmcdev}:\${mmcpart} \${initrd_addr} \${initrd_file}; setenv initrd_size \${filesize}
 loadfdt=load mmc \${mmcdev}:\${mmcpart} \${fdtaddr} /dtbs/\${fdtfile}
 #
 
@@ -89,7 +93,7 @@ uenvcmd=run loadzimage; run loadfdt; run mmcargs; bootz \${loadaddr} - \${fdtadd
 
 #zImage + uInitrd: where uInitrd has to be generated on the running system
 #boot_fdt=run loadzimage; run loadinitrd; run loadfdt
-#uenvcmd=run boot_fdt; run mmcargs; bootz \${loadaddr} 0x81000000:\${initrd_size} \${fdtaddr}
+#uenvcmd=run boot_fdt; run mmcargs; bootz \${loadaddr} \${initrd_addr}:\${initrd_size} \${fdtaddr}
 EOF
 	## }}}
 	## {{{ xorg.conf
