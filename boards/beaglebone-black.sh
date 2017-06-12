@@ -32,6 +32,7 @@ inittab="T0:12345:respawn:/sbin/getty -L ttyS0 115200 vt100"
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
+bootable_part="1"
 
 extra_packages+=()
 custmodules=()
@@ -59,6 +60,26 @@ postbuild() {
 	fn postbuild
 
 	notice "executing $device_name postbuild"
+
+	notice "building u-boot"
+
+	pushd $R/extra/u-boot
+
+	git checkout -b build "v2017.05"
+	wget "https://rcn-ee.com/repos/git/u-boot-patches/v2017.05/0001-am335x_evm-uEnv.txt-bootz-n-fixes.patch"
+	patch -p1 < "0001-am335x_evm-uEnv.txt-bootz-n-fixes.patch"
+
+	make distclean
+	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler am335x_evm_defconfig
+	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler || zerr
+
+	sudo cp $CPVERBOSE MLO u-boot.img "$strapdir"/boot/
+
+	git reset --hard
+	git checkout -
+	git branch -D build
+
+	popd
 
 	## {{{ uEnv.txt
 	notice "creating uEnv.txt file"
