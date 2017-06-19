@@ -97,6 +97,10 @@ postbuild-clean() {
 	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh
 apt-get update
+
+# backports e2fsprogs because 4.x kernels
+apt-get --yes --force-yes -t jessie-backports install e2fsprogs
+
 apt-get --yes --force-yes upgrade
 apt-get --yes --force-yes autoremove
 #apt-get clean
