@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -38,7 +38,7 @@ extra_packages+=()
 custmodules=()
 
 gitkernel="https://github.com/beagleboard/linux"
-gitbranch="4.4"
+gitbranch="4.9"
 
 
 prebuild() {
@@ -70,7 +70,7 @@ postbuild() {
 	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler am335x_evm_defconfig
 	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler || zerr
 
-	sudo cp $CPVERBOSE MLO u-boot.img "$strapdir"/boot/
+	sudo cp -v MLO u-boot.img "$strapdir"/boot/
 
 	git reset --hard
 	git checkout -
@@ -174,10 +174,6 @@ build_kernel_armhf() {
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
-
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \
