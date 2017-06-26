@@ -1,0 +1,13 @@
+diff --git a/common/cmd_pxe.c b/common/cmd_pxe.c
+index 77a7dd17ac..f75ba205ab 100644
+--- a/common/cmd_pxe.c
++++ b/common/cmd_pxe.c
+@@ -24,7 +24,7 @@
+ 
+ #include "menu.h"
+ 
+-#define MAX_TFTP_PATH_LEN 127
++#define MAX_TFTP_PATH_LEN 512
+ 
+ /*
+  * Like getenv, but prints an error if envvar isn't defined in the
