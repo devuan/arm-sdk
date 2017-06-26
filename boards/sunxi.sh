@@ -63,7 +63,6 @@ postbuild() {
     notice "building u-boot"
 	mkdir -p $R/dist/u-boot
 	pushd $R/extra/u-boot
-    pushd $R/tmp/kernels/$device_name/u-boot
 		for board in $uboot_configs; do
 			notice "building u-boot for $board"
 
