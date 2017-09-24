@@ -28,7 +28,7 @@ arrs+=(custmodules)
 device_name="sunxi"
 arch="armhf"
 size=1891
-inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"

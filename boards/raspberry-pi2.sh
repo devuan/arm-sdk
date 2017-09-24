@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="raspi2"
 arch="armhf"
 size=1891
-inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
+inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"

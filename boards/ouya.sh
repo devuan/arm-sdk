@@ -28,7 +28,7 @@ arrs+=(custmodules)
 device_name="ouya"
 arch="armhf"
 size=1337
-inittab="T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux"
+inittab=("T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"

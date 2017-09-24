@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="beagleboneblack"
 arch="armhf"
 size=1666
-inittab="T0:12345:respawn:/sbin/getty -L ttyS0 115200 vt100"
+inittab=("T0:12345:respawn:/sbin/getty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"

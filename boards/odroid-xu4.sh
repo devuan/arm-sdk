@@ -28,7 +28,7 @@ arrs+=(custmodules extra_packages)
 device_name="odroidxu4"
 arch="armhf"
 size=1337
-inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"

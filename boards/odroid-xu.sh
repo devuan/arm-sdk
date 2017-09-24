@@ -27,7 +27,7 @@ arrs+=(custmodules extra_packages)
 device_name="odroidxu"
 arch="armhf"
 size=1337
-inittab="T1:12345:respawn:/bin/login -f root ttySAC2 /dev/ttySAC2 2>&1"
+inittab=("T1:12345:respawn:/bin/login -f root ttySAC2 /dev/ttySAC2 2>&1")
 
 ## this is used for crosscompiling exynos5-hwcomposer.
 ## without it there is no framebuffer console.
