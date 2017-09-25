@@ -3,7 +3,7 @@
 proc              /proc         proc   nodev,noexec,nosuid       0    0
 
 ## rootfs
-/dev/mmcblk0p2    /             ext4   errors=remount-ro,noatime 0    1
+/dev/mmcblk0p2    /             ext4   noatime                   0    1
 
 ## bootfs
 /dev/mmcblk0p1    /boot         vfat   defaults                  0    0
