@@ -40,7 +40,6 @@ maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
-source $R/lib/overrides
 
 ## conclude zuper initialization
 source $R/lib/zuper/zuper.init
@@ -56,6 +55,8 @@ load() {
 	## initialize binfmt_misc if not already, needed to run qemu
 	if [[ -f /etc/init.d/binfmt-support ]]; then
 		sudo /etc/init.d/binfmt-support restart
+	elif [[ -f /etc/init.d/qemu-binfmt ]]; then
+		sudo /etc/init.d/qemu-binfmt restart
 	else
 		[[ -d /proc/sys/fs/binfmt_misc ]] \
 			|| sudo modprobe binfmt_misc
@@ -64,22 +65,17 @@ load() {
 	fi
 
 	board_map=(
-		"bananapi"        "$R/boards/bananapi.sh"
-		"bananapro"       "$R/boards/bananapro.sh"
 		"beagleboneblack" "$R/boards/beaglebone-black.sh"
 		"chromeacer"      "$R/boards/chromebook-acer.sh"
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
-		"cubieboard2"     "$R/boards/cubieboard2.sh"
-		"cubietruck"      "$R/boards/cubietruck.sh"
-		"olinuxino-lime2" "$R/boards/olinuxino-a20-lime2.sh"
-		"olinuxino-micro" "$R/boards/olinuxino-a20-micro.sh"
-		"m2plus"          "$R/boards/bananapi-m2plus.sh"
 		"n900"            "$R/boards/nokia-n900.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
+		"odroidxu4"       "$R/boards/odroid-xu4.sh"
 		"ouya"            "$R/boards/ouya.sh"
 		"raspi1"          "$R/boards/raspberry-pi1.sh"
 		"raspi2"          "$R/boards/raspberry-pi2.sh"
 		"raspi3"          "$R/boards/raspberry-pi3.sh"
+		"sunxi"           "$R/boards/sunxi.sh"
 	)
 
 	os_map=(
@@ -115,6 +111,7 @@ load() {
 		act "$os blend loaded"
 		export BLEND=1
 	}
+	source $R/lib/overrides
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"

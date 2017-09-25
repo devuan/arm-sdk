@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="raspi3"
 arch="arm64"
 size=1891
-inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
+inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 0 64"
@@ -99,7 +99,8 @@ build_kernel_arm64() {
 	sudo cp -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo perl scripts/mkknlimg --dtok arch/arm64/boot/Image.gz $strapdir/boot/kernel8.img
+	#	sudo perl scripts/mkknlimg --dtok arch/arm64/boot/Image.gz $strapdir/boot/kernel8.img
+		sudo cp arch/arm64/boot/Image                 $strapdir/boot/kernel8.img
 		sudo cp arch/arm64/boot/dts/broadcom/bcm*.dtb $strapdir/boot/
 		sudo cp arch/arm64/boot/dts/overlays/*.dtbo   $strapdir/boot/overlays/
 		sudo cp arch/arm64/boot/dts/overlays/README   $strapdir/boot/overlays/

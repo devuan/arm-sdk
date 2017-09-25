@@ -57,7 +57,7 @@ qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 
 
 ## extra_packages for all images
-extra_packages+=(fake-hwclock busybox-static openntpd)
+extra_packages+=(fake-hwclock busybox-static ntp)
 extra_packages+=(fbterm pciutils usbutils)
 purge_packages+=()
 
@@ -70,3 +70,62 @@ linuxmainline="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable
 
 ## u-boot mainline
 ubootmainline="git://git.denx.de/u-boot.git"
+
+arrs+=(uboot_configs board_dtbs)
+uboot_configs=(
+	A10-OLinuXino-Lime_defconfig
+	A20-OLinuXino-Lime2_defconfig
+	A20-OLinuXino-Lime_defconfig
+	A20-OLinuXino_MICRO_defconfig
+	Bananapi_defconfig
+	Bananapro_defconfig
+	CHIP_defconfig
+	CHIP_pro_defconfig
+	Cubieboard2_defconfig
+	Cubieboard4_defconfig
+	Cubieboard_defconfig
+	Cubietruck_defconfig
+	Cubietruck_plus_defconfig
+	Lamobo_R1_defconfig
+	orangepi_2_defconfig
+	Orangepi_defconfig
+	orangepi_lite_defconfig
+	Orangepi_mini_defconfig
+	orangepi_plus_defconfig
+	orangepi_zero_defconfig
+	q8_a33_tablet_1024x600_defconfig
+	q8_a33_tablet_800x480_defconfig
+	Sinovoip_BPI_M2_defconfig
+)
+board_dtbs=(
+	sun4i-a10-olinuxino-lime.dtb
+	sun7i-a20-olinuxino-lime2.dtb
+	sun7i-a20-olinuxino-lime.dtb
+	sun7i-a20-olinuxino-micro.dtb
+	sun7i-a20-bananapi.dtb
+	sun7i-a20-bananapro.dtb
+	sun5i-r8-chip.dtb
+	sun5i-gr8-chip-pro.dtb
+	sun7i-a20-cubieboard2.dtb
+	sun9i-a80-cubieboard4.dtb
+	sun4i-a10-cubieboard.dtb
+	sun7i-a20-cubietruck.dtb
+	sun8i-a83t-cubietruck-plus.dtb
+	sun7i-a20-lamobo-r1.dtb
+	sun8i-h3-orangepi-2.dtb
+	sun7i-a20-orangepi.dtb
+	sun8i-h3-orangepi-lite.dtb
+	sun7i-a20-orangepi-mini.dtb
+	sun8i-h3-orangepi-plus.dtb
+	sun8i-h2-plus-orangepi-zero.dtb
+	sun8i-a33-q8-tablet.dtb
+	sun6i-a31s-sinovoip-bpi-m2.dtb
+)
+
+## http://git.denx.de/?p=u-boot.git;a=blob;f=board/sunxi/README.pine64
+uboot64_configs=(
+	pine64_plus_defconfig
+)
+board64_dtbs=(
+	allwinner/sun50i-a64-pine64-plus.dtb
+)

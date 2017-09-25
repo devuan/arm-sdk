@@ -17,19 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## kernel build script for Olimex A20 OLinuXino-Lime2 boards
-##  http://linux-sunxi.org/Olimex_A20_OLinuXino-Lime2
+## generic kernel build script for sunxi allwinner boards
+##  http://linux-sunxi.org
 
-## settings & config
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
 vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
 
-device_name="lime2"
+device_name="sunxi"
 arch="armhf"
 size=1891
-inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
@@ -39,7 +38,7 @@ extra_packages+=()
 custmodules=()
 
 gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.10.y"
+gitbranch="linux-4.11.y"
 
 uboot=mainline
 sunxi_uboot="git://git.denx.de/u-boot.git"
@@ -61,30 +60,35 @@ postbuild() {
 
     notice "executing $device_name postbuild"
 
-    copy-root-overlay
-
     notice "building u-boot"
-    clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
-    pushd $R/tmp/kernels/$device_name/u-boot
-        make distclean
-        make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				A20-OLinuXino-Lime2_defconfig
-        make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler || zerr
+	mkdir -p $R/dist/u-boot
+	pushd $R/extra/u-boot
+		for board in $uboot_configs; do
+			notice "building u-boot for $board"
 
-        act "dd-ing to image..."
-        sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+			make distclean
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+					$board
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler || zerr
+
+			#act "dd-ing to image..."
+			#sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+
+			mv -v u-boot-sunxi-with-spl.bin $R/dist/u-boot/${board}.bin
+		done
     popd
+
 
     notice "creating boot.cmd"
     cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
 setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10
-load mmc 0:1 0x43000000 \${fdtfile} || load mmc 0:1 0x43000000 boot/\${fdtfile}
+load mmc 0:1 0x43000000 dtbs/\${fdtfile} || load mmc 0:1 0x43000000 boot/dtbs/\${fdtfile}
 load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
 bootz 0x42000000 - 0x43000000
 EOF
@@ -123,7 +127,10 @@ build_kernel_armhf() {
 					modules_install || zerr
 
         sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
-        sudo cp -v arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dtb $strapdir/boot/ || zerr
+		sudo mkdir -p $strapdir/boot/dtbs
+		for board in $board_dtbs; do
+			sudo cp -v arch/arm/boot/dts/$board $strapdir/boot/dtbs/ || zerr
+		done
     popd
 
     postbuild || zerr

@@ -29,10 +29,10 @@ deps=$(grep '^sudo' ./README.md)
 		}
 	done
 else
-	printf "(!!) this distro is unsupported. check and install the dependencies manually"
+	printf "(!!) this distro is unsupported. check and install the dependencies manually\n"
 fi
 
-git submodule update --init
+git submodule update --init --recursive
 mkdir -p gcc
 #cd lib/libdevuansdk && git checkout next && cd -
 

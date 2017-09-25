@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="raspi1"
 arch="armel"
 size=1891
-inittab="T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100"
+inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 0 64"

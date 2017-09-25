@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -17,17 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## kernel build script for Cubieboard2 boards
+## kernel build script for ODROID XU4 boards
+## https://lastlog.de/blog/posts/odroid_xu4_with_nixos.html
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root inittab)
-vars+=(gitkernel gitbranch sunxi_tools sunxi_uboot sunxi_boards)
-arrs+=(custmodules)
+vars+=(gitkernel gitbranch hosttuple)
+arrs+=(custmodules extra_packages)
 
-device_name="cubieboard2"
+device_name="odroidxu4"
 arch="armhf"
-size=1891
-inittab="T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100"
+size=1337
+inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
@@ -36,11 +37,9 @@ parted_root="ext4 264192s 100%"
 extra_packages+=()
 custmodules=()
 
-gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.10.y"
+gitkernel="https://github.com/tobetter/linux"
+gitbranch="odroidxu4-v4.8"
 
-uboot=mainline
-sunxi_uboot="git://git.denx.de/u-boot.git"
 
 prebuild() {
 	fn prebuild
@@ -60,33 +59,34 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	notice "building u-boot"
-	clone-git $sunxi_uboot "$R/tmp/kernels/$device_name/u-boot" || zerr
-	pushd $R/tmp/kernels/$device_name/u-boot
+	pushd "$R/extra/u-boot-hardkernel"
+		act "patching"
+		git checkout -- .
+		patch -p1 < "$R/extra/patches/uboothardkernel-tftp-path-len-bigger.patch" \
+			|| zerr
+
 		make distclean
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				Cubieboard2_defconfig || zerr
+				odroid_config || zerr
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler || zerr
 
-		act "dd-ing to image..."
-		sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
+		notice "dd-ing blobs and u-boot to the image"
+		sudo dd if=/dev/zero bs=512 count=4000 of=$loopdevice
+		sudo dd if=sd_fuse/hardkernel_1mb_uboot/bl1.bin.hardkernel \
+			bs=512 seek=1 of=$loopdevice
+		sudo dd if=sd_fuse/hardkernel_1mb_uboot/bl2.bin.hardkernel.1mb_uboot \
+			bs=512 seek=31 of=$loopdevice
+		sudo dd if=u-boot-dtb.bin bs=512 seek=63 of=$loopdevice
+		sudo dd if=sd_fuse/hardkernel_1mb_uboot/tzsw.bin.hardkernel \
+			bs=512 seek=2111 of=$loopdevice
 	popd
 
-	notice "creating boot.cmd"
-	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
-setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10
-load mmc 0:1 0x43000000 \${fdtfile} || load mmc 0:1 0x43000000 boot/\${fdtfile}
-load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
-bootz 0x42000000 - 0x43000000
-EOF
-
-	notice "creating u-boot script image"
-	sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 
 	postbuild-clean
 }
@@ -94,8 +94,7 @@ EOF
 build_kernel_armhf() {
 	fn build_kernel_armhf
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
-	req+=(strapdir sunxi_uboot)
-	req+=(loopdevice)
+	req+=(strapdir loopdevice)
 	ckreq || return 1
 
 	notice "building $arch kernel"
@@ -104,12 +103,15 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		copy-kernel-config
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				zImage dtbs modules || zerr
+				odroidxu4_defconfig || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -117,8 +119,33 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
-		sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
-		sudo cp -v arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb $strapdir/boot/ || zerr
+		sudo cp -v arch/arm/boot/zImage $strapdir/boot/
+	popd
+
+	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				mrproper
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				odroidxu4_defconfig || zerr
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+					modules_prepare || zerr
 	popd
 
 	postbuild || zerr

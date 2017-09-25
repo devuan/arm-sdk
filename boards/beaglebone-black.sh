@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2017 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -27,17 +27,18 @@ arrs+=(custmodules)
 device_name="beagleboneblack"
 arch="armhf"
 size=1666
-inittab="T1:12345:respawn:/sbin/agetty 115200 ttyO0 vt100"
+inittab=("T0:12345:respawn:/sbin/getty -L ttyS0 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
+bootable_part="1"
 
 extra_packages+=()
 custmodules=()
 
 gitkernel="https://github.com/beagleboard/linux"
-gitbranch="4.4"
+gitbranch="4.9"
 
 
 prebuild() {
@@ -47,10 +48,7 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	enablessh
-	write-fstab
-	copy-zram-init
-	install-custom-packages
+	copy-root-overlay
 
 	mkdir -p $R/tmp/kernels/$device_name
 }
@@ -60,6 +58,26 @@ postbuild() {
 
 	notice "executing $device_name postbuild"
 
+	notice "building u-boot"
+
+	pushd $R/extra/u-boot
+
+	git checkout -b build "v2017.05"
+	wget "https://rcn-ee.com/repos/git/u-boot-patches/v2017.05/0001-am335x_evm-uEnv.txt-bootz-n-fixes.patch"
+	patch -p1 < "0001-am335x_evm-uEnv.txt-bootz-n-fixes.patch"
+
+	make distclean
+	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler am335x_evm_defconfig
+	make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler || zerr
+
+	sudo cp -v MLO u-boot.img "$strapdir"/boot/
+
+	git reset --hard
+	git checkout -
+	git branch -D build
+
+	popd
+
 	## {{{ uEnv.txt
 	notice "creating uEnv.txt file"
 	cat <<EOF | sudo tee ${strapdir}/boot/uEnv.txt
@@ -67,8 +85,12 @@ postbuild() {
 kernel_file=zImage
 initrd_file=uInitrd
 
+loadaddr=0x82000000
+fdtaddr=0x88000000
+initrd_addr=0x88080000
+
 loadzimage=load mmc \${mmcdev}:\${mmcpart} \${loadaddr} \${kernel_file}
-loadinitrd=load mmc \${mmcdev}:\${mmcpart} 0x81000000 \${initrd_file}; setenv initrd_size \${filesize}
+loadinitrd=load mmc \${mmcdev}:\${mmcpart} \${initrd_addr} \${initrd_file}; setenv initrd_size \${filesize}
 loadfdt=load mmc \${mmcdev}:\${mmcpart} \${fdtaddr} /dtbs/\${fdtfile}
 #
 
@@ -89,7 +111,7 @@ uenvcmd=run loadzimage; run loadfdt; run mmcargs; bootz \${loadaddr} - \${fdtadd
 
 #zImage + uInitrd: where uInitrd has to be generated on the running system
 #boot_fdt=run loadzimage; run loadinitrd; run loadfdt
-#uenvcmd=run boot_fdt; run mmcargs; bootz \${loadaddr} 0x81000000:\${initrd_size} \${fdtaddr}
+#uenvcmd=run boot_fdt; run mmcargs; bootz \${loadaddr} \${initrd_addr}:\${initrd_size} \${fdtaddr}
 EOF
 	## }}}
 	## {{{ xorg.conf
@@ -152,10 +174,6 @@ build_kernel_armhf() {
 		sudo -E PATH="$PATH" \
 			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
 	popd
-
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo -E PATH="$PATH" \

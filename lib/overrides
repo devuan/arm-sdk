@@ -17,22 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## function overrides
+## overrided functions for arm-sdk
 
 conf_print_sourceslist() {
-	fn conf_print_sourceslist "(override)"
+	fn conf_print_sourceslist
 	req=(mirror release section)
 	ckreq || return 1
 
 	cat <<EOF
 ## package repositories
-deb ${mirror} ${release} ${section} non-free
+deb ${mirror} ${release} ${section}
 deb ${mirror} ${release}-updates ${section}
 deb ${mirror} ${release}-security ${section}
-#deb ${mirror} ${release}-backports ${section}
+deb ${mirror} ${release}-backports ${section}
 
 ## source repositories
-#deb-src ${mirror} ${release} ${section} non-free
+#deb-src ${mirror} ${release} ${section}
 #deb-src ${mirror} ${release}-updates ${section}
 #deb-src ${mirror} ${release}-security ${section}
 #deb-src ${mirror} ${release}-backports ${section}
