@@ -32,7 +32,7 @@ else
 	printf "(!!) this distro is unsupported. check and install the dependencies manually\n"
 fi
 
-git submodule update --init --recursive
+git submodule update --init --recursive --checkout
 mkdir -p gcc
 #cd lib/libdevuansdk && git checkout next && cd -
 

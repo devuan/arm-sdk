@@ -8,18 +8,19 @@ support multiple Linux distributions.
 ## Requirements
 
 arm-sdk is designed to be used interactively from a terminal, as well as
-from shell scripts. It requires the following packages to be installed:
+from shell scripts. It requires the following packages to be installed, as well
+as [libdevuansdk dependencies](https://github.com/dyne/libdevuansdk/blob/master/README.md#requirements):
 
 
 ### Devuan
 
 ```
-sudo git-core zsh curl wget debootstrap cgpt xz-utils kpartx parted qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils lzop
+curl wget qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils
 ```
 
 ### Gentoo
 ```
-app-admin/sudo dev-vcs/git app-shells/zsh net-misc/curl net-misc/wget dev-util/debootstrap sys-boot/vboot-utils app-arch/xz-utils sys-block/parted app-emulation/qemu(static-user) net-misc/rsync sys-libs/zlib dev-embedded/u-boot-tools sys-apps/dtc app-arch/lzop sys-fs/dosfstools
+net-misc/curl net-misc/wget sys-boot/vboot-utils app-emulation/qemu(static-user) net-misc/rsync sys-libs/zlib dev-embedded/u-boot-tools sys-apps/dtc app-arch/lzop sys-fs/dosfstools
 ```
 
 `sudo` permissions are required for the user that is running the build.
@@ -61,22 +62,20 @@ Now is the time you choose the device and OS you want to build the image for.
 
 ### Currently supported boards
 
-* `bananapi` - Banana Pi
-* `bananapro` - Banana Pi Pro
 * `beagleboneblack` - BeagleBone Black
 * `chromeacer` - Acer ARM Chromebook
 * `chromeveyron` - Veyron ARM Chromebook (RK3288)
-* `cubieboard2` - Cubieboard 2
-* `cubietruck` - Cubietruck
 * `n900` - Nokia N900
 * `odroidxu` - ODROID-XU
+* `odroidxu4` - ODROID-XU4
 * `ouya` - OUYA gaming console
 * `raspi1` - Raspberry Pi 1 and 0 (armel)
 * `raspi2` - Raspberry Pi 2 and 3
 * `raspi3` - Raspberry Pi 3 (64bit)
+* `sunxi` - Allwinner-based boards
 
 ```
-; load devuan cubietruck
+; load devuan sunxi
 ```
 
 Once initialized, you can run the helper command:
