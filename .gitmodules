@@ -4,9 +4,6 @@
 [submodule "lib/zuper"]
 	path = lib/zuper
 	url = https://github.com/dyne/zuper.git
-[submodule "lib/libalpine"]
-	path = lib/libalpine
-	url = https://github.com/parazyd/libalpine
 [submodule "extra/u-boot"]
 	path = extra/u-boot
 	url = git://git.denx.de/u-boot.git
