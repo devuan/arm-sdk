@@ -21,7 +21,7 @@
 ## NOTE: see 'doc/quirks.md' for more info on this device
 
 ## settings & config
-vars+=(device_name arch size parted_boot parted_root inittab)
+vars+=(device_name arch size parted_boot parted_root bootfs inittab)
 vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
 
@@ -33,6 +33,7 @@ inittab=("T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux")
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
+bootfs="vfat"
 
 extra_packages+=(libasound2 libglib2.0-0 libgstreamer-plugins-base0.10-0 libxv1)
 custmodules=()

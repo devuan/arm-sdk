@@ -20,7 +20,7 @@
 ## kernel build script for Raspberry Pi 1 boards
 
 ## settings & config
-vars+=(device_name arch size parted_type parted_boot parted_root inittab)
+vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
 vars+=(gitkernel gitbranch rpifirmware)
 arrs+=(custmodules)
 
@@ -32,6 +32,7 @@ inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 parted_type="dos"
 parted_boot="fat32 0 64"
 parted_root="ext4 64 -1"
+bootfs="vfat"
 
 extra_packages+=()
 custmodules=(snd_bcm2835)

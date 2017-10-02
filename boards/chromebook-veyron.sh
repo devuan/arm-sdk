@@ -20,10 +20,10 @@
 ## kernel build script for Acer Chromebook boards
 
 ## settings & config
-vars+=(device_name arch size parted_type parted_boot parted_root inittab)
+vars+=(device_name arch size parted_type)
 vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
-arrs+=(gpt_root gpt_boot)
+arrs+=(gpt_root gpt_boot bootfs)
 
 device_name="chromeveyron"
 arch="armhf"
@@ -33,6 +33,7 @@ size=1730
 parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
+bootfs="none"
 
 extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)

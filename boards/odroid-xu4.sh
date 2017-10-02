@@ -21,7 +21,7 @@
 ## https://lastlog.de/blog/posts/odroid_xu4_with_nixos.html
 
 ## settings & config
-vars+=(device_name arch size parted_type parted_boot parted_root inittab)
+vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
 vars+=(gitkernel gitbranch hosttuple)
 arrs+=(custmodules extra_packages)
 
@@ -33,6 +33,7 @@ inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
+bootfs="vfat"
 
 extra_packages+=()
 custmodules=()
