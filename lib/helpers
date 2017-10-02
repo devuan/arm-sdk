@@ -26,7 +26,7 @@ get-kernel-sources() {
 
 	notice "grabbing kernel sources"
 
-	if [[ $kernel = mainline ]]; then
+	if [[ $gitkernel = mainline ]]; then
 		clone-git "$linuxmainline" "$R/tmp/kernels/$device_name/${device_name}-linux"
 	else
 		clone-git "$gitkernel" "$R/tmp/kernels/$device_name/${device_name}-linux" "$gitbranch"
