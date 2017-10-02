@@ -72,6 +72,7 @@ Now is the time you choose the device and OS you want to build the image for.
 * `raspi1` - Raspberry Pi 1 and 0 (armel)
 * `raspi2` - Raspberry Pi 2 and 3
 * `raspi3` - Raspberry Pi 3 (64bit)
+* `rock64` - Rock64 (64bit) (EXPERIMENTAL)
 * `sunxi` - Allwinner-based boards
 
 ```
