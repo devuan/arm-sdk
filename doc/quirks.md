@@ -1,6 +1,18 @@
 Notes and quirks for specific devices
 =====================================
 
+## Olimex A20-OLinuXino-MICRO Rev. J
+* This one has an issue with ethernet. To make it work properly, you can issue
+  the following as root:
+
+```
+ifconfig eth0 down
+echo 17 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio17/direction
+echo 0 > /sys/class/gpio/gpio17/value
+ifconfig eth0 up
+```
+
 ## Lamobo R1 (BananaPi Router)
 * https://github.com/igorpecovnik/lib/issues/511#issuecomment-262571252
 * https://github.com/hknaack/lib/commit/485f48957df5de317a04943ffaeeb259b78604e7
