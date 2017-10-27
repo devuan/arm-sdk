@@ -25,16 +25,16 @@
 MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
 ## devuan packaged toolchain
-#compiler="arm-none-eabi-"
+devuantc="arm-none-eabi-"
 
 ## linaro armhf toolchain
-#compiler="arm-linux-gnueabihf-"
+armhftc="arm-linux-gnueabihf-"
 
 ## linaro armel toolchain
-#compiler="arm-linux-gnueabi-"
+armeltc="arm-linux-gnueabi-"
 
 ## linaro arm64 toolchain
-#compiler="aarch64-linux-gnu-"
+arm64tc="aarch64-linux-gnu-"
 
 export PATH="$R/gcc/linaro-armhf/bin:$R/gcc/linaro-armel/bin:$R/gcc/linaro-arm64/bin"
 export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"

@@ -102,7 +102,7 @@ load() {
 
 	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
 	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
-	[[ -f $blendlib ]] || { warn "no valid blend specified" }
+	[[ -f $blendlib ]] || { act "no blend specified" }
 
 	source $boardlib ## XXX: remove this line
 	source $oslib
@@ -118,10 +118,16 @@ load() {
 	strapdir="$workdir/bootstrap"
 	mkdir -p $strapdir
 
+	case "$arch" in
+		armhf) export compiler="$armhftc";;
+		armel) export compiler="$armeltc";;
+		arm64) export compiler="$arm64tc";;
+		*) die "invalid architecture in board script"; exit 1;;
+	esac
+	[[ -n "$USEDEVUANTC" ]] && export compiler="$devuantc"
+
 	export LANG=C
 	export LC_ALL=C
-	export ARCH=arm
-	export CROSS_COMPILE="$compiler"
 
 	source $R/lib/zuper/zuper.init
 }
