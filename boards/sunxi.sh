@@ -76,7 +76,10 @@ postbuild() {
 			make \
 				$MAKEOPTS \
 				ARCH=arm \
-				CROSS_COMPILE=$compiler || zerr
+				CROSS_COMPILE=$compiler || {
+					zerr
+					return 1
+				}
 
 			mv -v u-boot-sunxi-with-spl.bin $R/dist/u-boot/${board}.bin
 		done
