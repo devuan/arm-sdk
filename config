@@ -43,12 +43,10 @@ export PATH="$R/gcc/linaro-armhf/bin:$R/gcc/linaro-armel/bin:$R/gcc/linaro-arm64
 export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"
 
 
-## static qemu arm binary
-## XXX: make this automagic
-qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
-#qemu_bin="/usr/bin/qemu-aarch64-static" # Devuan
-#qemu_bin="/usr/bin/qemu-arm"            # Gentoo
-#qemu_bin="/usr/bin/qemu-aarch"          # Gentoo
+## static qemu arm binaries
+armel_qemu_bin="/usr/bin/qemu-arm-static"
+armhf_qemu_bin="/usr/bin/qemu-arm-static"
+arm64_qemu_bin="/usr/bin/qemu-aarch64-static"
 
 
 ## extra_packages for all images
