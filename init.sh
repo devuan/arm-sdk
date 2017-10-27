@@ -19,18 +19,6 @@
 
 ## This script will setup arm-sdk and make it ready for usage.
 
-if test $(which apt-get); then
-deps=$(grep '^sudo' ./README.md)
-
-	for dep in $deps; do
-		dpkg -l $dep >/dev/null || {
-			printf "(!!) '%s' not installed\nplease install and retry\n" $dep
-			exit 1
-		}
-	done
-else
-	printf "(!!) this distro is unsupported. check and install the dependencies manually\n"
-fi
 
 git submodule update --init --recursive --checkout
 mkdir -p gcc
@@ -42,9 +30,12 @@ mkdir -p gcc
 
 gettc() {
 	cd gcc
-	wget -O "$(basename $1)" "$1" && \
+	echo "Downloading $1" && \
+	wget -q -O "$(basename $1)" "$1" && \
+	echo "Extracting $(basename $1)" && \
 	tar xfp "$(basename $1)" && \
-	mv "$(basename -s .tar.xz $1)" "linaro-${2}"
+	mv "$(basename -s .tar.xz $1)" "linaro-${2}" || \
+	return 1
 	cd -
 }
 
@@ -58,10 +49,27 @@ linarover="7.1.1-2017.08"
 linarourl="https://releases.linaro.org/components/toolchain/binaries/7.1-2017.08"
 
 tc="${linarourl}/${armeltc}/gcc-linaro-${linarover}-${_hostarch}_${armeltc}.tar.xz"
-gettc "$tc" "armel"
+gettc "$tc" "armel" || {
+	echo "Something went wrong while downloading the armel toolchain."
+	exit 1
+}
 
 tc="${linarourl}/${armhftc}/gcc-linaro-${linarover}-${_hostarch}_${armhftc}.tar.xz"
-gettc "$tc" "armhf"
+gettc "$tc" "armhf" || {
+	echo "Something went wrong while downloading the armhf toolchain."
+	exit 1
+}
 
 tc="${linarourl}/${arm64tc}/gcc-linaro-${linarover}-${_hostarch}_${arm64tc}.tar.xz"
-gettc "$tc" "arm64"
+gettc "$tc" "arm64" || {
+	echo "Something went wrong while downloading the arm64 toolchain."
+	exit 1
+}
+
+cat <<EOM
+
+All done! Make sure you also install the required dependencies listed in
+README.md. You can use the following oneliner as well:
+
+$ grep '^curl ' README.md | xargs sudo apt --yes --force-yes install
+EOM
