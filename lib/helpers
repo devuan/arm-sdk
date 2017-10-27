@@ -91,19 +91,27 @@ copy-root-overlay() {
 
 postbuild-clean() {
 	fn postbuild-clean
-	req=(qemu_bin strapdir)
+	req=(qemu_bin strapdir release)
 	ckreq || return 1
+
+	case "$release" in
+		jessie)
+			cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
+#!/bin/sh
+# jessie-backports e2fsprogs because 4.x kernels
+apt-get update
+apt-get --yes --force-yes -t jessie-backports install e2fsprogs
+EOF
+			chroot-script -d postbuild || zerr
+			;;
+	esac
 
 	cat <<EOF | sudo tee ${strapdir}/postbuild >/dev/null
 #!/bin/sh
 apt-get update
-
-# backports e2fsprogs because 4.x kernels
-apt-get --yes --force-yes -t jessie-backports install e2fsprogs
-
 apt-get --yes --force-yes upgrade
 apt-get --yes --force-yes autoremove
-#apt-get clean
+apt-get clean
 
 updatedb
 EOF
