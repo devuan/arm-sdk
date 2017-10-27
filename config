@@ -24,6 +24,9 @@
 ## options for `make` when building kernel
 MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
+## uncomment if you wish to create stage4 tarballs for faster rebuilding
+# TAR_STAGE4=true
+
 ## devuan packaged toolchain
 devuantc="arm-none-eabi-"
 
@@ -41,6 +44,7 @@ export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"
 
 
 ## static qemu arm binary
+## XXX: make this automagic
 qemu_bin="/usr/bin/qemu-arm-static"      # Devuan
 #qemu_bin="/usr/bin/qemu-aarch64-static" # Devuan
 #qemu_bin="/usr/bin/qemu-arm"            # Gentoo
