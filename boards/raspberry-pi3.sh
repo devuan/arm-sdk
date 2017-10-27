@@ -59,7 +59,7 @@ postbuild() {
 
 	copy-root-overlay
 
-	notice "downloading raspberry pi 3 firmware for bt/wifi"
+	notice "downloading broadcom firmware for bt/wifi"
 	sudo mkdir -p $strapdir/lib/firmware/brcm
 	# https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/brcm
 	sudo wget -q -O "$strapdir/lib/firmware/brcm/brcmfmac43430-sdio.bin" \
@@ -80,15 +80,20 @@ build_kernel_arm64() {
 
 	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		# pi3 defconfig
 		make \
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
 				bcmrpi3_defconfig || zerr
+
+		# compile kernel and modules
 		make \
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler || zerr
+
+		# install kernel modules
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -96,6 +101,24 @@ build_kernel_arm64() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
+
+		# install kernel headers
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm64 \
+				CROSS_COMPILE=$compiler \
+				INSTALL_HDR_PATH=$strapdir/usr \
+					headers_install || zerr
+
+		# install kernel firmware
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm64 \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
@@ -107,32 +130,6 @@ build_kernel_arm64() {
 		sudo cp arch/arm64/boot/dts/broadcom/bcm*.dtb $strapdir/boot/
 		sudo cp arch/arm64/boot/dts/overlays/*.dtbo   $strapdir/boot/overlays/
 		sudo cp arch/arm64/boot/dts/overlays/README   $strapdir/boot/overlays/
-	popd
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm64 \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					firmware_install || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm64 \
-			CROSS_COMPILE=$compiler \
-				mrproper
-		make \
-			$MAKEOPTS \
-			ARCH=arm64 \
-			CROSS_COMPILE=$compiler \
-				bcmrpi3_defconfig
-		sudo -E PATH="$PATH"\
-			make \
-				$MAKEOPTS \
-				ARCH=arm64 \
-				CROSS_COMPILE=$compiler \
-					modules_prepare || zerr
 	popd
 
 	postbuild || zerr
