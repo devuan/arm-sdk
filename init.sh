@@ -36,59 +36,32 @@ git submodule update --init --recursive --checkout
 mkdir -p gcc
 #cd lib/libdevuansdk && git checkout next && cd -
 
-## ===============
-## armhf toolchain
-## ===============
-armhfurldl=https://pub.parazyd.cf/mirror/armv7-devuan-linux-gnueabihf.txz
-armhfshahc=b8e641a3837a3aeb8a9116b0a5853b1bbc26f14b2f75f6c5005fcd7e23669fd3
-armhfshadl=$(curl -s ${armhfurldl}.sha | awk '{print $1}')
+## =================
+## linaro toolchains
+## =================
 
-test $armhfshahc = $armhfshadl || {
-	printf "(!!) armhf sha256sum doesn't match with hardcoded one\n"
-	exit 1
+gettc() {
+	cd gcc
+	wget -O "$(basename $1)" "$1" && \
+	tar xfp "$(basename $1)" && \
+	mv "$(basename -s .tar.xz $1)" "linaro-${2}"
+	cd -
 }
 
-cd gcc
-	curl -O ${armhfurldl} && \
-	curl -O ${armhfurldl}.sha && \
-	sha256sum   -c $(basename $armhfurldl).sha \
-		&& tar xfp $(basename $armhfurldl)
-cd -
+_hostarch="$(uname -m)"
 
-## ===============
-## armel toolchain
-## ===============
-armelurldl=https://pub.parazyd.cf/mirror/armv6-devuan-linux-gnueabi.txz
-armelshahc=9aa5095f6587fea4e79e8894557044879e98917be5fa37000cf2f474c00d451f
-armelshadl=$(curl -s ${armelurldl}.sha | awk '{print $1}')
+armeltc=arm-linux-gnueabi
+armhftc=arm-linux-gnueabihf
+arm64tc=aarch64-linux-gnu
 
-test $armelshahc = $armelshadl || {
-	printf "(!!) armel sha256sum doesn't match with hardcoded one\n"
-	exit 1
-}
+linarover="7.1.1-2017.08"
+linarourl="https://releases.linaro.org/components/toolchain/binaries/7.1-2017.08"
 
-cd gcc
-	curl -O ${armelurldl} && \
-	curl -O ${armelurldl}.sha && \
-	sha256sum   -c $(basename $armelurldl).sha \
-		&& tar xfp $(basename $armelurldl)
-cd -
+tc="${linarourl}/${armeltc}/gcc-linaro-${linarover}-${_hostarch}_${armeltc}.tar.xz"
+gettc "$tc" "armel"
 
-## ===============
-## arm64 toolchain
-## ===============
-arm64urldl=https://pub.parazyd.cf/mirror/aarch64-devuan-linux-gnueabi.txz
-arm64shahc=80ffad79dd8d9bf8cbd20b3e9f5914f5172d1d5252be8ad4eef078243206fe8f
-arm64shadl=$(curl -s ${arm64urldl}.sha | awk '{print $1}')
+tc="${linarourl}/${armhftc}/gcc-linaro-${linarover}-${_hostarch}_${armhftc}.tar.xz"
+gettc "$tc" "armhf"
 
-test $arm64shahc = $arm64shadl || {
-	printf "(!!) arm64 sha256sum doesn't match with hardcoded one\n"
-	exit 1
-}
-
-cd gcc
-	curl -O ${arm64urldl} && \
-	curl -O ${arm64urldl}.sha && \
-	sha256sum   -c $(basename $arm64urldl).sha \
-		&& tar xfp $(basename $arm64urldl)
-cd -
+tc="${linarourl}/${arm64tc}/gcc-linaro-${linarover}-${_hostarch}_${arm64tc}.tar.xz"
+gettc "$tc" "arm64"

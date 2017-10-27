@@ -21,32 +21,23 @@
 ## arm-sdk configuration
 ## ---------------------
 
-
 ## options for `make` when building kernel
 MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
-
-## custom toolchain (armv7+armhf; gcc 4.9.3)
-## https://pub.parazyd.cf/mirror/
-#compiler="armv7-devuan-linux-gnueabihf-"
-#export PATH="$R/gcc/armv7-devuan-linux-gnueabihf/bin:$PATH:/usr/sbin:/sbin"
-
-
-## custom toolchain (armv6+armel; gcc 4.9.3)
-## https://pub.parazyd.cf/mirror/
-#compiler="armv6-devuan-linux-gnueabi-"
-#export PATH="$R/gcc/armv6-devuan-linux-gnueabi/bin:$PATH:/usr/sbin:/sbin"
-
-
-## custom toolchain (aarch64+arm64; gcc 4.9.3)
-## https://pub.parazyd.cf/mirror/
-#compiler="aarch64-devuan-linux-gnueabi-"
-#export PATH="$R/gcc/aarch64-devuan-linux-gnueabi/bin:$PATH:/usr/sbin:/sbin"
-
-
 ## devuan packaged toolchain
-compiler="arm-none-eabi-"
-export PATH="$PATH:/usr/sbin:/sbin"
+#compiler="arm-none-eabi-"
+
+## linaro armhf toolchain
+#compiler="arm-linux-gnueabihf-"
+
+## linaro armel toolchain
+#compiler="arm-linux-gnueabi-"
+
+## linaro arm64 toolchain
+#compiler="aarch64-linux-gnu-"
+
+export PATH="$R/gcc/linaro-armhf/bin:$R/gcc/linaro-armel/bin:$R/gcc/linaro-arm64/bin"
+export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"
 
 
 ## static qemu arm binary
