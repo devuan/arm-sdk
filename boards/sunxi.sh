@@ -38,7 +38,7 @@ bootfs="ext4"
 extra_packages+=()
 custmodules=()
 
-gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 gitbranch="linux-4.13.y"
 
 
