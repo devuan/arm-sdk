@@ -33,20 +33,18 @@ inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
 parted_root="ext4 264192s 100%"
-bootfs="vfat"
+bootfs="ext4"
 
 extra_packages+=()
 custmodules=()
 
 gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.11.y"
+gitbranch="linux-4.13.y"
 
-uboot=mainline
-sunxi_uboot="git://git.denx.de/u-boot.git"
 
 prebuild() {
 	fn prebuild
-    req=(device_name strapdir)
+    req=(device_name)
     ckreq || return 1
 
     notice "executing $device_name prebuild"
@@ -58,6 +56,8 @@ prebuild() {
 
 postbuild() {
     fn postbuild
+	req=(uboot_configs device_name compiler)
+	ckreq || return 1
 
     notice "executing $device_name postbuild"
 
@@ -78,9 +78,6 @@ postbuild() {
 				ARCH=arm \
 				CROSS_COMPILE=$compiler || zerr
 
-			#act "dd-ing to image..."
-			#sudo dd if=u-boot-sunxi-with-spl.bin of=$loopdevice bs=1024 seek=8 || zerr
-
 			mv -v u-boot-sunxi-with-spl.bin $R/dist/u-boot/${board}.bin
 		done
     popd
@@ -88,14 +85,15 @@ postbuild() {
 
     notice "creating boot.cmd"
     cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
-setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10
+setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 \${extra}
 load mmc 0:1 0x43000000 dtbs/\${fdtfile} || load mmc 0:1 0x43000000 boot/dtbs/\${fdtfile}
 load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
 bootz 0x42000000 - 0x43000000
 EOF
 
     notice "creating u-boot script image"
-    sudo mkimage -A arm -T script -C none -d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
+    sudo mkimage -A arm -T script -C none \
+		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 
     postbuild-clean
 }
@@ -103,7 +101,7 @@ EOF
 build_kernel_armhf() {
     fn build_kernel_armhf
     req=(R arch device_name gitkernel gitbranch MAKEOPTS)
-    req+=(strapdir sunxi_uboot)
+    req+=(strapdir)
     req+=(loopdevice)
     ckreq || return 1
 
@@ -114,11 +112,15 @@ build_kernel_armhf() {
     get-kernel-sources
     pushd $R/tmp/kernels/$device_name/${device_name}-linux
         copy-kernel-config
+
+		# compile kernel and modules
         make \
 			$MAKEOPTS \
             ARCH=arm \
 			CROSS_COMPILE=$compiler \
 				zImage dtbs modules || zerr
+
+		# install kernel modules
         sudo -E PATH="$PATH" \
             make \
 				$MAKEOPTS \
@@ -126,6 +128,15 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
+
+		# install kernel headers
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_HDR_PATH=$strapdir/usr \
+					headers_install || zerr
 
         sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
 		sudo mkdir -p $strapdir/boot/dtbs
