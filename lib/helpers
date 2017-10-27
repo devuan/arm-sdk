@@ -82,6 +82,8 @@ copy-root-overlay() {
 		notice "copying generic-root" && \
 		sudo cp -rfv $R/extra/generic-root/* $strapdir
 
+	sudo sed -e "s/{{{BOOTFS}}}/$bootfs/" -i "$strapdir/etc/fstab"
+
 	[[ -d $R/extra/$device_name ]] && \
 		notice "copying ${device_name}-root" && \
 		sudo cp -rfv $R/extra/$device_name/* $strapdir
