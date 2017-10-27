@@ -102,7 +102,6 @@ build_kernel_armhf() {
     fn build_kernel_armhf
     req=(R arch device_name gitkernel gitbranch MAKEOPTS)
     req+=(strapdir)
-    req+=(loopdevice)
     ckreq || return 1
 
     notice "building $arch kernel"
