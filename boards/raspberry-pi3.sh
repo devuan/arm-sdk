@@ -38,7 +38,7 @@ extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux"
-gitbranch="rpi-4.10.y"
+gitbranch="rpi-4.13.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
@@ -59,9 +59,11 @@ postbuild() {
 
 	copy-root-overlay
 
-	notice "installing raspberry pi 3 firmware for bt/wifi"
+	notice "downloading raspberry pi 3 firmware for bt/wifi"
 	sudo mkdir -p $strapdir/lib/firmware/brcm
-	sudo cp $R/extra/raspberry-fw/brcmfmac43430-sdio.{bin,txt} $strapdir/lib/firmware/brcm/
+	# https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/brcm
+	sudo wget -q -O "$strapdir/lib/firmware/brcm/brcmfmac43430-sdio.bin" \
+		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/brcm/brcmfmac43430-sdio.bin
 
 	postbuild-clean
 }
