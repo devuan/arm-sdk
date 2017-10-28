@@ -38,7 +38,7 @@ extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux.git"
-gitbranch="rpi-4.10.y"
+gitbranch="rpi-4.13.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
@@ -59,9 +59,11 @@ postbuild() {
 
 	copy-root-overlay
 
-	notice "installing raspberry pi 3 firmware for bt/wifi"
+	notice "downloading broadcom firmware for bt/wifi"
 	sudo mkdir -p $strapdir/lib/firmware/brcm
-	sudo cp $R/extra/raspberry-fw/brcmfmac43430-sdio.{bin,txt} $strapdir/lib/firmware/brcm/
+	# https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/brcm
+	sudo wget -q -O "$strapdir/lib/firmware/brcm/brcmfmac43430-sdio.bin" \
+		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/brcm/brcmfmac43430-sdio.bin
 
 	postbuild-clean
 }
@@ -78,15 +80,20 @@ build_kernel_armhf() {
 
 	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		# pi2 defconfig
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
 				bcm2709_defconfig || zerr
+
+		# compile kernel and modules
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler || zerr
+
+		# install kernel modules
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -94,6 +101,24 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
+
+		# install kernel headers
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				ISNTALL_HDR_PATH=$strapdir/usr \
+					headers_install || zerr
+
+		# install kernel firmware
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
@@ -104,32 +129,6 @@ build_kernel_armhf() {
 		sudo cp arch/arm/boot/dts/bcm*.dtb                 $strapdir/boot/
 		sudo cp arch/arm/boot/dts/overlays/*.dtbo          $strapdir/boot/overlays/
 		sudo cp arch/arm/boot/dts/overlays/README          $strapdir/boot/overlays/
-	popd
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					firmware_install || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				mrproper
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				bcm2709_defconfig
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-					modules_prepare || zerr
 	popd
 
 	postbuild || zerr

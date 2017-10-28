@@ -30,15 +30,15 @@ size=1891
 inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 
 parted_type="dos"
-parted_boot="fat32 0 64"
-parted_root="ext4 64 -1"
+parted_boot="fat32 2048s 264191s"
+parted_root="ext4 264192s 100%"
 bootfs="vfat"
 
 extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux.git"
-gitbranch="rpi-4.10.y"
+gitbranch="rpi-4.13.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
@@ -59,6 +59,12 @@ postbuild() {
 
 	copy-root-overlay
 
+	notice "downloading broadcom firmware for bt/wifi"
+	sudo mkdir -p $strapdir/lib/firmware/brcm
+	# https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/brcm
+	sudo wget -q -O "$strapdir/lib/firmware/brcm/brcmfmac43430-sdio.bin" \
+		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/brcm/brcmfmac43430-sdio.bin
+
 	postbuild-clean
 }
 
@@ -74,15 +80,20 @@ build_kernel_armel() {
 
 	get-kernel-sources || zerr
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		# pi1 defconfig
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
 				bcmrpi_defconfig || zerr
+
+		# compile kernel and modules
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler || zerr
+
+		# install kernel modules
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -90,6 +101,24 @@ build_kernel_armel() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
+
+		# install kernel headers
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_HDR_PATH=$strapdir/usr \
+					headers_install || zerr
+
+		# install kernel firmware
+		sudo -E PATH="$PATH" \
+			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
@@ -100,32 +129,6 @@ build_kernel_armel() {
 		sudo cp arch/arm/boot/dts/bcm*.dtb                 $strapdir/boot/
 		sudo cp arch/arm/boot/dts/overlays/*.dtbo          $strapdir/boot/overlays/
 		sudo cp arch/arm/boot/dts/overlays/README          $strapdir/boot/overlays/
-	popd
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					firmware_install || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				mrproper
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				bcmrpi_defconfig
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-					modules_prepare || zerr
 	popd
 
 	postbuild || zerr
