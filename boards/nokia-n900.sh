@@ -25,7 +25,7 @@ vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
 
 device_name="n900"
-arch="armhf"
+arch="armel"
 size=666
 #inittab=""
 
@@ -37,8 +37,8 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-gitkernel="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.10.y"
+gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitbranch="linux-4.13.y"
 
 
 prebuild() {
@@ -47,7 +47,6 @@ prebuild() {
 	ckreq || return 1
 
 	notice "executing $device_name prebuild"
-
 
 	mkdir -p $R/tmp/kernels/$device_name
 
@@ -65,8 +64,8 @@ postbuild() {
 	copy-root-overlay
 }
 
-build_kernel_armhf() {
-	fn build_kernel_armhf
+build_kernel_armel() {
+	fn build_kernel_armel
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
 	req+=(strapdir)
 	req+=(loopdevice)
@@ -79,12 +78,16 @@ build_kernel_armhf() {
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 	copy-kernel-config
+
+	# compile kernel and modules
 	make \
 		$MAKEOPTS \
 		ARCH=arm \
 		CROSS_COMPILE=$compiler \
 			zImage modules omap3-n900.dtb || zerr
 	cat arch/arm/boot/zImage arch/arm/boot/dts/omap3-n900.dtb > zImage || zerr
+
+	# install kernel modules
 	sudo -E PATH="$PATH" \
 		make \
 			$MAKEOPTS \
@@ -94,28 +97,26 @@ build_kernel_armhf() {
 			INSTALL_MOD_STRIP=1 \
 				modules_install || zerr
 
-	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
-	sudo cp -v uImage $strapdir/boot/
-	popd
+	# install kernel headers
+	sudo -E PATH="$PATH" \
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			INSTALL_HDR_PATH=$strapdir/usr \
+				headers_install || zerr
 
-	#sudo rm -rf $strapdir/lib/firmware
-	#get-kernel-firmware
-	#sudo cp $CPVERBOSE -ra $R/tmp/linux-firmware $strapdir/lib/firmware
-
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	# install kernel firmware
 	sudo -E PATH="$PATH" \
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
 			INSTALL_MOD_PATH=$strapdir \
-				firmware_install
-	sudo -E PATH="$PATH" \
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				modules_prepare || zerr
+				firmware_install || zerr
+
+	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
+	sudo cp -v uImage $strapdir/boot/
 	popd
 
 	postbuild || zerr
