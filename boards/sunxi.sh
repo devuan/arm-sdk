@@ -132,13 +132,13 @@ build_kernel_armhf() {
 					modules_install || zerr
 
 		# install kernel headers
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_HDR_PATH=$strapdir/usr \
-					headers_install || zerr
+		#sudo -E PATH="$PATH" \
+		#	make \
+		#		$MAKEOPTS \
+		#		ARCH=arm \
+		#		CROSS_COMPILE=$compiler \
+		#		INSTALL_HDR_PATH=$strapdir/usr \
+		#			headers_install || zerr
 
         sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
 		sudo mkdir -p $strapdir/boot/dtbs

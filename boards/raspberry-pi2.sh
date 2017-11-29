@@ -103,13 +103,13 @@ build_kernel_armhf() {
 					modules_install || zerr
 
 		# install kernel headers
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				ISNTALL_HDR_PATH=$strapdir/usr \
-					headers_install || zerr
+		#sudo -E PATH="$PATH" \
+		#	make \
+		#		$MAKEOPTS \
+		#		ARCH=arm \
+		#		CROSS_COMPILE=$compiler \
+		#		INSTALL_HDR_PATH=$strapdir/usr \
+		#			headers_install || zerr
 
 		# install kernel firmware
 		sudo -E PATH="$PATH" \

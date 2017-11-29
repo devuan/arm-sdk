@@ -104,6 +104,7 @@ build_kernel_armhf() {
 	# http://tuomas.kulve.fi/blog/2013/09/12/debian-on-ouya-all-systems-go/     #
 	#############################################################################
 EOM
+	sleep 5
 
 	postbuild || zerr
 }
