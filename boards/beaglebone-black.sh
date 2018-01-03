@@ -168,22 +168,29 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		ARCH=arm make bb.org_defconfig
-		make $MAKEOPTS || zerr
-		sudo cp $CPVERBOSE arch/arm/boot/zImage $strapdir/boot/zImage
-		sudo mkdir -p $strapdir/boot/dtbs
-		sudo cp $CPVERBOSE arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
-		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir modules_install || zerr
-	popd
+		make \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				bb.org_defconfig || zerr
 
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || zerr
+
+		sudo cp -v arch/arm/boot/zImage $strapdir/boot/zImage
+		sudo mkdir -p $strapdir/boot/dtbs
+		sudo cp -v arch/arm/boot/dts/*.dtb $strapdir/boot/dtbs/
+
 		sudo -E PATH="$PATH" \
-			make INSTALL_MOD_PATH=$strapdir firmware_install || zerr
-		make mrproper
-		ARCH=arm make bb.org_defconfig
+			make \
+				INSTALL_MOD_PATH=$strapdir \
+					modules_install || zerr
+
 		sudo -E PATH="$PATH" \
-			make modules_prepare || zerr
+			make \
+				INSTALL_MOD_PATH=$strapdir \
+					firmware_install || zerr
 	popd
 
 	postbuild || zerr
