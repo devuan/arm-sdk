@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="n900"
 arch="armel"
-size=666
+size=791
 #inittab=""
 
 parted_type="dos"
@@ -37,8 +37,10 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.13.y"
+#gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+#gitbranch="linux-4.13.y"
+gitkernel="https://github.com/pali/linux-n900/"
+gitbranch="v4.9-n900"
 
 
 prebuild() {
