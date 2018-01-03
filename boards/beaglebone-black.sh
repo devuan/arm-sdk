@@ -184,11 +184,17 @@ build_kernel_armhf() {
 
 		sudo -E PATH="$PATH" \
 			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
 
 		sudo -E PATH="$PATH" \
 			make \
+				$MAKEOPTS \
+				ARCH=arm \
+				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					firmware_install || zerr
 	popd
