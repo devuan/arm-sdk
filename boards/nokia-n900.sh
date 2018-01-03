@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -37,8 +37,6 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-#gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-#gitbranch="linux-4.13.y"
 gitkernel="https://github.com/pali/linux-n900/"
 gitbranch="v4.9-n900"
 
@@ -98,15 +96,6 @@ build_kernel_armel() {
 			INSTALL_MOD_PATH=$strapdir \
 			INSTALL_MOD_STRIP=1 \
 				modules_install || zerr
-
-	# install kernel headers
-	#sudo -E PATH="$PATH" \
-	#	make \
-	#		$MAKEOPTS \
-	#		ARCH=arm \
-	#		CROSS_COMPILE=$compiler \
-	#		INSTALL_HDR_PATH=$strapdir/usr \
-	#			headers_install || zerr
 
 	# install kernel firmware
 	sudo -E PATH="$PATH" \
