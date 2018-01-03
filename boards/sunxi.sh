@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2017 Dyne.org Foundation
+# Copyright (c) 2017-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -39,7 +39,7 @@ extra_packages+=()
 custmodules=()
 
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.13.y"
+gitbranch="linux-4.14.y"
 
 
 prebuild() {

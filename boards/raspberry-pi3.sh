@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -38,7 +38,7 @@ extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux"
-gitbranch="rpi-4.13.y"
+gitbranch="rpi-4.14.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
