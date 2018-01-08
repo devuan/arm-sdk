@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2017 Dyne.org Foundation
+# Copyright (c) 2017-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -27,7 +27,7 @@ arrs+=(custmodules extra_packages)
 
 device_name="odroidxu4"
 arch="armhf"
-size=1337
+size=1891
 inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
@@ -38,8 +38,8 @@ bootfs="vfat"
 extra_packages+=()
 custmodules=()
 
-gitkernel="https://github.com/tobetter/linux"
-gitbranch="odroidxu4-v4.8"
+gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitbranch="linux-4.14.y"
 
 
 prebuild() {
@@ -56,38 +56,53 @@ prebuild() {
 
 postbuild() {
 	fn postbuild
+	req=(loopdevice)
+	ckreq || return 1
 
 	notice "executing $device_name postbuild"
 
 	notice "building u-boot"
-	pushd "$R/extra/u-boot-hardkernel"
-		act "patching"
-		git checkout -- .
-		patch -p1 < "$R/extra/patches/uboothardkernel-tftp-path-len-bigger.patch" \
-			|| zerr
-
+	pushd $R/extra/u-boot
 		make distclean
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				odroid_config || zerr
+				odroid-xu3_config
+
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
-			CROSS_COMPILE=$compiler || zerr
-
-		notice "dd-ing blobs and u-boot to the image"
-		sudo dd if=/dev/zero bs=512 count=4000 of=$loopdevice
-		sudo dd if=sd_fuse/hardkernel_1mb_uboot/bl1.bin.hardkernel \
-			bs=512 seek=1 of=$loopdevice
-		sudo dd if=sd_fuse/hardkernel_1mb_uboot/bl2.bin.hardkernel.1mb_uboot \
-			bs=512 seek=31 of=$loopdevice
-		sudo dd if=u-boot-dtb.bin bs=512 seek=63 of=$loopdevice
-		sudo dd if=sd_fuse/hardkernel_1mb_uboot/tzsw.bin.hardkernel \
-			bs=512 seek=2111 of=$loopdevice
+			CROSS_COMPILE=$compiler || {
+				zerr
+				return 1
+			}
+		mkdir -p "$R/tmp/xu4-uboot"
+		cp -v u-boot-dtb.bin "$R/tmp/xu4-uboot"
 	popd
+	pushd $R/extra/u-boot-hardkernel/sd_fuse
+		git checkout odroidxu4-v2017.05
+		cp -v * "$R/tmp/xu4-uboot"
+	popd
+	pushd $R/tmp/xu4-uboot
+		chmod +x sd_fusing.sh
+		sudo ./sd_fusing.sh $loopdevice
+	popd
+	rm -rf $R/tmp/xu4-uboot
 
+	notice "creating boot.cmd"
+	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
+setenv bootargs console=tty0 verbose earlyprintk debug root=/dev/mmcblk1p2 init=/sbin/init ro \${extra}
+load mmc 0 0x43000000 \${fdtfile}
+load mmc 0 0x41000000 zImage
+#load mmc 0 0x50000000 uInitrd
+#setenv initrd_high 0xffffffff
+#bootz 0x41000000 0x50000000 0x43000000
+bootz 0x41000000 - 0x43000000
+EOF
+	notice "creating u-boot script image"
+	sudo mkimage -A arm -T script -C none \
+		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 
 	postbuild-clean
 }
@@ -104,15 +119,16 @@ build_kernel_armhf() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+		copy-kernel-config
+
+		# compile kernel and modules
 		make \
 			$MAKEOPTS \
 			ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				odroidxu4_defconfig || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler || zerr
+				zImage dtbs modules || zerr
+
+		# install kernel modules
 		sudo -E PATH="$PATH" \
 			make \
 				$MAKEOPTS \
@@ -120,33 +136,9 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
-		sudo cp -v arch/arm/boot/zImage $strapdir/boot/
-	popd
 
-	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					firmware_install || zerr
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				mrproper
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-				odroidxu4_defconfig || zerr
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-					modules_prepare || zerr
+		sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
+		sudo cp -v arch/arm/boot/dts/exynos5422-odroidxu4.dtb $strapdir/boot/ || zerr
 	popd
 
 	postbuild || zerr
