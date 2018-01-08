@@ -93,14 +93,7 @@ build_kernel_armhf() {
 			ARCH=arm \
 			CROSS_COMPILE=$compiler || zerr
 
-		# install kernel modules
-		sudo -E PATH="$PATH" \
-			make \
-				$MAKEOPTS \
-				ARCH=arm \
-				CROSS_COMPILE=$compiler \
-				INSTALL_MOD_PATH=$strapdir \
-					modules_install || zerr
+		install-kernel-mods arm || zerr
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"

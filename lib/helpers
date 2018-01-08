@@ -43,6 +43,26 @@ get-kernel-firmware() {
 	clone-git "$linuxfirmware" "$R/tmp/linux-firmware"
 }
 
+install-kernel-mods() {
+	fn install-kernel-mods
+	req=(MAKEOPTS PATH compiler strapdir)
+	ckreq || return 1
+
+	# We need this function to avoid sudo -E calls, which are
+	# forbidden by jenkins.
+	cat <<EOF > install_mods
+#!/bin/sh
+export PATH="${PATH}"
+sudo make \
+	${MAKEOPTS} \
+	ARCH="${1}" \
+	CROSS_COMPILE=${compiler} \
+	INSTALL_MOD_PATH=${strapdir} \
+		modules_install || exit 1
+EOF
+	chroot-script -d install_mods || zerr
+}
+
 clone-git() {
 	fn clone-git "$@"
 	req=(giturl clonepath)
