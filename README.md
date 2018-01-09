@@ -15,7 +15,7 @@ as [libdevuansdk dependencies](https://github.com/dyne/libdevuansdk/blob/master/
 ### Devuan
 
 ```
-curl git wget qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils libftdi-dev libfdt-dev swig libpython-dev
+curl git wget qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils libftdi-dev libfdt-dev swig libpython-dev bc
 ```
 
 ### Gentoo
