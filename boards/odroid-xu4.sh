@@ -28,7 +28,7 @@ arrs+=(custmodules extra_packages)
 device_name="odroidxu4"
 arch="armhf"
 size=1891
-inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
+inittab=("T1:12345:respawn:/sbin/agetty -L ttySAC2 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 2048s 264191s"
@@ -92,7 +92,7 @@ postbuild() {
 
 	notice "creating boot.cmd"
 	cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
-setenv bootargs console=tty0 verbose earlyprintk debug root=/dev/mmcblk1p2 init=/sbin/init ro \${extra}
+setenv bootargs console=tty0 console=ttySAC2,115200n8 verbose earlyprintk debug root=/dev/mmcblk1p2 init=/sbin/init ro \${extra}
 load mmc 0 0x43000000 \${fdtfile}
 load mmc 0 0x41000000 zImage
 #load mmc 0 0x50000000 uInitrd
