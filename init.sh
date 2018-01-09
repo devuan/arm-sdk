@@ -30,6 +30,7 @@ mkdir -p gcc
 
 gettc() {
 	cd gcc
+	[ -d "linaro-$2" ] && return 0
 	echo "Downloading $1" && \
 	wget -q -O "$(basename $1)" "$1" && \
 	echo "Extracting $(basename $1)" && \
