@@ -53,14 +53,15 @@ install-kernel-mods() {
 	cat <<EOF > install_mods
 #!/bin/sh
 export PATH="${PATH}"
-sudo make \
+make \
 	${MAKEOPTS} \
 	ARCH="${1}" \
 	CROSS_COMPILE=${compiler} \
 	INSTALL_MOD_PATH=${strapdir} \
 		modules_install || exit 1
 EOF
-	chroot-script -d install_mods || zerr
+	chmod +x install_mods || zerr
+	sudo ./install_mods   || zerr
 }
 
 clone-git() {
