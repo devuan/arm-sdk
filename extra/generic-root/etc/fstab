@@ -1,6 +1,3 @@
 ## <file system>  <mount point> <type> <options>              <dump><pass>
-## rootfs
-/dev/mmcblk0p2    /             ext4   noatime                   0    1
-
 ## bootfs
 /dev/mmcblk0p1    /boot         {{{BOOTFS}}}   defaults                  0    1
