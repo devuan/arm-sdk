@@ -86,6 +86,7 @@ load() {
 
 	blend_map=(
 		"dowse"  "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
+		"decode" "../decode.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
