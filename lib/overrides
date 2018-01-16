@@ -29,7 +29,7 @@ conf_print_sourceslist() {
 deb ${mirror} ${release} ${section}
 deb ${mirror} ${release}-updates ${section}
 deb ${mirror} ${release}-security ${section}
-deb ${mirror} ${release}-backports ${section}
+#deb ${mirror} ${release}-backports ${section}
 
 ## source repositories
 #deb-src ${mirror} ${release} ${section}
