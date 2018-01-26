@@ -25,8 +25,8 @@ vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
 
 device_name="n900"
-arch="armel"
-size=791
+arch="armhf"
+size=1337
 #inittab=""
 
 parted_type="dos"
@@ -37,8 +37,8 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-gitkernel="https://github.com/pali/linux-n900/"
-gitbranch="v4.9-n900"
+gitkernel="https://github.com/maemo-leste/n9xx-linux/"
+gitbranch="pvr-wip"
 
 
 prebuild() {
@@ -77,7 +77,12 @@ build_kernel_armel() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
-	copy-kernel-config
+	#copy-kernel-config
+	make \
+		$MAKEOPTS \
+		ARCH=arm \
+		CROSS_COMPILE=$compiler \
+			rx51_defconfig || zerr
 
 	# compile kernel and modules
 	make \
@@ -98,13 +103,13 @@ build_kernel_armel() {
 				modules_install || zerr
 
 	# install kernel firmware
-	sudo -E PATH="$PATH" \
-		make \
-			$MAKEOPTS \
-			ARCH=arm \
-			CROSS_COMPILE=$compiler \
-			INSTALL_MOD_PATH=$strapdir \
-				firmware_install || zerr
+	#sudo -E PATH="$PATH" \
+	#	make \
+	#		$MAKEOPTS \
+	#		ARCH=arm \
+	#		CROSS_COMPILE=$compiler \
+	#		INSTALL_MOD_PATH=$strapdir \
+	#			firmware_install || zerr
 
 	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
 	sudo cp -v uImage $strapdir/boot/
