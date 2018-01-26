@@ -109,12 +109,13 @@ load() {
 	source $boardlib ## XXX: remove this line
 	source $oslib
 	source $boardlib && act "$device_name build script loaded"
+	source $R/lib/overrides
+
 	[[ -f $blendlib ]] && {
 		source $blendlib || zerr
 		act "$os blend loaded"
 		export BLEND=1
 	}
-	source $R/lib/overrides
 
 	workdir="$R/tmp/${os}-${arch}-build"
 	strapdir="$workdir/bootstrap"
