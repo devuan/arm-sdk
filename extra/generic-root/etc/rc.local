@@ -10,6 +10,6 @@
 # bits.
 
 ## regen ssh keys on first boot
-[ -f /etc/ssh/ssh_host_rsa_key.pub ] || dpkg-reconfigure openssh-server
+[ -f /etc/ssh/ssh_host_rsa_key.pub ] || ssh-keygen -A
 
 exit 0
