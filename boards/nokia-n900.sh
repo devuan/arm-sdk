@@ -30,8 +30,8 @@ size=1337
 #inittab=""
 
 parted_type="dos"
-parted_boot="fat32 2048s 264191s"
-parted_root="ext4 264192s 100%"
+parted_boot="fat32 8192s 270335s"
+parted_root="ext4 270336s 100%"
 bootfs="vfat"
 
 extra_packages+=(firmware-ti-connectivity)
@@ -64,8 +64,8 @@ postbuild() {
 	copy-root-overlay
 }
 
-build_kernel_armel() {
-	fn build_kernel_armel
+build_kernel_${arch}() {
+	fn build_kernel_${arch}
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
 	req+=(strapdir)
 	req+=(loopdevice)
