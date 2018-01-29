@@ -30,15 +30,15 @@ size=1891
 inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 
 parted_type="dos"
-parted_boot="fat32 2048s 264191s"
-parted_root="ext4 264192s 100%"
+parted_boot="fat32 8192s 270335s"
+parted_root="ext4 270336s 100%"
 bootfs="vfat"
 
 extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux.git"
-gitbranch="rpi-4.14.y"
+gitbranch="rpi-4.15.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
