@@ -72,7 +72,14 @@ build_kernel_${arch}() {
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
+	git checkout -- .
 	copy-kernel-config
+
+	_patchdir="$R/extra/patches/linux-droid4-patches"
+	_patchset="$(find ${_patchdir} -name '*.patch' | sort)"
+	for i in "$_patchset"; do
+		patch -p1 < "$i"
+	done
 
 	# compile kernel and modules
 	make \
