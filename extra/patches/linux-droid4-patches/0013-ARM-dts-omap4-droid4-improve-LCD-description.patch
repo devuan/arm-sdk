@@ -1,0 +1,39 @@
+From caebc72b95edde23e564f221f09d11148c8526fd Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Date: Mon, 24 Jul 2017 19:33:10 +0200
+Subject: [PATCH 13/17] ARM: dts: omap4-droid4: improve LCD description
+
+This improves LCD support for the Droid 4.
+
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+---
+ arch/arm/boot/dts/omap4-droid4-xt894.dts | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap4-droid4-xt894.dts b/arch/arm/boot/dts/omap4-droid4-xt894.dts
+index 8b93d37..4620b20 100644
+--- a/arch/arm/boot/dts/omap4-droid4-xt894.dts
++++ b/arch/arm/boot/dts/omap4-droid4-xt894.dts
+@@ -176,6 +176,10 @@
+ 		vddi-supply = <&lcd_regulator>;
+ 		reset-gpios = <&gpio4 5 GPIO_ACTIVE_HIGH>;	/* gpio101 */
+ 
++		width-mm = <50>;
++		height-mm = <89>;
++		backlight = <&lcd_backlight>;
++
+ 		panel-timing {
+ 			clock-frequency = <0>;		/* Calculated by dsi */
+ 
+@@ -345,7 +349,7 @@
+ 
+ 		enable-gpios = <&gpio6 12 GPIO_ACTIVE_HIGH>;
+ 
+-		backlight {
++		lcd_backlight: backlight {
+ 			compatible = "ti,lm3532-backlight";
+ 
+ 			lcd {
+-- 
+2.1.4
+
