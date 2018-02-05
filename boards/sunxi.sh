@@ -41,6 +41,8 @@ custmodules=()
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 gitbranch="linux-4.14.y"
 
+sunxi_mali="https://github.com/mripard/sunxi-mali.git"
+
 
 prebuild() {
 	fn prebuild
@@ -85,7 +87,6 @@ postbuild() {
 		done
     popd
 
-
     notice "creating boot.cmd"
     cat <<EOF | sudo tee ${strapdir}/boot/boot.cmd
 setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 \${extra}
@@ -97,6 +98,21 @@ EOF
     notice "creating u-boot script image"
     sudo mkimage -A arm -T script -C none \
 		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
+
+
+#    notice "building mali"
+#    export CROSS_COMPILE=$compiler
+#    export KDIR="$R/tmp/kernels/$device_name/${device_name}-linux"
+#    clone-git "$sunxi_mali" "$R/tmp/kernels/${device_name}/sunxi-mali"
+#    pushd "$R/tmp/kernels/${device_name}/sunxi-mali"
+#    	git checkout -- .
+#	git clean -xdf
+#	./build.sh -r r6p2 -b
+#	pushd r6p2/src/devicedrv/mali
+#	make
+#	sudo cp mali.ko ${strapdir}/lib/modules/*/kernel/drivers/gpuhh
+#	popd
+#    popd
 
     postbuild-clean
 }
@@ -130,15 +146,6 @@ build_kernel_armhf() {
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
 					modules_install || zerr
-
-		# install kernel headers
-		#sudo -E PATH="$PATH" \
-		#	make \
-		#		$MAKEOPTS \
-		#		ARCH=arm \
-		#		CROSS_COMPILE=$compiler \
-		#		INSTALL_HDR_PATH=$strapdir/usr \
-		#			headers_install || zerr
 
         sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
 		sudo mkdir -p $strapdir/boot/dtbs
