@@ -112,7 +112,7 @@ build_kernel_${arch}() {
 	#			firmware_install || zerr
 
 	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
-	sudo cp -v uImage $strapdir/boot/
+	sudo cp -v zImage uImage $strapdir/boot/
 	popd
 
 	postbuild || zerr
