@@ -27,14 +27,14 @@ arrs+=(custmodules)
 device_name="droid4"
 arch="armhf"
 size=1337
-#inittab=""
+inittab=("T1:12345:respawn:/sbin/agetty -L ttyS2 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 8192s 270335s"
 parted_root="ext4 270336s 100%"
 bootfs="vfat"
 
-extra_packages+=()
+extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
