@@ -100,19 +100,16 @@ EOF
 		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
 
 
-#    notice "building mali"
-#    export CROSS_COMPILE=$compiler
-#    export KDIR="$R/tmp/kernels/$device_name/${device_name}-linux"
-#    clone-git "$sunxi_mali" "$R/tmp/kernels/${device_name}/sunxi-mali"
-#    pushd "$R/tmp/kernels/${device_name}/sunxi-mali"
-#    	git checkout -- .
-#	git clean -xdf
-#	./build.sh -r r6p2 -b
-#	pushd r6p2/src/devicedrv/mali
-#	make
-#	sudo cp mali.ko ${strapdir}/lib/modules/*/kernel/drivers/gpuhh
-#	popd
-#    popd
+	notice "building mali"
+	export CROSS_COMPILE=$compiler
+	export KDIR="$R/tmp/kernels/$device_name/${device_name}-linux"
+	clone-git "$sunxi_mali" "$R/tmp/kernels/${device_name}/sunxi-mali"
+	pushd "$R/tmp/kernels/${device_name}/sunxi-mali"
+		git checkout -- .
+		git clean -xdf
+		./build.sh -r r6p2 -b || zerr
+		sudo cp mali.ko ${strapdir}/lib/modules/*/kernel/drivers/gpu
+	popd
 
     postbuild-clean
 }
