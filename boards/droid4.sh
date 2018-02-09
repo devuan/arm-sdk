@@ -41,7 +41,7 @@ gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.g
 gitbranch="linux-4.14.y"
 
 ddroid_git="https://github.com/tmlind/ddroid.git"
-kexec_bins="http://muru.com/linux/d4/droid4-mainline-kexec-0.3.tar.xz"
+kexec_bins="http://muru.com/linux/d4/droid4-mainline-kexec-0.4.tar.xz"
 
 
 prebuild() {
