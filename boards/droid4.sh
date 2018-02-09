@@ -40,6 +40,9 @@ custmodules=()
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 gitbranch="linux-4.14.y"
 
+ddroid_git="https://github.com/tmlind/ddroid.git"
+kexec_bins="http://muru.com/linux/d4/droid4-mainline-kexec-0.3.tar.xz"
+
 
 prebuild() {
 	fn prebuild
@@ -87,8 +90,8 @@ build_kernel_${arch}() {
 		ARCH=arm \
 		CROSS_COMPILE=$compiler \
 			zImage modules omap4-droid4-xt894.dtb || zerr
-	cat arch/arm/boot/zImage arch/arm/boot/dts/omap4-droid4-xt894.dtb > zImage || zerr
-	sudo cp -v zImage $strapdir/boot/
+	sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
+	sudo cp -v arch/arm/boot/dts/omap4-droid4-xt894.dtb "$strapdir/boot/" || zerr
 
 	# install kernel modules
 	sudo -E PATH="$PATH" \
@@ -99,7 +102,25 @@ build_kernel_${arch}() {
 			INSTALL_MOD_PATH=$strapdir \
 			INSTALL_MOD_STRIP=1 \
 				modules_install || zerr
+	popd
 
+	notice "building ddroid.zip"
+	pushd $R/tmp/kernels/$device_name
+		wget "$kexec_bins" || zerr
+		tar xvf "$(basename ${kexec_bins})"
+		git clone --depth 1 "${ddroid_git}" || zerr
+		pushd "$(basename -s .tar.xz ${kexec_bins})"
+			cp -v uart.ko arm_kexec.ko kexec.ko ../ddroid/system/etc/kexec/
+			cp -v kexec ../ddroid/system/etc/kexec/kexec.static
+			cp -v "$strapdir/boot/zImage" ../ddroid/system/etc/kexec/kernel
+			cp -v "$strapdir/boot/omap4-droid4-xt894.dtb" ../ddroid/system/etc/kexec/devtree
+		popd
+		pushd ddroid
+			make zip || zerr
+		popd
+		mkdir -p "$R/dist"
+		cp -vf ddroid-$(date +%Y-%m-%d).zip "$R/dist"
+		sha256sum ddroid-$(date +%Y-%m-%d).zip > "$R/dist/ddroid-$(date +%Y-%m-%d).zip.sha"
 	popd
 
 	postbuild || zerr
