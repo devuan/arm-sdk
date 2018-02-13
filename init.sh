@@ -67,6 +67,16 @@ gettc "$tc" "arm64" || {
 	exit 1
 }
 
+damnunicorncompanyver="4.9.4-2017.01"
+damnunicorncompanyurl="https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01"
+
+tc="${damnunicorncompanyurl}/${armhftc}/gcc-linaro-${damnunicorncompanyver}-${_hostarch}_${armhftc}.tar.xz"
+gettc "$tc" "armhf-unicorns" || {
+	echo "Something went wrong while downloading the toolchain for the damn
+	unicorn company kernels."
+	exit 1
+}
+
 cat <<EOM
 
 All done! Make sure you also install the required dependencies listed in

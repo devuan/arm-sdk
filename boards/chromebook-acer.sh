@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -34,6 +34,8 @@ parted_type="gpt"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 bootfs="none"
+
+export PATH="$R/gcc/linaro-armhf-unicorns/bin:$PATH"
 
 extra_packages+=(abootimg cgpt u-boot-tools)
 extra_packages+=(vboot-utils vboot-kernel-utils)
