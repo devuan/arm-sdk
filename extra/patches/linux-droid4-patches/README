@@ -1,0 +1,61 @@
+https://www.spinics.net/lists/linux-omap/msg141500.html
+
+Hi,
+
+These are the remaining patches from my previous patchset to get
+Droid 4 (omap4) display working. The patches have been rebased to
+current master branch from Torvalds (581e400ff935). Since N950
+(omap3) is broken even with the workaround I moved it to the end,
+so that it can be skipped.
+
+Working on Droid 4:
+ * Framebuffer Console, updated at 1Hz due to blinking cursor
+ * kmstest (static image)
+ * Display blanking
+ * Xorg with omap and modesetting driver
+ * No updates send when nothing needs to be sent
+ * Orientation DRM property is attached to the DSI panel
+
+Known issues:
+ * N950 (omap3) is broken. I have updated the omap3 fifo workaround,
+   but it's not enough to fix omap3.
+ * N950 (and N9) has first and last few lines covered by plastic, so
+   we should expose a smaller screen
+
+Changes since PATCHv1:
+ * Drop patches, that were queued by Tomi
+ * Rebase to current master
+ * Rework the omap3 workaround patch to only affect omap3
+ * Add orientation DRM property support
+
+-- Sebastian
+
+
+Sebastian Reichel (8):
+  drm/omap: add framedone interrupt support
+  drm/omap: add manual update detection helper
+  drm/omap: add support for manually updated displays
+  dt-bindings: panel: common: document orientation property
+  drm/omap: add support for orientation hints from display drivers
+  drm/omap: panel-dsi-cm: add orientation support
+  ARM: dts: omap4-droid4: Add LCD panel orientation property
+  drm/omap: plane: update fifo size on ovl setup
+
+ .../bindings/display/panel/panel-common.txt        |  12 ++
+ arch/arm/boot/dts/omap4-droid4-xt894.dts           |   3 +
+ drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c    |  13 ++
+ drivers/gpu/drm/omapdrm/dss/dispc.c                |  36 ++++-
+ drivers/gpu/drm/omapdrm/dss/omapdss.h              |   2 +
+ drivers/gpu/drm/omapdrm/omap_connector.c           |  18 ++-
+ drivers/gpu/drm/omapdrm/omap_connector.h           |   1 +
+ drivers/gpu/drm/omapdrm/omap_crtc.c                | 158 +++++++++++++++++++--
+ drivers/gpu/drm/omapdrm/omap_crtc.h                |   2 +
+ drivers/gpu/drm/omapdrm/omap_fb.c                  |  20 +++
+ drivers/gpu/drm/omapdrm/omap_irq.c                 |  24 ++++
+ drivers/gpu/drm/omapdrm/omap_irq.h                 |   1 +
+ include/dt-bindings/display/common.h               |  14 ++
+ 13 files changed, 294 insertions(+), 10 deletions(-)
+ create mode 100644 include/dt-bindings/display/common.h
+
+-- 
+2.15.1
