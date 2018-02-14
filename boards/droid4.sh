@@ -37,11 +37,11 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.14.y"
+gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+gitbranch="v4.16-rc1"
 
 ddroid_git="https://github.com/tmlind/ddroid.git"
-kexec_bins="http://muru.com/linux/d4/droid4-mainline-kexec-0.4.tar.xz"
+kexec_bins="$R/extra/droid4-mainline-kexec-0.3.tar.xz"
 
 
 prebuild() {
@@ -106,8 +106,7 @@ build_kernel_${arch}() {
 
 	notice "building ddroid.zip"
 	pushd $R/tmp/kernels/$device_name
-		wget "$kexec_bins" || zerr
-		tar xvf "$(basename ${kexec_bins})"
+		tar xvf "${kexec_bins}"
 		git clone --depth 1 "${ddroid_git}" || zerr
 		pushd "$(basename -s .tar.xz ${kexec_bins})"
 			cp -v uart.ko arm_kexec.ko kexec.ko ../ddroid/system/etc/kexec/
