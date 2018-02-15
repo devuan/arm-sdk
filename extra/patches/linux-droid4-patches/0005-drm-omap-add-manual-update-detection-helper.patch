@@ -1,18 +1,23 @@
+From 6dae0575adf3b15c51832bfa8c0320e8526e9b8e Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Date: Mon, 24 Jul 2017 19:33:02 +0200
+Subject: [PATCH 05/17] drm/omap: add manual update detection helper
+
 In preparation for manually updated display support, such as DSI
 command mode panels, this adds a simple helper to see if a connector
 is manually updated.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@xxxxxxxxxxxxxxx>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 ---
  drivers/gpu/drm/omapdrm/omap_connector.c | 8 ++++++++
- drivers/gpu/drm/omapdrm/omap_connector.h | 1 +
+ drivers/gpu/drm/omapdrm/omap_drv.h       | 1 +
  2 files changed, 9 insertions(+)
 
 diff --git a/drivers/gpu/drm/omapdrm/omap_connector.c b/drivers/gpu/drm/omapdrm/omap_connector.c
-index a0d7b1d905e8..a33b51484b2d 100644
+index aa5ba9a..4f4c7ef 100644
 --- a/drivers/gpu/drm/omapdrm/omap_connector.c
 +++ b/drivers/gpu/drm/omapdrm/omap_connector.c
-@@ -57,6 +57,14 @@ bool omap_connector_get_hdmi_mode(struct drm_connector *connector)
+@@ -59,6 +59,14 @@ bool omap_connector_get_hdmi_mode(struct drm_connector *connector)
  	return omap_connector->hdmi_mode;
  }
  
@@ -27,16 +32,18 @@ index a0d7b1d905e8..a33b51484b2d 100644
  static enum drm_connector_status omap_connector_detect(
  		struct drm_connector *connector, bool force)
  {
-diff --git a/drivers/gpu/drm/omapdrm/omap_connector.h b/drivers/gpu/drm/omapdrm/omap_connector.h
-index 98bbc779b302..652136d167f5 100644
---- a/drivers/gpu/drm/omapdrm/omap_connector.h
-+++ b/drivers/gpu/drm/omapdrm/omap_connector.h
-@@ -33,5 +33,6 @@ struct drm_connector *omap_connector_init(struct drm_device *dev,
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.h b/drivers/gpu/drm/omapdrm/omap_drv.h
+index 22f3d94..f6c48f2 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.h
++++ b/drivers/gpu/drm/omapdrm/omap_drv.h
+@@ -142,6 +142,7 @@ struct drm_connector *omap_connector_init(struct drm_device *dev,
  struct drm_encoder *omap_connector_attached_encoder(
  		struct drm_connector *connector);
  bool omap_connector_get_hdmi_mode(struct drm_connector *connector);
 +bool omap_connector_get_manually_updated(struct drm_connector *connector);
  
- #endif /* __OMAPDRM_CONNECTOR_H__ */
+ struct drm_framebuffer *omap_framebuffer_create(struct drm_device *dev,
+ 		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd);
 -- 
-2.15.1
+2.1.4
+

@@ -1,3 +1,8 @@
+From 2a51a11e2f2705bbf7642e2e08ae6b2f1372d79c Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Date: Mon, 24 Jul 2017 19:33:03 +0200
+Subject: [PATCH 06/17] drm/omap: add support for manually updated displays
+
 This adds the required infrastructure for manually
 updated displays, such as DSI command mode panels.
 
@@ -11,18 +16,18 @@ console and for Xorg. Weston currently does not
 implement this and is known not to work on manually
 updated displays.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@xxxxxxxxxxxxxxx>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 ---
  drivers/gpu/drm/omapdrm/omap_crtc.c | 110 +++++++++++++++++++++++++++++++++---
- drivers/gpu/drm/omapdrm/omap_crtc.h |   1 +
+ drivers/gpu/drm/omapdrm/omap_drv.h  |   1 +
  drivers/gpu/drm/omapdrm/omap_fb.c   |  20 +++++++
  3 files changed, 123 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
-index 2278e3433008..c2defb514b9f 100644
+index dee9b6e..8255241 100644
 --- a/drivers/gpu/drm/omapdrm/omap_crtc.c
 +++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-@@ -51,6 +51,7 @@ struct omap_crtc {
+@@ -52,6 +52,7 @@ struct omap_crtc {
  	bool pending;
  	wait_queue_head_t pending_wait;
  	struct drm_pending_vblank_event *event;
@@ -30,7 +35,7 @@ index 2278e3433008..c2defb514b9f 100644
  
  	void (*framedone_handler)(void *);
  	void *framedone_handler_data;
-@@ -142,6 +143,28 @@ static void omap_crtc_dss_disconnect(enum omap_channel channel,
+@@ -143,6 +144,28 @@ static void omap_crtc_dss_disconnect(enum omap_channel channel,
  
  static void omap_crtc_dss_start_update(enum omap_channel channel)
  {
@@ -59,7 +64,7 @@ index 2278e3433008..c2defb514b9f 100644
  }
  
  /* Called only from the encoder enable/disable and suspend/resume handlers. */
-@@ -153,12 +176,17 @@ static void omap_crtc_set_enabled(struct drm_crtc *crtc, bool enable)
+@@ -154,12 +177,17 @@ static void omap_crtc_set_enabled(struct drm_crtc *crtc, bool enable)
  	enum omap_channel channel = omap_crtc->channel;
  	struct omap_irq_wait *wait;
  	u32 framedone_irq, vsync_irq;
@@ -78,7 +83,7 @@ index 2278e3433008..c2defb514b9f 100644
  		priv->dispc_ops->mgr_enable(channel, enable);
  		omap_crtc->enabled = enable;
  		return;
-@@ -209,7 +237,6 @@ static void omap_crtc_set_enabled(struct drm_crtc *crtc, bool enable)
+@@ -210,7 +238,6 @@ static void omap_crtc_set_enabled(struct drm_crtc *crtc, bool enable)
  	}
  }
  
@@ -86,7 +91,7 @@ index 2278e3433008..c2defb514b9f 100644
  static int omap_crtc_dss_enable(enum omap_channel channel)
  {
  	struct omap_crtc *omap_crtc = omap_crtcs[channel];
-@@ -369,6 +396,53 @@ void omap_crtc_framedone_irq(struct drm_crtc *crtc, uint32_t irqstatus)
+@@ -370,6 +397,53 @@ void omap_crtc_framedone_irq(struct drm_crtc *crtc, uint32_t irqstatus)
  	wake_up(&omap_crtc->pending_wait);
  }
  
@@ -140,7 +145,7 @@ index 2278e3433008..c2defb514b9f 100644
  static void omap_crtc_write_crtc_properties(struct drm_crtc *crtc)
  {
  	struct omap_drm_private *priv = crtc->dev->dev_private;
-@@ -421,6 +495,10 @@ static void omap_crtc_atomic_enable(struct drm_crtc *crtc,
+@@ -422,6 +496,10 @@ static void omap_crtc_atomic_enable(struct drm_crtc *crtc,
  
  	DBG("%s", omap_crtc->name);
  
@@ -151,7 +156,7 @@ index 2278e3433008..c2defb514b9f 100644
  	spin_lock_irq(&crtc->dev->event_lock);
  	drm_crtc_vblank_on(crtc);
  	ret = drm_crtc_vblank_get(crtc);
-@@ -434,6 +512,7 @@ static void omap_crtc_atomic_disable(struct drm_crtc *crtc,
+@@ -435,6 +513,7 @@ static void omap_crtc_atomic_disable(struct drm_crtc *crtc,
  				     struct drm_crtc_state *old_state)
  {
  	struct omap_crtc *omap_crtc = to_omap_crtc(crtc);
@@ -159,7 +164,7 @@ index 2278e3433008..c2defb514b9f 100644
  
  	DBG("%s", omap_crtc->name);
  
-@@ -444,6 +523,11 @@ static void omap_crtc_atomic_disable(struct drm_crtc *crtc,
+@@ -445,6 +524,11 @@ static void omap_crtc_atomic_disable(struct drm_crtc *crtc,
  	}
  	spin_unlock_irq(&crtc->dev->event_lock);
  
@@ -171,7 +176,7 @@ index 2278e3433008..c2defb514b9f 100644
  	drm_crtc_vblank_off(crtc);
  }
  
-@@ -593,13 +677,20 @@ static void omap_crtc_atomic_flush(struct drm_crtc *crtc,
+@@ -559,13 +643,20 @@ static void omap_crtc_atomic_flush(struct drm_crtc *crtc,
  
  	DBG("%s: GO", omap_crtc->name);
  
@@ -198,7 +203,7 @@ index 2278e3433008..c2defb514b9f 100644
  }
  
  static int omap_crtc_atomic_set_property(struct drm_crtc *crtc,
-@@ -761,6 +852,9 @@ struct drm_crtc *omap_crtc_init(struct drm_device *dev,
+@@ -726,6 +817,9 @@ struct drm_crtc *omap_crtc_init(struct drm_device *dev,
  	omap_crtc->channel = channel;
  	omap_crtc->name = channel_names[channel];
  
@@ -208,22 +213,23 @@ index 2278e3433008..c2defb514b9f 100644
  	ret = drm_crtc_init_with_planes(dev, crtc, plane, NULL,
  					&omap_crtc_funcs, NULL);
  	if (ret < 0) {
-diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.h b/drivers/gpu/drm/omapdrm/omap_crtc.h
-index bd316bc0b6f4..b61c94b34f04 100644
---- a/drivers/gpu/drm/omapdrm/omap_crtc.h
-+++ b/drivers/gpu/drm/omapdrm/omap_crtc.h
-@@ -40,5 +40,6 @@ int omap_crtc_wait_pending(struct drm_crtc *crtc);
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.h b/drivers/gpu/drm/omapdrm/omap_drv.h
+index f6c48f2..3cb9f9a 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.h
++++ b/drivers/gpu/drm/omapdrm/omap_drv.h
+@@ -126,6 +126,7 @@ int omap_crtc_wait_pending(struct drm_crtc *crtc);
  void omap_crtc_error_irq(struct drm_crtc *crtc, uint32_t irqstatus);
  void omap_crtc_vblank_irq(struct drm_crtc *crtc);
  void omap_crtc_framedone_irq(struct drm_crtc *crtc, uint32_t irqstatus);
 +void omap_crtc_flush(struct drm_crtc *crtc);
  
- #endif /* __OMAPDRM_CRTC_H__ */
+ struct drm_plane *omap_plane_init(struct drm_device *dev,
+ 		int idx, enum drm_plane_type type,
 diff --git a/drivers/gpu/drm/omapdrm/omap_fb.c b/drivers/gpu/drm/omapdrm/omap_fb.c
-index b2539a90e1a4..57b1767bef09 100644
+index b1a762b..9492be6 100644
 --- a/drivers/gpu/drm/omapdrm/omap_fb.c
 +++ b/drivers/gpu/drm/omapdrm/omap_fb.c
-@@ -95,8 +95,28 @@ static void omap_framebuffer_destroy(struct drm_framebuffer *fb)
+@@ -97,8 +97,28 @@ static void omap_framebuffer_destroy(struct drm_framebuffer *fb)
  	kfree(omap_fb);
  }
  
@@ -253,4 +259,5 @@ index b2539a90e1a4..57b1767bef09 100644
  };
  
 -- 
-2.15.1
+2.1.4
+
