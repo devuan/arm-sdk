@@ -27,7 +27,7 @@ arrs+=(custmodules)
 device_name="droid4"
 arch="armhf"
 size=1337
-inittab=("T1:12345:respawn:/sbin/agetty -L ttyS2 115200 vt100")
+inittab=("s0:12345:respawn:/sbin/agetty -L ttyS2 115200 vt100")
 
 parted_type="dos"
 parted_boot="fat32 8192s 270335s"
