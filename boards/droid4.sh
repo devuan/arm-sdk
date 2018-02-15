@@ -37,8 +37,10 @@ bootfs="vfat"
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
 
-gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
-gitbranch="v4.16-rc1"
+#gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+#gitbranch="v4.16-rc1"
+gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+gitbranch="linux-4.14.y"
 
 ddroid_git="https://github.com/tmlind/ddroid.git"
 kexec_bins="$R/extra/droid4-mainline-kexec-0.3.tar.xz"
