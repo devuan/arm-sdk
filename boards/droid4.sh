@@ -115,6 +115,10 @@ build_kernel_${arch}() {
 			cp -v "$strapdir/boot/omap4-droid4-xt894.dtb" ../ddroid/system/etc/kexec/devtree
 		popd
 		pushd ddroid
+			# use the cmdline found in our kernel config
+			eval $(grep CONFIG_CMDLINE= $R/boards/kernel-configs/droid4.config)
+			sed -i system/etc/kexec/kexec \
+				-e "s/^CMDLINE=.*/CMDLINE=$CONFIG_CMDLINE/"
 			make zip || zerr
 		popd
 		mkdir -p "$R/dist"
