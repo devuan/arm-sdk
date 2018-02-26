@@ -41,21 +41,6 @@ gitkernel="https://github.com/maemo-leste/n9xx-linux/"
 gitbranch="pvr-wip"
 
 
-prebuild() {
-	fn prebuild
-	req=(device_name strapdir)
-	ckreq || return 1
-
-	notice "executing $device_name prebuild"
-
-	mkdir -p $R/tmp/kernels/$device_name
-
-	## the wl1251 driver generates a random MAC address on every boot
-	## this "fixes" udev so it does not autoincrement the interface number each
-	## time the device boots
-	print "#" | sudo tee $strapdir/etc/udev/rules.d/75-persistent-net-generator.rules >/dev/null
-}
-
 postbuild() {
 	fn postbuild
 
@@ -73,7 +58,7 @@ build_kernel_${arch}() {
 
 	notice "building $arch kernel"
 
-	prebuild || zerr
+	mkdir -p $R/tmp/kernels/$device_name
 
 	get-kernel-sources
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
@@ -101,15 +86,6 @@ build_kernel_${arch}() {
 			INSTALL_MOD_PATH=$strapdir \
 			INSTALL_MOD_STRIP=1 \
 				modules_install || zerr
-
-	# install kernel firmware
-	#sudo -E PATH="$PATH" \
-	#	make \
-	#		$MAKEOPTS \
-	#		ARCH=arm \
-	#		CROSS_COMPILE=$compiler \
-	#		INSTALL_MOD_PATH=$strapdir \
-	#			firmware_install || zerr
 
 	mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage -d zImage uImage
 	sudo cp -v zImage uImage $strapdir/boot/

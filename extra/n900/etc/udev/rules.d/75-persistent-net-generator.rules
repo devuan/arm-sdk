@@ -1,0 +1,3 @@
+# The sl1251 driver generates a random MAC address on every boot
+# this "fixes" udev so it does not autoincrement the interface
+# number each time the device boots.
