@@ -1,6 +1,6 @@
 [submodule "lib/libdevuansdk"]
 	path = lib/libdevuansdk
-	url = git://git.parazyd.cf/libdevuansdk.git
+	url = https://git.devuan.org/sdk/libdevuansdk.git
 [submodule "lib/zuper"]
 	path = lib/zuper
 	url = https://github.com/dyne/zuper.git
