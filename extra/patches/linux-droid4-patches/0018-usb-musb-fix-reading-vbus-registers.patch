@@ -1,0 +1,49 @@
+From b090e83acf4f71fd354c3fe82aeff9b7ae1dd3c2 Mon Sep 17 00:00:00 2001
+From: Merlijn Wajer <merlijn@wizzup.org>
+Date: Sat, 24 Feb 2018 20:54:43 +0100
+Subject: [PATCH] usb: musb: call pm_runtime_{get,put}_sync before reading vbus
+ registers
+
+Without pm_runtime_{get,put}_sync calls in place, reading
+vbus status via /sys causes the following error:
+
+Unhandled fault: external abort on non-linefetch (0x1028) at 0xfa0ab060
+pgd = b333e822
+[fa0ab060] *pgd=48011452(bad)
+
+[<c05261b0>] (musb_default_readb) from [<c0525bd0>] (musb_vbus_show+0x58/0xe4)
+[<c0525bd0>] (musb_vbus_show) from [<c04c0148>] (dev_attr_show+0x20/0x44)
+[<c04c0148>] (dev_attr_show) from [<c0259f74>] (sysfs_kf_seq_show+0x80/0xdc)
+[<c0259f74>] (sysfs_kf_seq_show) from [<c0210bac>] (seq_read+0x250/0x448)
+[<c0210bac>] (seq_read) from [<c01edb40>] (__vfs_read+0x1c/0x118)
+[<c01edb40>] (__vfs_read) from [<c01edccc>] (vfs_read+0x90/0x144)
+[<c01edccc>] (vfs_read) from [<c01ee1d0>] (SyS_read+0x3c/0x74)
+[<c01ee1d0>] (SyS_read) from [<c0106fe0>] (ret_fast_syscall+0x0/0x54)
+
+Solution was suggested by Tony Lindgren <tony@atomide.com>.
+
+Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
+---
+ drivers/usb/musb/musb_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index ea5013aa69e25..e2e95071328a8 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -1756,6 +1756,7 @@ musb_vbus_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	int		vbus;
+ 	u8		devctl;
+ 
++	pm_runtime_get_sync(dev);
+ 	spin_lock_irqsave(&musb->lock, flags);
+ 	val = musb->a_wait_bcon;
+ 	vbus = musb_platform_get_vbus_status(musb);
+@@ -1769,6 +1770,7 @@ musb_vbus_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 			vbus = 0;
+ 	}
+ 	spin_unlock_irqrestore(&musb->lock, flags);
++	pm_runtime_put_sync(dev);
+ 
+ 	return sprintf(buf, "Vbus %s, timeout %lu msec\n",
+ 			vbus ? "on" : "off", val);
