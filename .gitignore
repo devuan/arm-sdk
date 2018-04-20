@@ -1,2 +1,4 @@
 tmp/*
 gcc/*
+dist/*
+log/*
