@@ -39,20 +39,6 @@ custmodules=()
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 gitbranch="linux-4.16.y"
 
-# patch series from linux-omap patchwork
-# [PATCHv2 0/8] omapdrm: DSI command mode panel support
-patchids=(
-	10207753 # [PATCHv2,1/8] drm/omap: add framedone interrupt support
-	10207763 # [PATCHv2,2/8] drm/omap: add manual update detection helper
-	10207759 # [PATCHv2,3/8] drm/omap: add support for manually updated displays
-	10207749 # [PATCHv2,4/8] dt-bindings: panel: common: document orientation property
-	10207733 # [PATCHv2,5/8] drm/omap: add support for orientation hints from display drivers
-	10207747 # [PATCHv2,6/8] drm/omap: panel-dsi-cm: add orientation support
-	10207755 # [PATCHv2,7/8] ARM: dts: omap4-droid4: Add LCD panel orientation property
-	10207743 # [PATCHv2,8/8] drm/omap: plane: update fifo size on ovl setup
-)
-pwclient=$R/extra/pwclient/pwclient
-
 postbuild() {
 	fn postbuild
 
@@ -77,11 +63,7 @@ build_kernel_${arch}() {
 	git checkout -- .
 	copy-kernel-config
 
-	notice "applying patches from patchwork"
-	cp $R/extra/pwclient/.pwclientrc ~
-	$pwclient git-am -p linux-omap $patchids
-
-	notice "applying addtional patches"
+	notice "applying patches"
 	_patchdir="$R/extra/patches/linux-n9-patches"
 	_patchset="$(find ${_patchdir} -name '*.patch' | sort)"
 	for i in "${=_patchset}"; do

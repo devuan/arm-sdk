@@ -1,6 +1,0 @@
-[options]
-default=linux-omap
-
-[linux-omap]
-url= https://patchwork.kernel.org/xmlrpc/
-

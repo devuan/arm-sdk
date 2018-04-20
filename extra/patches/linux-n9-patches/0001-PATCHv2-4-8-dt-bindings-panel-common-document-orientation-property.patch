@@ -1,0 +1,74 @@
+From patchwork Thu Feb  8 18:30:31 2018
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCHv2,
+ 4/8] dt-bindings: panel: common: document orientation property
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+X-Patchwork-Id: 10207749
+Message-Id: <20180208183035.8461-5-sebastian.reichel@collabora.co.uk>
+To: Sebastian Reichel <sre@kernel.org>,
+ Tomi Valkeinen <tomi.valkeinen@ti.com>, Tony Lindgren <tony@atomide.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Hans de Goede <hdegoede@redhat.com>, Rob Herring <robh+dt@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org,
+ linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Date: Thu,  8 Feb 2018 19:30:31 +0100
+
+Introduce new "orientation" property for describing in which
+orientation a panel has been mounted to the device. This can
+be used by the operating system to automatically rotate the
+display correctly.
+
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+---
+ .../devicetree/bindings/display/panel/panel-common.txt     | 12 ++++++++++++
+ include/dt-bindings/display/common.h                       | 14 ++++++++++++++
+ 2 files changed, 26 insertions(+)
+ create mode 100644 include/dt-bindings/display/common.h
+
+diff --git a/Documentation/devicetree/bindings/display/panel/panel-common.txt b/Documentation/devicetree/bindings/display/panel/panel-common.txt
+index 557fa765adcb..c646b8908458 100644
+--- a/Documentation/devicetree/bindings/display/panel/panel-common.txt
++++ b/Documentation/devicetree/bindings/display/panel/panel-common.txt
+@@ -18,6 +18,18 @@ Descriptive Properties
+   physical area where images are displayed. These properties are expressed in
+   millimeters and rounded to the closest unit.
+ 
++- orientation: The orientation property specifies the panel orientation
++  in relation to the device's casing. The following values are possible:
++
++   * 0 = The top side of the panel matches the top side of the device's
++         casing.
++   * 1 = The top side of the panel matches the bottom side of the device's
++         casing. In other words the panel is mounted upside-down.
++   * 2 = The left side of the panel matches the top side of the device's
++         casing.
++   * 3 = The right side of the panel matches the top side of the device's
++         casing.
++
+ - label: The label property specifies a symbolic name for the panel as a
+   string suitable for use by humans. It typically contains a name inscribed on
+   the system (e.g. as an affixed label) or specified in the system's
+diff --git a/include/dt-bindings/display/common.h b/include/dt-bindings/display/common.h
+new file mode 100644
+index 000000000000..a864775445a0
+--- /dev/null
++++ b/include/dt-bindings/display/common.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides common constants for displays
++ */
++
++#ifndef _DT_BINDINGS_DISPLAY_COMMON_H
++#define _DT_BINDINGS_DISPLAY_COMMON_H
++
++#define PANEL_ORIENTATION_NORMAL 0
++#define PANEL_ORIENTATION_BOTTOM_UP 1
++#define PANEL_ORIENTATION_LEFT_UP 2
++#define PANEL_ORIENTATION_RIGHT_UP 3
++
++#endif
