@@ -114,7 +114,7 @@ load() {
 
 	[[ -f $blendlib ]] && {
 		source $blendlib || zerr
-		act "$os blend loaded"
+		act "$blend blend loaded"
 		export BLEND=1
 	}
 
