@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-## kernel build script for Nokia N950
+## kernel build script for Nokia N9
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
