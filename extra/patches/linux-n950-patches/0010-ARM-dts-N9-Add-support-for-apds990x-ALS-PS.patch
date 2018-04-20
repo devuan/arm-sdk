@@ -1,0 +1,81 @@
+From ad23767da90b149a650ebb38a797056f81728507 Mon Sep 17 00:00:00 2001
+From: filippz <filip.matijevic.pz@gmail.com>
+Date: Thu, 28 Dec 2017 07:00:11 +0100
+Subject: [PATCH 10/11] ARM: dts: N9: Add support for apds990x ALS/PS
+
+Signed-off-by: filippz <filip.matijevic.pz@gmail.com>
+---
+ arch/arm/boot/dts/omap3-n9.dts       | 24 ++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-n950-n9.dtsi | 14 ++++++++++++++
+ 2 files changed, 38 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-n9.dts b/arch/arm/boot/dts/omap3-n9.dts
+index 613ada9a982a..1143a6eef736 100644
+--- a/arch/arm/boot/dts/omap3-n9.dts
++++ b/arch/arm/boot/dts/omap3-n9.dts
+@@ -57,6 +57,30 @@
+ 			};
+ 		};
+ 	};
++
++	als_ps@39 {
++		compatible = "avago,apds990x";
++		reg = <0x39>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&als_ps_gpio>;
++
++		interrupt-parent = <&gpio3>;
++		interrupts = <19 (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_LEVEL_LOW)>; /* gpio_83 */
++
++		vdd-supply = <&vaux1>;
++		vled-supply = <&vbat>;
++
++		avago,ga	= <168834>;
++		avago,cf1	= <4096>;
++		avago,irf1	= <7824>;
++		avago,cf2	= <877>;
++		avago,irf2	= <1575>;
++		avago,df	= <52>;
++
++		avago,pdrive	= /bits/ 8 <2>; /* APDS_IRLED_CURR_25mA */
++		avago,ppcount	= /bits/ 8 <5>;
++	};
+ };
+ 
+ &isp {
+diff --git a/arch/arm/boot/dts/omap3-n950-n9.dtsi b/arch/arm/boot/dts/omap3-n950-n9.dtsi
+index 219519812050..7ac45b833d1d 100644
+--- a/arch/arm/boot/dts/omap3-n950-n9.dtsi
++++ b/arch/arm/boot/dts/omap3-n950-n9.dtsi
+@@ -39,6 +39,14 @@
+ 		enable-active-high;
+ 	};
+ 
++	vbat: fixedregulator1 {
++		compatible = "regulator-fixed";
++		regulator-name = "VBAT";
++		regulator-min-microvolt = <3700000>;
++		regulator-max-microvolt = <3700000>;
++		regulator-boot-on;
++	};
++
+ 	vwlan_fixed: fixedregulator2 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "VWLAN";
+@@ -157,6 +165,12 @@
+ 			OMAP3630_CORE2_IOPAD(0x25ec, PIN_OUTPUT | MUX_MODE4)         /* gpio_23 (cmt_en) */
+ 		>;
+ 	};
++
++	als_ps_gpio: pinmux_als_ps_gpio {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20f6, PIN_INPUT | MUX_MODE4)	/* dss_data13.gpio_83 -> APDS990X/BHSFH IRQ */
++		>;
++	};
+ };
+ 
+ &i2c1 {
+-- 
+2.14.1
+

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+watchdog_kick() {
+	while true; do
+		for wd in /dev/watchdog*; do
+			test -c $wd && echo X > $wd
+		done
+
+		if [ -f /bin/sleep ]; then
+			/bin/sleep 2
+		else
+			return 0
+		fi
+	done
+}
+
+test -c /dev/null || mknod -m 666 /dev/null c 1 3
+
+watchdog_kick &
+
+exec /sbin/init

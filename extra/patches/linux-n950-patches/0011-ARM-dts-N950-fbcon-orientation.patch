@@ -1,0 +1,23 @@
+diff --git a/arch/arm/boot/dts/omap3-n950.dts b/arch/arm/boot/dts/omap3-n950.dts
+index 2354e0934..1eae3fc65 100644
+--- a/arch/arm/boot/dts/omap3-n950.dts
++++ b/arch/arm/boot/dts/omap3-n950.dts
+@@ -12,6 +12,7 @@
+ 
+ #include "omap3-n950-n9.dtsi"
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/display/common.h>
+ 
+ / {
+ 	model = "Nokia N950";
+@@ -244,8 +245,9 @@
+ 		width-mm = <49>; /* 48.960 mm */
+ 		height-mm = <88>; /* 88.128 mm */
+ 
++		orientation = <PANEL_ORIENTATION_LEFT_UP>;
++
+ 		/* TODO:
+-		 * - panel is upside-down
+ 		 * - top + bottom 5px are not visible
+ 		 */
+ 		panel-timing {

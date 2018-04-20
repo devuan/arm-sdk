@@ -1,0 +1,1103 @@
+// Instructions
+//
+// 1. Set basic layout by:
+//    setxkbmap -rules evdev -model nokiarm680 -layout cz
+//
+// 2. Set variant by:
+//    setxkbmap -rules evdev -model nokiarm680 -layout cz -variant qwerty
+//    In practice this is equivalent to:
+//    setxkbmap -rules evdev -model nokiarm680 -layout cz_qwerty
+//    However, the latter form isn't portable so always use the -variant option.
+//
+// 3. Set multilayout by:
+//    setxkbmap -rules evdev -model nokiarm680 -layout "us,cz" -variant ",qwerty" -option grp:ctrl_shift_toggle
+//    This sets the basic us layout active. You can switch to qwerty
+//    variant of cz layout by pressing ctrl+shift.
+//
+// Pitfalls
+//
+// 1. Many to one mappings
+//
+// Higher level input method components don't necessarily handle many to
+// one mappings correctly. They may assume that there exists only a one
+// to one mapping between a hardware key and a symbol. Therefore you
+// should take care not to introduce many to one mappings for keys that
+// are going to be reverse mapped from a symbol to a hardware key.
+//
+// Currently at least the modifier keys are affected. Clients may set
+// states, such as autorepeat, for hardware keys by reverse mapping a
+// modifier symbol to a hardware key and then setting the state for the
+// first hardware key that maps to the symbol. The correct way would be
+// to modify the state of all hardware keys mapping to a given symbol.
+//
+// We are nice and keep the mappings one to one for clients that don't
+// choose to handle many to one mappings.
+
+
+
+default partial alphanumeric_keys
+xkb_symbols "common" {
+    include "nokia_vndr/rm-680(common-keys)"
+    include "nokia_vndr/rm-680(modifiers)"
+
+    // This section should not be included by any other section. It's
+    // referenced only once by rule file to allow multiple layout
+    // configurations.
+};
+
+// setxkbmap -model nokiarm680 -layout gb
+partial alphanumeric_keys
+xkb_symbols "gb" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "English UK";
+};
+
+// setxkbmap -model nokiarm680 -layout us
+partial alphanumeric_keys
+xkb_symbols "us" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "English US";
+};
+
+// setxkbmap -model nokiarm680 -layout ca
+partial alphanumeric_keys
+xkb_symbols "ca" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "French Canadian";
+};
+
+// setxkbmap -model nokiarm680 -layout nl
+partial alphanumeric_keys
+xkb_symbols "nl" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Dutch";
+};
+
+// setxkbmap -model nokiarm680 -layout id
+partial alphanumeric_keys
+xkb_symbols "id" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Indonesian";
+};
+
+// setxkbmap -model nokiarm680 -layout my
+partial alphanumeric_keys
+xkb_symbols "my" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Malay";
+};
+
+// setxkbmap -model nokiarm680 -layout pl
+partial alphanumeric_keys
+xkb_symbols "pl" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Polish";
+};
+
+// setxkbmap -model nokiarm680 -layout ro
+partial alphanumeric_keys
+xkb_symbols "ro" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Romanian";
+};
+
+// setxkbmap -model nokiarm680 -layout fi
+partial alphanumeric_keys
+xkb_symbols "fi" {
+    include "nokia_vndr/rm-680(nordic-base)"
+
+    name[Group1] = "Finnish";
+
+    // 3. row
+    key <AB08>	{ [	odiaeresis,	Odiaeresis,	colon,		colon		] };
+    key <AB09>	{ [	adiaeresis,	Adiaeresis,	semicolon,	semicolon	] };
+
+};
+
+// setxkbmap -model nokiarm680 -layout se
+partial alphanumeric_keys
+xkb_symbols "se" {
+    include "nokia_vndr/rm-680(fi)"
+
+    name[Group1] = "Swedish";
+};
+
+// setxkbmap -model nokiarm680 -layout no
+partial alphanumeric_keys
+xkb_symbols "no" {
+    include "nokia_vndr/rm-680(nordic-base)"
+
+    name[Group1] = "Norwegian";
+
+    // 3. row
+    key <AB08>	{ [	oslash,		Oslash,		colon,		colon		] };
+    key <AB09>	{ [	ae,		AE,		semicolon,	semicolon	] };
+};
+
+// setxkbmap -model nokiarm680 -layout da
+partial alphanumeric_keys
+xkb_symbols "da" {
+    include "nokia_vndr/rm-680(no)"
+
+    name[Group1] = "Danish";
+};
+
+// setxkbmap -model nokiarm680 -layout pt
+partial alphanumeric_keys
+xkb_symbols "pt" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Portuguese";
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		apostrophe,	apostrophe	] };
+    key <AC03>	{ [	d,		D,		quotedbl,	quotedbl	] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	ccedilla,	Ccedilla,	question,	question	] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		EuroSign,	EuroSign	] };
+    key <AB03>	{ [	c,		C,		ampersand,	ampersand	] };
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };
+    key <AB05>	{ [	b,		B,		parenleft,	parenleft	] };
+    key <AB06>	{ [	n,		N,		parenright,	parenright	] };
+    key <AB08>	{ [	dead_acute,	dead_grave,	colon,		colon		] };
+    key <AB09>	{ [	dead_tilde,	dead_circumflex,semicolon,	semicolon	] };
+
+    // 4. row
+    key <AC12>	{ [	period,		comma,		comma,		comma		] };
+};
+
+// setxkbmap -model nokiarm680 -layout br
+partial alphanumeric_keys
+xkb_symbols "br" {
+    include "nokia_vndr/rm-680(pt)"
+
+    name[Group1] = "Brazilian Portuguese";
+};
+
+// setxkbmap -model nokiarm680 -layout es
+partial alphanumeric_keys
+xkb_symbols "es" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Spanish";
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		question,	question	] };
+    key <AC03>	{ [	d,		D,		apostrophe,	apostrophe	] };
+    key <AC04>	{ [	f,		F,		quotedbl,	quotedbl	] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	ntilde,		Ntilde,		ccedilla,	Ccedilla	] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		exclamdown,	exclamdown	] };
+    key <AB02>	{ [	x,		X,		questiondown,	questiondown	] };
+    key <AB03>	{ [	c,		C,		parenleft,	parenleft	] };
+    key <AB04>	{ [	v,		V,		parenright,	parenright	] };
+    key <AB05>	{ [	b,		B,		ampersand,	ampersand	] };
+    key <AB08>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		colon,		colon,		colon		] };
+
+    // 4. row
+    key <AC12>	{ [	dead_acute,	dead_diaeresis,	dead_diaeresis,	dead_diaeresis	] };
+};
+
+// setxkbmap -model nokiarm680 -layout es -variant american
+partial alphanumeric_keys
+xkb_symbols "es_american" {
+    include "nokia_vndr/rm-680(es)"
+
+    name[Group1] = "American Spanish";
+};
+
+// setxkbmap -model nokiarm680 -layout fr
+partial alphanumeric_keys
+xkb_symbols "fr" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "French";
+
+    // 1. row
+    key <AD01>	{ [	a,		A,		1,		1		] };
+    key <AD02>	{ [	z,		Z,		2,		2		] };
+
+    // 2. row
+    key <AC01>	{ [	q,		Q,		EuroSign,	EuroSign	] };
+    key <AC02>	{ [	s,		S,		equal,		equal		] };
+    key <AC03>	{ [	d,		D,		parenleft,	parenleft	] };
+    key <AC04>	{ [	f,		F,		parenright,	parenright	] };
+    key <AC05>	{ [	g,		G,		percent,	percent		] };
+    key <AC06>	{ [	h,		H,		ampersand,	ampersand	] };
+    key <AC07>	{ [	j,		J,		eacute,		Eacute		] };
+    key <AC08>	{ [	k,		K,		ecircumflex,	Ecircumflex	] };
+    key <AC09>	{ [	l,		L,		egrave,		Egrave		] };
+    key <AC11>	{ [	m,		M,		apostrophe,	apostrophe	] };
+
+    // 3. row
+    key <AB01>	{ [	w,		W,		underscore,	underscore	] };
+    key <AB02>	{ [	x,		X,		minus,		minus		] };
+    key <AB03>	{ [	c,		C,		plus,		plus		] };
+    key <AB04>	{ [	v,		V,		numbersign,	numbersign	] };
+    key <AB05>	{ [	b,		B,		asterisk,	asterisk	] };
+    key <AB06>	{ [	n,		N,		backslash,	backslash	] };
+    key <AB07>	{ [	comma,		question,	ccedilla,	Ccedilla	] };
+    key <AB08>	{ [	period,		semicolon,	agrave,		Agrave		] };
+    key <AB09>	{ [	colon,		exclam,		quotedbl,	quotedbl	] };
+
+    // 4. row
+    key <AC12>	{ [	dead_circumflex,dead_diaeresis,	dead_diaeresis,	dead_diaeresis	] };
+};
+
+// setxkbmap -model nokiarm680 -layout de
+partial alphanumeric_keys
+xkb_symbols "de" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "German";
+
+    // 1. row
+    key <AD06>	{ [	z,		Z,		6,		6		] };
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		exclam,		exclam		] };
+    key <AC02>	{ [	s,		S,		apostrophe,	apostrophe	] };
+    key <AC03>	{ [	d,		D,		quotedbl,	quotedbl	] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	udiaeresis,	Udiaeresis,	question,	question	] };
+
+    // 3. row
+    key <AB01>	{ [	y,		Y,		less,		less		] };
+    key <AB02>	{ [	x,		X,		greater,	greater		] };
+    key <AB03>	{ [	c,		C,		ampersand,	ampersand	] };
+    key <AB04>	{ [	v,		V,		parenleft,	parenrleft	] };
+    key <AB05>	{ [	b,		B,		parenright,	parenright	] };
+    key <AB06>	{ [	n,		N,		equal,		equal		] };
+    key <AB07>	{ [	m,		M,		ssharp,		ssharp		] };
+    key <AB08>	{ [	odiaeresis,	Odiaeresis,	colon,		colon		] };
+    key <AB09>	{ [	adiaeresis,	Adiaeresis,	semicolon,	semicolon	] };
+
+    // 4. row
+    key <AC12>	{ [	period,		comma,		comma,		comma		] };
+};
+
+// setxkbmap -model nokiarm680 -layout hu
+partial alphanumeric_keys
+xkb_symbols "hu" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Hungarian";
+
+    // 1. row
+    key <AD06>	{ [	z,		Z,		6,		6		] };
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		quotedbl,	quotedbl	] };
+    key <AC02>	{ [	s,		S,		parenleft,	parenleft	] };
+    key <AC03>	{ [	d,		D,		parenright,	parenright	] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		odiaeresis,	Odiaeresis	] };
+    key <AC06>	{ [	h,		H,		odoubleacute,	Odoubleacute	] };
+    key <AC07>	{ [	j,		J,		oacute,		Oacute		] };
+    key <AC08>	{ [	k,		K,		udiaeresis,	Udiaeresis	] };
+    key <AC09>	{ [	l,		L,		udoubleacute,	Udoubleacute	] };
+    key <AC11>	{ [	exclam,		question,	question,	question	] };
+
+    // 3. row
+    key <AB01>	{ [	y,		Y,		minus,		minus		] };
+    key <AB02>	{ [	x,		X,		plus,		plus		] };
+    key <AB03>	{ [	c,		C,		numbersign,	numbersign	] };
+    key <AB04>	{ [	v,		V,		asterisk,	asterisk	] };
+    key <AB05>	{ [	b,		B,		equal,		equal		] };
+    key <AB06>	{ [	n,		N,		iacute,		Iacute		] };
+    key <AB07>	{ [	m,		M,		eacute,		Eacute		] };
+    key <AB08>	{ [	comma,		semicolon,	aacute,		Aacute		] };
+    key <AB09>	{ [	period,		colon,		uacute,		Uacute		] };
+
+    // 4. row
+    key <AC12>	{ [	apostrophe,	ampersand,	ampersand,	ampersand	] };
+};
+
+// setxkbmap -model nokiarm680 -layout ch -variant french
+partial alphanumeric_keys
+xkb_symbols "ch_french" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Swiss French";
+
+    // 1. row
+    key <AD06>	{ [	z,		Z,		6,		6		] };
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		apostrophe,	apostrophe	] };
+    key <AC03>	{ [	d,		D,		quotedbl,	quotedbl	] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	egrave,		Egrave,		question,	question	] };
+
+    // 3. row
+    key <AB01>	{ [	y,		Y,		EuroSign,	EuroSign	] };
+    key <AB02>	{ [	x,		X,		parenleft,	parenleft	] };
+    key <AB03>	{ [	c,		C,		parenright,	parenright	] };
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };
+    key <AB05>	{ [	b,		B,		ampersand,	ampersand	] };
+    key <AB06>	{ [	n,		N,		equal,		equal		] };
+    key <AB07>	{ [	m,		M,		ccedilla,	Ccedilla	] };
+    key <AB08>	{ [	eacute,		Eacute,		colon,		colon		] };
+    key <AB09>	{ [	agrave,		Agrave,		semicolon,	semicolon	] };
+
+    // 4. row
+    key <AC12>	{ [	period,		dead_circumflex,comma,		comma		] };
+};
+
+// setxkbmap -model nokiarm680 -layout ch -variant german
+partial alphanumeric_keys
+xkb_symbols "ch_german" {
+    include "nokia_vndr/rm-680(ch_french)"
+
+    name[Group1] = "Swiss German";
+
+    // 2. row
+    key <AC11>	{ [	udiaeresis,	Udiaeresis,	question,	question	] };
+
+    // 3. row
+    key <AB08>	{ [	odiaeresis,	Odiaeresis,	colon,		colon		] };
+    key <AB09>	{ [	adiaeresis,	Adiaeresis,	semicolon,	semicolon	] };
+};
+
+// setxkbmap -model nokiarm680 -layout ru -variant latin
+partial alphanumeric_keys
+xkb_symbols "ru_latin" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Russian Latin";
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		numbersign,		numbersign		] };
+    key <AC02>	{ [	s,		S,		asterisk,		asterisk		] };
+    key <AC03>	{ [	d,		D,		plus,			plus			] };
+    key <AC04>	{ [	f,		F,		equal,			equal			] };
+    key <AC05>	{ [	g,		G,		minus,			minus			] };
+    key <AC06>	{ [	h,		H,		exclam,			exclam			] };
+    key <AC07>	{ [	j,		J,		question,		question		] };
+    key <AC08>	{ [	k,		K,		parenleft,		parenleft		] };
+    key <AC09>	{ [	l,		L,		parenright,		parenright		] };
+    key <AC11>	{ [	VoidSymbol,	VoidSymbol,	VoidSymbol,		VoidSymbol		] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		apostrophe,		apostrophe		] };
+    key <AB02>	{ [	x,		X,		quotedbl,		quotedbl		] };
+    key <AB03>	{ [	c,		C,		percent,		percent			] };
+    key <AB04>	{ [	v,		V,		ampersand,		ampersand		] };
+    key <AB05>	{ [	b,		B,		underscore,		underscore		] };
+    key <AB06>	{ [	n,		N,		semicolon,		semicolon		] };
+    key <AB07>	{ [	m,		M,		colon,			colon			] };
+    key <AB08>	{ [	VoidSymbol,     VoidSymbol,	VoidSymbol,		VoidSymbol		] };
+    key <AB09>	{ [	VoidSymbol,	VoidSymbol,	VoidSymbol,		VoidSymbol		] };
+
+    // 4. row
+    key <AC12>	{ [	period,		comma,		comma,			comma			] };
+};
+
+// setxkbmap -model nokiarm680 -layout ru -variant cyrillic
+partial alphanumeric_keys
+xkb_symbols "ru_cyrillic" {
+    include "nokia_vndr/rm-680(ru_latin)"
+
+    name[Group1] = "Russian Cyrillic";
+
+    // 1. row
+    key <AD01>	{ [	Cyrillic_shorti,	Cyrillic_SHORTI,	1,			1			] };
+    key <AD02>	{ [	Cyrillic_tse,		Cyrillic_TSE,		2,			2			] };
+    key <AD03>	{ [	Cyrillic_u,		Cyrillic_U,		3,			3			] };
+    key <AD04>	{ [	Cyrillic_ka,		Cyrillic_KA,		4,			4			] };
+    key <AD05>	{ [	Cyrillic_ie,		Cyrillic_IE,		5,			5			] };
+    key <AD06>	{ [	Cyrillic_en,		Cyrillic_EN,		6,			6			] };
+    key <AD07>	{ [	Cyrillic_ghe,		Cyrillic_GHE,		7,			7			] };
+    key <AD08>	{ [	Cyrillic_sha,		Cyrillic_SHA,		8,			8			] };
+    key <AD09>	{ [	Cyrillic_shcha,		Cyrillic_SHCHA,		9,			9			] };
+    key <AD10>	{ [	Cyrillic_ze,		Cyrillic_ZE,		0,			0			] };
+
+    // 2. row
+    key <AC01>	{ [	Cyrillic_ef,		Cyrillic_EF,		numbersign,		numbersign		] };
+    key <AC02>	{ [	Cyrillic_yeru,		Cyrillic_YERU,		asterisk,		asterisk		] };
+    key <AC03>	{ [	Cyrillic_ve,		Cyrillic_VE,		plus,			plus			] };
+    key <AC04>	{ [	Cyrillic_a,		Cyrillic_A,		equal,			equal			] };
+    key <AC05>	{ [	Cyrillic_pe,		Cyrillic_PE,		minus,			minus			] };
+    key <AC06>	{ [	Cyrillic_er,		Cyrillic_ER,		exclam,			exclam			] };
+    key <AC07>	{ [	Cyrillic_o,		Cyrillic_O,		question,		question		] };
+    key <AC08>	{ [	Cyrillic_el,		Cyrillic_EL,		parenleft,		parenleft		] };
+    key <AC09>	{ [	Cyrillic_de,		Cyrillic_DE,		parenright,		parenright		] };
+    key <AC11>	{ [	Cyrillic_zhe,		Cyrillic_ZHE,		Cyrillic_ha,		Cyrillic_HA		] };
+
+    // 3. row
+    key <AB01>	{ [	Cyrillic_ya,		Cyrillic_YA,		apostrophe,		apostrophe		] };
+    key <AB02>	{ [	Cyrillic_che,		Cyrillic_CHE,		quotedbl,		quotedbl		] };
+    key <AB03>	{ [	Cyrillic_es,		Cyrillic_ES,		percent,		percent			] };
+    key <AB04>	{ [	Cyrillic_em,		Cyrillic_EM,		ampersand,		ampersand		] };
+    key <AB05>	{ [	Cyrillic_i,		Cyrillic_I,		underscore,		underscore		] };
+    key <AB06>	{ [	Cyrillic_te,		Cyrillic_TE,		semicolon,		semicolon		] };
+    key <AB07>	{ [	Cyrillic_softsign,	Cyrillic_SOFTSIGN,	colon,			colon			] };
+    key <AB08>	{ [	Cyrillic_be,		Cyrillic_BE,		Cyrillic_hardsign,	Cyrillic_HARDSIGN	] };
+    key <AB09>	{ [	Cyrillic_yu,		Cyrillic_YU,		Cyrillic_e,		Cyrillic_E		] };
+};
+
+// setxkbmap -model nokiarm680 -layout ua -variant latin
+partial alphanumeric_keys
+xkb_symbols "ua_latin" {
+    include "nokia_vndr/rm-680(ru_latin)"
+
+    name[Group1] = "Ukrainian Latin";
+};
+
+// setxkbmap -model nokiarm680 -layout ua -variant cyrillic
+partial alphanumeric_keys
+xkb_symbols "ua_cyrillic" {
+    include "nokia_vndr/rm-680(ru_cyrillic)"
+
+    name[Group1] = "Ukrainian Cyrillic";
+
+};
+
+// setxkbmap -model nokiarm680 -layout it
+partial alphanumeric_keys
+xkb_symbols "it" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Italian";
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		EuroSign,	EuroSign	] };
+    key <AC02>	{ [	s,		S,		quotedbl,	quotedbl	] };
+    key <AC03>	{ [	d,		D,		equal,		equal		] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		parenleft,	parenleft	] };
+    key <AC06>	{ [	h,		H,		parenright,	parenright	] };
+    key <AC07>	{ [	j,		J,		igrave,		Igrave		] };
+    key <AC08>	{ [	k,		K,		eacute,		Eacute		] };
+    key <AC09>	{ [	l,		L,		egrave,		Egrave		] };
+    key <AC11>	{ [	question,	exclam,		exclam,		exclam		] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		underscore,	underscore	] };
+    key <AB02>	{ [	x,		X,		minus,		minus		] };
+    key <AB03>	{ [	c,		C,		plus,		plus		] };
+    key <AB04>	{ [	v,		V,		numbersign,	numbersign	] };
+    key <AB05>	{ [	b,		B,		asterisk,	asterisk	] };
+    key <AB06>	{ [	n,		N,		backslash,	backslash	] };
+    key <AB07>	{ [	m,		M,		ograve,		Ograve		] };
+    key <AB08>	{ [	comma,		semicolon,	agrave,		Agrave		] };
+    key <AB09>	{ [	period,		colon,		ugrave,		Ugrave		] };
+
+    // 4. row
+    key <AC12>	{ [	apostrophe,	ampersand,	ampersand,	ampersand	] };
+};
+
+// setxkbmap -model nokiarm680 -layout cz
+partial alphanumeric_keys
+xkb_symbols "cz" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Czech";
+
+    // 1. row
+    key <AD06>	{ [	z,		Z,		6,		6		] };
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		minus,		minus		] };
+    key <AC02>	{ [	s,		S,		ecaron,		Ecaron		] };
+    key <AC03>	{ [	d,		D,		scaron,		Scaron		] };
+    key <AC04>	{ [	f,		F,		ccaron,		Ccaron		] };
+    key <AC05>	{ [	g,		G,		rcaron,		Rcaron		] };
+    key <AC06>	{ [	h,		H,		zcaron,		Zcaron		] };
+    key <AC07>	{ [	j,		J,		yacute,		Yacute		] };
+    key <AC08>	{ [	k,		K,		aacute,		Aacute		] };
+    key <AC09>	{ [	l,		L,		iacute,		Iacute		] };
+    key <AC11>	{ [	question,	question,	eacute,		Eacute		] };
+
+    // 3. row
+    key <AB01>	{ [	y,		Y,		plus,		plus		] };
+    key <AB02>	{ [	x,		X,		numbersign,	numbersign	] };
+    key <AB03>	{ [	c,		C,		asterisk,	asterisk	] };
+    key <AB04>	{ [	v,		V,		apostrophe,	apostrophe	] };
+    key <AB05>	{ [	b,		B,		parenleft,	parenleft	] };
+    key <AB06>	{ [	n,		N,		parenright,	parenright	] };
+    key <AB07>	{ [	m,		M,		uring,		Uring		] };
+    key <AB08>	{ [	comma,		semicolon,	uacute,		Uacute		] };
+    key <AB09>	{ [	period,		colon,		exclam,		exclam		] };
+
+    // 4. row
+    key <AC12>	{ [	dead_acute,	dead_caron,	dead_caron,	dead_caron	] };
+};
+
+// setxkbmap -model nokiarm680 -layout cz -variant qwerty
+partial alphanumeric_keys
+xkb_symbols "cz_qwerty" {
+    include "nokia_vndr/rm-680(cz)"
+
+    name[Group1] = "Czech - qwerty";
+
+    // 1. row
+    key <AD06>	{ [	y,		Y,		6,		6		] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		plus,		plus		] };
+};
+
+// setxkbmap -model nokiarm680 -layout sk
+partial alphanumeric_keys
+xkb_symbols "sk" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Slovak";
+
+    // 1. row
+    key <AD06>	{ [	z,		Z,		6,		6		] };
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		U013E,		U013D		] };
+    key <AC02>	{ [	s,		S,		scaron,		Scaron		] };
+    key <AC03>	{ [	d,		D,		ccaron,		Ccaron		] };
+    key <AC04>	{ [	f,		F,		U0165,		U0164		] };
+    key <AC05>	{ [	g,		G,		zcaron,		Zcaron		] };
+    key <AC06>	{ [	h,		H,		yacute,		Yacute		] };
+    key <AC07>	{ [	j,		J,		aacute,		Aacute		] };
+    key <AC08>	{ [	k,		K,		iacute,		Iacute		] };
+    key <AC09>	{ [	l,		L,		eacute,		Eacute		] };
+    key <AC11>	{ [	question,	exclam,		uacute,		Uacute		] };
+
+    // 3. row
+    key <AB01>	{ [	y,		Y,		plus,		plus		] };
+    key <AB02>	{ [	x,		X,		minus,		minus		] };
+    key <AB03>	{ [	c,		C,		equal,		equal		] };
+    key <AB04>	{ [	v,		V,		numbersign,	numbersign	] };
+    key <AB05>	{ [	b,		B,		asterisk,	asterisk	] };
+    key <AB06>	{ [	n,		N,		parenleft,	parenleft	] };
+    key <AB07>	{ [	m,		M,		parenright,	parenright	] };
+    key <AB08>	{ [	comma,		dead_acute,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		EuroSign,	colon,		colon		] };
+
+    // 4. row
+    key <AC12>	{ [	dead_caron,	dead_circumflex,dead_circumflex,dead_circumflex	] };
+};
+
+// setxkbmap -model nokiarm680 -layout tr
+partial alphanumeric_keys
+xkb_symbols "tr" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Turkish";
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		equal,		equal		] };
+    key <AC02>	{ [	s,		S,		quotedbl,	quotedbl	] };
+    key <AC03>	{ [	d,		D,		percent,	percent		] };
+    key <AC04>	{ [	f,		F,		gcaron,		Gcaron		] };
+    key <AC05>	{ [	g,		G,		udiaeresis,	Udiaeresis	] };
+    key <AC06>	{ [	h,		H,		scedilla,	Scedilla	] };
+    key <AC07>	{ [	j,		J,		idotless,	Iabovedot	] };
+    key <AC08>	{ [	k,		K,		odiaeresis,	Odiaeresis	] };
+    key <AC09>	{ [	l,		L,		ccedilla,	Ccedilla	] };
+    key <AC11>	{ [	exclam,		apostrophe,	apostrophe,	apostrophe	] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		minus,		minus		] };
+    key <AB02>	{ [	x,		X,		plus,		plus		] };
+    key <AB03>	{ [	c,		C,		numbersign,	numbersign	] };
+    key <AB04>	{ [	v,		V,		asterisk,	asterisk	] };
+    key <AB05>	{ [	b,		B,		ampersand,	ampersand	] };
+    key <AB06>	{ [	n,		N,		parenleft,	parenleft	] };
+    key <AB07>	{ [	m,		M,		parenright,	parenright	] };
+    key <AB08>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		colon,		colon,		colon		] };
+};
+
+// setxkbmap -model nokiarm680 -layout ara
+//
+// Decomposition of any unicode ligatures is left to higher level input
+// method components. It is easier to map ligatures consisting of multiple
+// unicode characters to a single unicode presentation form. The used
+// presentation forms are given below.
+//
+// FEF6/0644+0622: ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE FINAL FORM
+// FEF7/0644+0623: ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE ISOLATED FORM
+// FEF9/0644+0625: ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW ISOLATED FORM
+// FEFB/0644+0627: ARABIC LIGATURE LAM WITH ALEF ISOLATED FORM
+
+partial alphanumeric_keys
+xkb_symbols "ara" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Arabic";
+
+    // 1. row
+    key <AD01>	{ [	Arabic_dad,		Arabic_thal,		1,			1			] };
+    key <AD02>	{ [	Arabic_sad,		Arabic_sad,		2,			2			] };
+    key <AD03>	{ [	Arabic_theh,		Arabic_theh,		3,			3			] };
+    key <AD04>	{ [	Arabic_qaf,		Arabic_qaf,		4,			4			] };
+    key <AD05>	{ [	Arabic_feh,		UFEF9,			5,			5			] };
+    key <AD06>	{ [	Arabic_ghain,		Arabic_hamzaunderalef,	6,			6			] };
+    key <AD07>	{ [	Arabic_ain,		Arabic_ain,		7,			7			] };
+    key <AD08>	{ [	Arabic_ha,		Arabic_ha,		8,			8			] };
+    key <AD09>	{ [	Arabic_hah,		Arabic_khah,		9,			9			] };
+    key <AD10>	{ [	Arabic_jeem,		Arabic_dal,		0,			0			] };
+
+    // 2. row
+    key <AC01>	{ [	Arabic_sheen,		Arabic_sheen,		apostrophe,		apostrophe		] };
+    key <AC02>	{ [	Arabic_seen,		Arabic_seen,		quotedbl,		quotedbl		] };
+    key <AC03>	{ [	Arabic_yeh,		Arabic_yeh,		percent,		percent			] };
+    key <AC04>	{ [	Arabic_beh,		Arabic_beh,		ampersand,		ampersand		] };
+    key <AC05>	{ [	Arabic_lam,		UFEF7,			underscore,		underscore		] };
+    key <AC06>	{ [	Arabic_alef,		Arabic_hamzaonalef,	minus,			minus			] };
+    key <AC07>	{ [	Arabic_teh,		Arabic_teh,		plus,			plus			] };
+    key <AC08>	{ [	Arabic_noon,		Arabic_kaf,		numbersign,		numbersign		] };
+    key <AC09>	{ [	Arabic_meem,		Arabic_tah,		asterisk,		asterisk		] };
+    key <AC11>	{ [	Arabic_question_mark,	exclam,			exclam,			exclam			] };
+
+    // 3. row
+    key <AB01>	{ [	Arabic_hamzaonyeh,	Arabic_hamzaonyeh,	sterling,		sterling		] };
+    key <AB02>	{ [	Arabic_hamza,		Arabic_hamza,		dollar,			dollar			] };
+    key <AB03>	{ [	Arabic_hamzaonwaw,	Arabic_hamzaonwaw,	EuroSign,		EuroSign		] };
+    key <AB04>	{ [	Arabic_ra,		Arabic_ra,		backslash,		backslash		] };
+    key <AB05>	{ [	UFEFB,		        UFEF6,			parenleft,		parenleft		] };
+    key <AB06>	{ [	Arabic_alefmaksura,	Arabic_hamzaonalef,	parenright,		parenright		] };
+    key <AB07>	{ [	Arabic_tehmarbuta,	Arabic_tehmarbuta,	equal,			equal			] };
+    key <AB08>	{ [	Arabic_waw,		Arabic_waw,		Arabic_semicolon,	Arabic_semicolon	] };
+    key <AB09>	{ [	Arabic_zain,		Arabic_zah,		colon,			colon			] };
+
+    // 4. row
+    key <AC12>	{ [	period,			Arabic_comma,		Arabic_comma,		Arabic_comma		] };
+};
+
+// setxkbmap -model nokiarm680 -layout ara -variant latin
+partial alphanumeric_keys
+xkb_symbols "ara_latin" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    name[Group1] = "Arabic Latin";
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		apostrophe,	apostrophe	] };
+    key <AC03>	{ [	d,		D,		percent,	percent		] };
+    key <AC04>	{ [	f,		F,		ampersand,	ampersand	] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	question,	exclam,		exclam,		exclam		] };
+
+    // 3. row
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };
+    key <AB05>	{ [	b,		B,		parenleft,	parenleft	] };
+    key <AB06>	{ [	n,		N,		parenright,	parenright	] };
+    key <AB08>	{ [	semicolon,	semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	colon,		colon,		colon,		colon		] };
+
+    // 4. row
+    key <AC12>	{ [	period,		comma,		comma,		comma		] };
+};
+
+// setxkbmap -model nokiarm680 -layout ara -variant indic
+partial alphanumeric_keys
+xkb_symbols "ara_indic" {
+    include "nokia_vndr/rm-680(ara)"
+
+    name[Group1] = "Arabic Indic";
+
+    // 2. row
+    key <AC03>	{ [	Arabic_yeh,	Arabic_yeh,	Arabic_percent,	Arabic_percent	] };
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant latin-cangjie
+partial alphanumeric_keys
+xkb_symbols "cn_latin-cangjie" {
+    include "nokia_vndr/rm-680(chinese-base)"
+
+    name[Group1] = "Chinese Latin-Cangjie";
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		asciicircum,	asciicircum	] };
+
+    // 3. row
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };  
+    key <AB08>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		colon,		colon,		colon		] };
+};
+
+// setxkbmap -model nokiarm680 -layout zh -variant hk-latin
+partial alphanumeric_keys
+xkb_symbols "zh_hk-latin" {
+    include "nokia_vndr/rm-680(cn_latin-cangjie)"
+
+    name[Group1] = "Chinese Latin-Cangjie";
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant cangjie
+partial alphanumeric_keys
+xkb_symbols "cn_cangjie" {
+    include "nokia_vndr/rm-680(cn_latin-cangjie)"
+
+    name[Group1] = "Chinese Cangjie";
+
+    // 1. row
+    key <AD01>	{ [	U624B,		U624B,		1,		1		] };
+    key <AD02>	{ [	U7530,		U7530,		2,		2		] };
+    key <AD03>	{ [	U6C34,		U6C34,		3,		3		] };
+    key <AD04>	{ [	U53E3,		U53E3,		4,		4		] };
+    key <AD05>	{ [	U5EFF,		U5EFF,		5,		5		] };
+    key <AD06>	{ [	U535C,		U535C,		6,		6		] };
+    key <AD07>	{ [	U5C71,		U5C71,		7,		7		] };
+    key <AD08>	{ [	U6208,		U6208,		8,		8		] };
+    key <AD09>	{ [	U4EBA,		U4EBA,		9,		9		] };
+    key <AD10>	{ [	U5FC3,		U5FC3,		0,		0		] };
+
+    // 2. row
+    key <AC01>	{ [	U65E5,		U65E5,		UFF07,		UFF07		] };
+    key <AC02>	{ [	U5C38,		U5C38,		UFF3E,		UFF3E		] };
+    key <AC03>	{ [	U6728,		U6728,		UFF05,		UFF05		] };
+    key <AC04>	{ [	U706B,		U706B,		UFE51,		UFE51		] };
+    key <AC05>	{ [	U571F,		U571F,		UFF3F,		UFF3F		] };
+    key <AC06>	{ [	U7AF9,		U7AF9,		UFF0D,		UFF0D		] };
+    key <AC07>	{ [	U5341,		U5341,		plus,		plus		] };
+    key <AC08>	{ [	U5927,		U5927,		numbersign,	numbersign	] };
+    key <AC09>	{ [	U4E2D,		U4E2D,		asterisk,	asterisk	] };
+    key <AC11>	{ [	UFF1F,		UFF01,		UFF01,		UFF01		] };
+
+    // 3. row
+    key <AB01>	{ [	VoidSymbol,	VoidSymbol,	EuroSign,	EuroSign	] };
+    key <AB02>	{ [	U96E3,		U96E3,		UFF04,		UFF04		] };
+    key <AB03>	{ [	U91D1,		U91D1,		UFF06,		UFF06		] };
+    key <AB04>	{ [	U5973,		U5973,		UFF3C,		UFF3C		] };
+    key <AB05>	{ [	U6708,		U6708,		UFF08,		UFF08		] };
+    key <AB06>	{ [	U5F13,		U5F13,		UFF09,		UFF09		] };
+    key <AB07>	{ [	U4E00,		U4E00,		UFF1D,		UFF1D		] };
+    key <AB08>	{ [	UFF0C,		UFF1B,		UFF1B,		UFF1B		] };
+    key <AB09>	{ [	U3002,		UFF1A,		UFF1A,		UFF1A		] };
+
+    // 4. row
+    key <AB10>	{ [	UFF20,		UFF0F,		UFF0F,		UFF0F		] };
+};
+
+// setxkbmap -model nokiarm680 -layout zh -variant hk
+partial alphanumeric_keys
+xkb_symbols "zh_hk" {
+    include "nokia_vndr/rm-680(cn_cangjie)"
+
+    name[Group1] = "Chinese Cangjie";
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant latin-pinyin
+partial alphanumeric_keys
+xkb_symbols "cn_latin-pinyin" {
+    include "nokia_vndr/rm-680(chinese-base)"
+
+    name[Group1] = "Chinese Latin-Pinyin";
+
+  // 2. row
+    key <AC02>	{ [	s,		S,		ampersand,	ampersand	] };  
+
+    // 3. row
+    key <AB03>	{ [	c,		C,		yen,		yen		] };
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };  
+    key <AB08>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		colon,		colon,		colon		] };
+};
+
+// setxkbmap -model nokiarm680 -layout zh -variant latin
+partial alphanumeric_keys
+xkb_symbols "zh_latin" {
+    include "nokia_vndr/rm-680(cn_latin-pinyin)"
+
+    name[Group1] = "Chinese Latin-Pinyin";
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant pinyin
+partial alphanumeric_keys
+xkb_symbols "cn_pinyin" {
+    include "nokia_vndr/rm-680(cn_latin-pinyin)"
+
+    name[Group1] = "Chinese Pinyin";
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		UFF07,		UFF07		] };
+    key <AC02>	{ [	s,		S,		UFF06,		UFF06		] };
+    key <AC03>	{ [	d,		D,		UFF05,		UFF05		] };
+    key <AC05>	{ [	g,		G,		UFF3F,		UFF3F		] };
+    key <AC06>	{ [	h,		H,		UFF0D,		UFF0D		] };
+    key <AC11>	{ [	UFF1F,		UFF01,		UFF01,		UFF01		] };
+
+    // 3. row
+    key <AB03>	{ [	c,		C,		UFFE5,		UFFE5		] };
+    key <AB04>	{ [	v,		V,		UFF3C,		UFF3C		] };
+    key <AB05>	{ [	b,		B,		UFF08,		UFF08		] };
+    key <AB06>	{ [	n,		N,		UFF09,		UFF09		] };
+    key <AB07>	{ [	m,		M,		UFF1D,		UFF1D		] };
+    key <AB08>	{ [	UFF0C,		UFF1B,		UFF1B,		UFF1B		] };
+    key <AB09>	{ [	U3002,		UFF1A,		UFF1A,		UFF1A		] };
+
+    // 4. row
+    key <AB10>	{ [	UFF20,		UFF0F,		UFF0F,		UFF0F		] };
+};
+
+// setxkbmap -model nokiarm680 -layout zh
+partial alphanumeric_keys
+xkb_symbols "zh" {
+    include "nokia_vndr/rm-680(cn_pinyin)"
+
+    name[Group1] = "Chinese Pinyin";
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant latin-zhuyin
+partial alphanumeric_keys
+xkb_symbols "cn_latin-zhuyin" {
+    include "nokia_vndr/rm-680(chinese-base)"
+
+    name[Group1] = "Chinese Latin-Zhuyin";
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		asciicircum,	asciicircum	] };
+    key <AC04>	{ [	f,		F,		ampersand,	ampersand	] };
+    key <AC11>	{ [	period,		colon,		colon,		colon		] };
+
+    // 3. row
+    key <AB03>	{ [	c,		C,		parenleft,	parenleft	] };
+    key <AB04>	{ [	v,		V,		parenright,	parenright	] };
+    key <AB05>	{ [	b,		B,		backslash,	backslash	] };
+    key <AB06>	{ [	n,		N,		equal,		equal		] };
+    key <AB07>	{ [	m,		M,		exclam,		exclam		] };
+    key <AB08>	{ [	question,	question,	question,	question	] };
+    key <AB09>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+
+};
+
+// setxkbmap -model nokiarm680 -layout zh -variant tw-latin
+partial alphanumeric_keys
+xkb_symbols "zh_tw-latin" {
+    include "nokia_vndr/rm-680(cn_latin-zhuyin)"
+
+    name[Group1] = "Chinese Latin-Zhuyin";
+};
+
+// setxkbmap -model nokiarm680 -layout cn -variant zhuyin
+partial alphanumeric_keys
+xkb_symbols "cn_zhuyin" {
+    include "nokia_vndr/rm-680(cn_latin-zhuyin)"
+
+    name[Group1] = "Chinese Zhuyin";
+
+    // 1. row
+    key <AD01>	{ [	U3105,		U3105,		1,		1		] };
+    key <AD02>	{ [	U3109,		U3109,		2,		2		] };
+    key <AD03>	{ [	U02C7,		U02C7,		3,		3		] };
+    key <AD04>	{ [	U02CB,		U02CB,		4,		4		] };
+    key <AD05>	{ [	U3113,		U3113,		5,		5		] };
+    key <AD06>	{ [	U02CA,		U02CA,		6,		6		] };
+    key <AD07>	{ [	U02D9,		U02D9,		7,		7		] };
+    key <AD08>	{ [	U311B,		U311A,		8,		8		] };
+    key <AD09>	{ [	U311F,		U311E,		9,		9		] };
+    key <AD10>	{ [	U3123,		U3122,		0,		0		] };
+
+    // 2. row
+    key <AC01>	{ [	U3107,		U3106,		UFF07,		UFF07		] };
+    key <AC02>	{ [	U310B,		U310A,		UFF3E,		UFF3E		] };
+    key <AC03>	{ [	U310E,		U310D,		UFF05,		UFF05		] };
+    key <AC04>	{ [	U3111,		U3110,		UFF06,		UFF06		] };
+    key <AC05>	{ [	U3115,		U3114,		UFF3F,		UFF3F		] };
+    key <AC06>	{ [	U3118,		U3117,		UFF0D,		UFF0D		] };
+    key <AC07>	{ [	U3128,		U3127,		plus,		plus		] };
+    key <AC08>	{ [	U311D,		U311C,		numbersign,	numbersign	] };
+    key <AC09>	{ [	U3121,		U3120,		asterisk,	asterisk	] };
+    key <AC11>	{ [	U3002,		UFF1A,		UFF1A,		UFF1A		] };
+
+    // 3. row
+    key <AB01>	{ [	U3108,		U3108,		EuroSign,	EuroSign	] };
+    key <AB02>	{ [	U310C,		U310C,		dollar,		dollar		] };
+    key <AB03>	{ [	U310F,		U310F,		UFF08,		UFF08		] };
+    key <AB04>	{ [	U3112,		U3112,		UFF09,		UFF09		] };
+    key <AB05>	{ [	U3116,		U3116,		UFF3C,		UFF3C		] };
+    key <AB06>	{ [	U3119,		U3119,		UFF1D,		UFF1D		] };
+    key <AB07>	{ [	U3126,		U3129,		UFF01,		UFF01		] };
+    key <AB08>	{ [	U3125,		U3124,		UFF1F,		UFF1F		] };
+    key <AB09>	{ [	UFF0C,		UFF1B,		UFF1B,		UFF1B		] };
+
+    // 4. row
+    key <AB10>	{ [	UFF20,		UFF0F,		UFF0F,		UFF0F		] };
+};
+
+// setxkbmap -model nokiarm680 -layout zh -variant tw
+partial alphanumeric_keys
+xkb_symbols "zh_tw" {
+    include "nokia_vndr/rm-680(cn_zhuyin)"
+
+    name[Group1] = "Chinese Zhuyin";
+};
+
+partial hidden alphanumeric_keys
+xkb_symbols "english-base" {
+    // 1. row
+    key <AD01>	{ [	q,		Q,		1,		1		] };
+    key <AD02>	{ [	w,		W,		2,		2		] };
+    key <AD03>	{ [	e,		E,		3,		3		] };
+    key <AD04>	{ [	r,		R,		4,		4		] };
+    key <AD05>	{ [	t,		T,		5,		5		] };
+    key <AD06>	{ [	y,		Y,		6,		6		] };
+    key <AD07>	{ [	u,		U,		7,		7		] };
+    key <AD08>	{ [	i,		I,		8,		8		] };
+    key <AD09>	{ [	o,		O,		9,		9		] };
+    key <AD10>	{ [	p,		P,		0,		0		] };
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		exclam,		exclam		] };
+    key <AC02>	{ [	s,		S,		quotedbl,	quotedbl	] };
+    key <AC03>	{ [	d,		D,		ampersand,	ampersand	] };
+    key <AC04>	{ [	f,		F,		parenleft,	parenleft	] };
+    key <AC05>	{ [	g,		G,		parenright,	parenright	] };
+    key <AC06>	{ [	h,		H,		underscore,	underscore	] };
+    key <AC07>	{ [	j,		J,		minus,		minus		] };
+    key <AC08>	{ [	k,		K,		plus,		plus		] };
+    key <AC09>	{ [	l,		L,		numbersign,	numbersign	] };
+    key <AC11>	{ [	apostrophe,	asterisk,	asterisk,	asterisk	] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		sterling,	sterling	] };
+    key <AB02>	{ [	x,		X,		dollar,		dollar		] };
+    key <AB03>	{ [	c,		C,		EuroSign,	EuroSign	] };
+    key <AB04>	{ [	v,		V,		less,		less		] };
+    key <AB05>	{ [	b,		B,		greater,	greater		] };
+    key <AB06>	{ [	n,		N,		percent,	percent		] };
+    key <AB07>	{ [	m,		M,		equal,		equal		] };
+    key <AB08>	{ [	comma,		semicolon,	semicolon,	semicolon	] };
+    key <AB09>	{ [	period,		colon,		colon,		colon		] };
+
+    // 4. row
+    key <AB10>	{ [	at,		slash,		slash,		slash		] };
+    key <AC12>	{ [	question,	backslash,	backslash,	backslash	] };
+};
+
+partial hidden alphanumeric_keys
+xkb_symbols "nordic-base" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    // 2. row
+    key <AC02>	{ [	s,		S,		apostrophe,	apostrophe	] };
+    key <AC03>	{ [	d,		D,		quotedbl,	quotedbl	] };
+    key <AC04>	{ [	f,		F,		percent,	percent		] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+    key <AC11>	{ [	aring,		Aring,		question,	question	] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		EuroSign,	EuroSign	] };
+    key <AB03>	{ [	c,		C,		ampersand,	ampersand	] };
+    key <AB04>	{ [	v,		V,		backslash,	backslash	] };
+    key <AB05>	{ [	b,		B,		parenleft,	parenleft	] };
+    key <AB06>	{ [	n,		N,		parenright,	parenright	] };
+
+    // 4. row
+    key <AC12>	{ [	period,		comma,		comma,		comma		] };
+};
+
+partial hidden alphanumeric_keys
+xkb_symbols "chinese-base" {
+    include "nokia_vndr/rm-680(english-base)"
+
+    // 2. row
+    key <AC01>	{ [	a,		A,		apostrophe,	apostrophe	] };
+    key <AC02>	{ [	s,		S,		quotedbl,	quotedbl	] };
+    key <AC03>	{ [	d,		D,		percent,	percent		] };
+    key <AC04>	{ [	f,		F,		UFE51,		UFE51		] };
+    key <AC05>	{ [	g,		G,		underscore,	underscore	] };
+    key <AC06>	{ [	h,		H,		minus,		minus		] };
+    key <AC07>	{ [	j,		J,		plus,		plus		] };
+    key <AC08>	{ [	k,		K,		numbersign,	numbersign	] };
+    key <AC09>	{ [	l,		L,		asterisk,	asterisk	] };
+
+    key <AC11>	{ [	question,	exclam,		exclam,		exclam		] };
+
+    // 3. row
+    key <AB01>	{ [	z,		Z,		EuroSign,	EuroSign	] };
+    key <AB03>	{ [	c,		C,		ampersand,	ampersand	] };
+    key <AB05>	{ [	b,		B,		parenleft,	parenleft	] };
+    key <AB06>	{ [	n,		N,		parenright,	parenright	] };
+    key <AB07>	{ [	m,		M,		equal,		equal		] };
+
+    // 4. row
+    key <AB10>	{ [	at,		slash,		slash,		slash		] }; 
+    key <AC12>	{ [	quotedbl,	U2026,		U2026,		U2026		] };
+
+};
+
+partial hidden alphanumeric_keys
+xkb_symbols "common-keys" {
+    key <BKSP>	{ [	BackSpace,	Delete,		BackSpace,	Delete		] };
+    key <RTRN>	{ [	Return		] };
+    key <SPCE>	{ [	space		] };
+    // Normal second level must not be enumerated to allow text selection
+    // with Shift key. In other words, since Shift is used for selecting text
+    // with arrow keys, care must be taken so that we don't define any shift
+    // level symbols for arrow keys. We use a custom type that can be only
+    // used to define symbols without modifiers and with the Fn modifier.
+    key <UP>	{ type[Group1] = "PC_FN_LEVEL2", symbols[Group1] = [	Up,	Page_Up		] };
+    key <LEFT>	{ type[Group1] = "PC_FN_LEVEL2", symbols[Group1] = [	Left,	Home		] };
+    key <DOWN>	{ type[Group1] = "PC_FN_LEVEL2", symbols[Group1] = [	Down,	Page_Down	] };
+    key <RGHT>	{ type[Group1] = "PC_FN_LEVEL2", symbols[Group1] = [	Right,	End		] };
+};
+
+partial hidden alphanumeric_keys modifier_keys
+xkb_symbols "modifiers" {
+    // Shift switches between first and second levels. Right Shift doesn't
+    // exist on the keypad anymore. Previously it was overridden on some
+    // layouts to provide punctuation characters.
+    key <LFSH>	{ type[Group1] = "ONE_LEVEL", symbols[Group1] = [	Shift_L		] };
+    modifier_map Shift { Shift_L };
+
+    // Sym key is used for virtual symbol table (Multi_key). Left Control
+    // doesn't exist on the keypad anymore. Previously it was defined as Sym
+    // for compatibility with rx51, but now we are using Compose for the Sym
+    // key. The true control key on the device is the Right Control key.   
+    key <COMP>	{ type[Group1] = "ONE_LEVEL", symbols[Group1] = [	Multi_key	] };
+    modifier_map Mod4 { Multi_key };
+    key <RCTL>	{ type[Group1] = "ONE_LEVEL", symbols[Group1] = [	Control_R	] };
+    modifier_map Control { Control_R };
+
+    // Fn key switches to third level. When Fn is down, Shift switches
+    // between third and fourth levels.
+    include "level3(lwin_switch)"
+
+    // For flexibility, it would be nice to map multiple hardware keys to
+    // a symbol. However, we choose to disable the extra mappings to
+    // avoid problems with clients that don't handle many to one mappings
+    // correctly.
+    // include "level3(lalt_switch)"
+    // include "level3(ralt_switch)"
+};

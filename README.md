@@ -66,6 +66,8 @@ Now is the time you choose the device and OS you want to build the image for.
 * `chromeacer` - Acer ARM Chromebook
 * `chromeveyron` - Veyron ARM Chromebook (RK3288)
 * `n900` - Nokia N900
+* `n950` - Nokia N950
+* `n9` - Nokia N9
 * `odroidxu` - ODROID-XU
 * `odroidxu4` - ODROID-XU4
 * `ouya` - OUYA gaming console

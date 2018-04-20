@@ -69,6 +69,8 @@ load() {
 		"chromeacer"      "$R/boards/chromebook-acer.sh"
 		"chromeveyron"    "$R/boards/chromebook-veyron.sh"
 		"n900"            "$R/boards/nokia-n900.sh"
+		"n950"            "$R/boards/nokia-n950.sh"
+		"n9"              "$R/boards/nokia-n9.sh"
 		"droid4"          "$R/boards/droid4.sh"
 		"odroidxu"        "$R/boards/odroid-xu.sh"
 		"odroidxu4"       "$R/boards/odroid-xu4.sh"

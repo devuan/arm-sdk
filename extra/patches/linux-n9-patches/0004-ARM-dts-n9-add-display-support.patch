@@ -1,0 +1,118 @@
+From 3390d6d1009dc6cdd166638be4af242e4469bcd1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Filip=20Matijevi=C4=87?= <filip.matijevic.pz@gmail.com>
+Date: Sat, 28 Oct 2017 14:32:54 +0200
+Subject: [PATCH 04/11] ARM: dts: n9: add display support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add basic panel support for the Nokia N9.
+
+Signed-off-by: Filip Matijević <filip.matijevic.pz@gmail.com>
+---
+ arch/arm/boot/dts/omap3-n9.dts | 91 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 91 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-n9.dts b/arch/arm/boot/dts/omap3-n9.dts
+index e44d93fc644c..613ada9a982a 100644
+--- a/arch/arm/boot/dts/omap3-n9.dts
++++ b/arch/arm/boot/dts/omap3-n9.dts
+@@ -18,6 +18,26 @@
+ 	compatible = "nokia,omap3-n9", "ti,omap36xx", "ti,omap3";
+ };
+ 
++&omap3_pmx_core {
++	dsi_pins: pinmux_dsi_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20dc, PIN_OUTPUT | MUX_MODE1) /* dsi_dx0 - data0+ */
++			OMAP3_CORE1_IOPAD(0x20de, PIN_OUTPUT | MUX_MODE1) /* dsi_dy0 - data0- */
++			OMAP3_CORE1_IOPAD(0x20e0, PIN_OUTPUT | MUX_MODE1) /* dsi_dx1 - clk+   */
++			OMAP3_CORE1_IOPAD(0x20e2, PIN_OUTPUT | MUX_MODE1) /* dsi_dy1 - clk-   */
++			OMAP3_CORE1_IOPAD(0x20e4, PIN_OUTPUT | MUX_MODE1) /* dsi_dx2 - data1+ */
++			OMAP3_CORE1_IOPAD(0x20e6, PIN_OUTPUT | MUX_MODE1) /* dsi_dy2 - data1- */
++		>;
++	};
++
++	display_pins: pinmux_display_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20ca, PIN_INPUT | MUX_MODE4) /* gpio 62 - display te */
++			OMAP3_CORE1_IOPAD(0x20fe, PIN_OUTPUT | MUX_MODE4) /* gpio 87 - display reset */
++		>;
++	};
++};
++
+ &i2c2 {
+ 	smia_1: camera@10 {
+ 		compatible = "nokia,smia";
+@@ -79,3 +99,74 @@
+ 			 MATRIX_KEY(7, 8, KEY_VOLUMEDOWN)
+ 			 >;
+ };
++
++&dss {
++	status = "ok";
++
++	vdda_video-supply = <&vdac>;
++};
++
++&dsi {
++	status = "ok";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&dsi_pins>;
++
++	vdd-supply = <&vpll2>;
++
++	port {
++		dsi_out_ep: endpoint {
++			remote-endpoint = <&lcd0_in>;
++			lanes = <2 3 4 5 0 1>;
++		};
++	};
++
++	lcd0: display {
++		compatible = "nokia,pyrenees", "panel-dsi-cm";
++		label = "lcd0";
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&display_pins>;
++
++		vpnl-supply = <&vmmc2>;
++		vddi-supply = <&vio>;
++
++		reset-gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;	/* 87 */
++		te-gpios = <&gpio2 30 GPIO_ACTIVE_HIGH>;	/* 62 */
++
++		width-mm = <48>; /* 48.240 mm */
++		height-mm = <87>; /* 86.832 mm */
++
++		panel-timing {
++			clock-frequency = <0>;          /* Calculated by dsi */
++
++			hback-porch = <2>;
++			hactive = <480>;
++			hfront-porch = <0>;
++			hsync-len = <2>;
++
++			vback-porch = <1>;
++			vactive = <864>;
++			vfront-porch = <0>;
++			vsync-len = <1>;
++
++			hsync-active = <0>;
++			vsync-active = <0>;
++			de-active = <1>;
++			pixelclk-active = <1>;
++
++		};
++
++		port {
++			lcd0_in: endpoint {
++				remote-endpoint = <&dsi_out_ep>;
++			};
++		};
++	};
++};
+-- 
+2.14.1
+

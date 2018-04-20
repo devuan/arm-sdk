@@ -1,0 +1,193 @@
+From aca9cbfc6f2bf8a3dc6b30d6b7e78e9790a9875f Mon Sep 17 00:00:00 2001
+From: filippz <filip.matijevic.pz@gmail.com>
+Date: Thu, 28 Dec 2017 06:57:45 +0100
+Subject: [PATCH 08/11] misc: apds990x: Add device tree support
+
+Signed-off-by: filippz <filip.matijevic.pz@gmail.com>
+---
+ .../devicetree/bindings/misc/avago-apds990x.txt    | 41 +++++++++++
+ drivers/misc/apds990x.c                            | 85 +++++++++++++++++++++-
+ 2 files changed, 123 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/misc/avago-apds990x.txt
+
+diff --git a/Documentation/devicetree/bindings/misc/avago-apds990x.txt b/Documentation/devicetree/bindings/misc/avago-apds990x.txt
+new file mode 100644
+index 000000000000..480c0b1c570d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/avago-apds990x.txt
+@@ -0,0 +1,41 @@
++Avago APDS990X driver
++
++https://docs.broadcom.com/docs/AV02-2867EN
++
++Required properties:
++- compatible: "avago,apds990x"
++- reg: address on the I2C bus
++- interrupts: external interrupt line number
++- vdd-supply: power supply for VDD
++- vled-supply: power supply for LEDA
++- avago,ga: Glass attenuation
++- avago,cf1: Clear channel factor 1
++- avago,irf1: IR channel factor 1
++- avago,cf2: Clear channel factor 2
++- avago,irf2: IR channel factor 2
++- avago,df: Device factor
++- avago,pdrive: IR current, one of APDS_IRLED_CURR_XXXmA values
++- avago,ppcount: Proximity pulse count
++
++Example (Nokia N9):
++
++	als_ps@39 {
++		compatible = "avago,apds990x";
++		reg = <0x39>;
++
++		interrupt-parent = <&gpio3>;
++		interrupts = <19 (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_LEVEL_LOW)>; /* gpio_83 */
++
++		vdd-supply = <&vaux1>;
++		vled-supply = <&vbat>;
++
++		avago,ga	= <168834>;
++		avago,cf1	= <4096>;
++		avago,irf1	= <7824>;
++		avago,cf2	= <877>;
++		avago,irf2	= <1575>;
++		avago,df	= <52>;
++
++		avago,pdrive	= <0x2>; /* APDS_IRLED_CURR_25mA */
++		avago,ppcount	= <5>;
++	};
+diff --git a/drivers/misc/apds990x.c b/drivers/misc/apds990x.c
+index ed9412d750b7..7bb9cd76110a 100644
+--- a/drivers/misc/apds990x.c
++++ b/drivers/misc/apds990x.c
+@@ -33,6 +33,8 @@
+ #include <linux/wait.h>
+ #include <linux/slab.h>
+ #include <linux/platform_data/apds990x.h>
++#include <linux/gpio.h>
++#include <linux/of_gpio.h>
+ 
+ /* Register map */
+ #define APDS990X_ENABLE	 0x00 /* Enable of states and interrupts */
+@@ -195,8 +197,8 @@ static const u16 arates_hz[] = {10, 5, 2, 1};
+ static const u8 apersis[] = {1, 2, 4, 5};
+ 
+ /* Regulators */
+-static const char reg_vcc[] = "Vdd";
+-static const char reg_vled[] = "Vled";
++static const char reg_vcc[] = "vdd";
++static const char reg_vled[] = "vled";
+ 
+ static int apds990x_read_byte(struct apds990x_chip *chip, u8 reg, u8 *data)
+ {
+@@ -1066,11 +1068,71 @@ static const struct attribute_group apds990x_attribute_group[] = {
+ 	{.attrs = sysfs_attrs_ctrl },
+ };
+ 
++static const int apds990x_parse_dt(struct device *dev,
++				struct apds990x_platform_data *pdata)
++{
++	struct device_node *np = dev->of_node;
++	int res;
++
++	if (!np)
++		return -EINVAL;
++
++	res = of_property_read_s32(np, "avago,ga", &pdata->cf.ga);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve ga from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_s32(np, "avago,cf1", &pdata->cf.cf1);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve cf1 from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_s32(np, "avago,irf1", &pdata->cf.irf1);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve irf1 from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_s32(np, "cf2", &pdata->cf.cf2);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve cf2 from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_s32(np, "avago,irf2", &pdata->cf.irf2);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve irf2 from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_s32(np, "avago,df", &pdata->cf.df);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve irf1 from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_u8(np, "avago,pdrive", &pdata->pdrive);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve pdrive from device tree\n");
++		return -EINVAL;
++	}
++
++	res = of_property_read_u8(np, "avago,ppcount", &pdata->ppcount);
++	if (res < 0) {
++		dev_err(dev, "Failed to retrieve ppcount from device tree\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static int apds990x_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+ 	struct apds990x_chip *chip;
+-	int err;
++	int err = 0;
+ 
+ 	chip = kzalloc(sizeof *chip, GFP_KERNEL);
+ 	if (!chip)
+@@ -1083,6 +1145,16 @@ static int apds990x_probe(struct i2c_client *client,
+ 	mutex_init(&chip->mutex);
+ 	chip->pdata	= client->dev.platform_data;
+ 
++	if (chip->pdata == NULL) {
++		chip->pdata = devm_kzalloc(&client->dev, sizeof(*chip->pdata),
++									GFP_KERNEL);
++		if (!chip->pdata)
++			return -ENOMEM;
++		err = apds990x_parse_dt(&client->dev, chip->pdata);
++	}
++	if (err < 0)
++		return err;
++
+ 	if (chip->pdata == NULL) {
+ 		dev_err(&client->dev, "platform data is mandatory\n");
+ 		err = -EINVAL;
+@@ -1283,9 +1355,16 @@ static const struct dev_pm_ops apds990x_pm_ops = {
+ 			NULL)
+ };
+ 
++static const struct of_device_id apds990x_of_match[] = {
++	{.compatible = "avago,apds990x" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, apds990x_of_match);
++
+ static struct i2c_driver apds990x_driver = {
+ 	.driver	 = {
+ 		.name	= "apds990x",
++		.of_match_table	= apds990x_of_match,
+ 		.pm	= &apds990x_pm_ops,
+ 	},
+ 	.probe	  = apds990x_probe,
+-- 
+2.14.1
+

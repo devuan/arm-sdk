@@ -1,0 +1,33 @@
+From b6faf8e49d3ce7b8b94d56a88e70926fb35de918 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Filip=20Matijevi=C4=87?= <filip.matijevic.pz@gmail.com>
+Date: Sat, 28 Oct 2017 09:18:10 +0200
+Subject: [PATCH 02/11] drm: add/rename MIPI_DCS_SET_PARTIAL_XXX
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Rename MIPI_DCS_SET_PARTIAL_AREA to MIPI_DCS_SET_PARTIAL_ROWS
+Add MIPI_DCS_SET_PARTIAL_COLUMNS
+
+Signed-off-by: Filip Matijević <filip.matijevic.pz@gmail.com>
+---
+ include/video/mipi_display.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/video/mipi_display.h b/include/video/mipi_display.h
+index 19aa65a35546..1d9fdd685ded 100644
+--- a/include/video/mipi_display.h
++++ b/include/video/mipi_display.h
+@@ -102,7 +102,8 @@ enum {
+ 	MIPI_DCS_WRITE_MEMORY_START	= 0x2C,
+ 	MIPI_DCS_WRITE_LUT		= 0x2D,
+ 	MIPI_DCS_READ_MEMORY_START	= 0x2E,
+-	MIPI_DCS_SET_PARTIAL_AREA	= 0x30,
++	MIPI_DCS_SET_PARTIAL_ROWS	= 0x30,
++	MIPI_DCS_SET_PARTIAL_COLUMNS	= 0x31,
+ 	MIPI_DCS_SET_SCROLL_AREA	= 0x33,
+ 	MIPI_DCS_SET_TEAR_OFF		= 0x34,
+ 	MIPI_DCS_SET_TEAR_ON		= 0x35,
+-- 
+2.14.1
+

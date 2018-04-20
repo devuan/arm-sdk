@@ -1,0 +1,63 @@
+From 013999e09d13087a9eb4922df3099f5e71035031 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Filip=20Matijevi=C4=87?= <filip.matijevic.pz@gmail.com>
+Date: Sat, 28 Oct 2017 14:39:23 +0200
+Subject: [PATCH 03/11] drm/omap: panel-dsi-cm: use defines from mipi_display.h
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Filip Matijević <filip.matijevic.pz@gmail.com>
+---
+ drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c b/drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c
+index 7a63d6775a27..418cf5dd2d69 100644
+--- a/drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c
++++ b/drivers/gpu/drm/omapdrm/displays/panel-dsi-cm.c
+@@ -33,8 +33,6 @@
+ #define TCH 0
+ 
+ #define DCS_READ_NUM_ERRORS	0x05
+-#define DCS_BRIGHTNESS		0x51
+-#define DCS_CTRL_DISPLAY	0x53
+ #define DCS_GET_ID1		0xda
+ #define DCS_GET_ID2		0xdb
+ #define DCS_GET_ID3		0xdc
+@@ -386,7 +384,8 @@ static int dsicm_bl_update_status(struct backlight_device *dev)
+ 
+ 		r = dsicm_wake_up(ddata);
+ 		if (!r)
+-			r = dsicm_dcs_write_1(ddata, DCS_BRIGHTNESS, level);
++			r = dsicm_dcs_write_1(ddata, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
++									level);
+ 
+ 		in->ops.dsi->bus_unlock(in);
+ 	}
+@@ -668,11 +667,11 @@ static int dsicm_power_on(struct panel_drv_data *ddata)
+ 	if (r)
+ 		goto err;
+ 
+-	r = dsicm_dcs_write_1(ddata, DCS_BRIGHTNESS, 0xff);
++	r = dsicm_dcs_write_1(ddata, MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0xff);
+ 	if (r)
+ 		goto err;
+ 
+-	r = dsicm_dcs_write_1(ddata, DCS_CTRL_DISPLAY,
++	r = dsicm_dcs_write_1(ddata, MIPI_DCS_WRITE_CONTROL_DISPLAY,
+ 			(1<<2) | (1<<5));	/* BL | BCTRL */
+ 	if (r)
+ 		goto err;
+@@ -1101,7 +1100,8 @@ static int dsicm_memory_read(struct omap_dss_device *dssdev,
+ 		goto err2;
+ 
+ 	while (buf_used < size) {
+-		u8 dcs_cmd = first ? 0x2e : 0x3e;
++		u8 dcs_cmd = first ? MIPI_DCS_READ_MEMORY_START :
++								MIPI_DCS_READ_MEMORY_CONTINUE;
+ 		first = 0;
+ 
+ 		r = in->ops.dsi->dcs_read(in, ddata->channel, dcs_cmd,
+-- 
+2.14.1
+
