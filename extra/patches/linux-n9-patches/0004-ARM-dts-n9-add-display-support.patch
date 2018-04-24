@@ -55,6 +55,12 @@ index e44d93fc644c..613ada9a982a 100644
 +	vdda_video-supply = <&vdac>;
 +};
 +
++&dss {
++	status = "ok";
++
++	vdda_video-supply = <&vdac>;
++};
++
 +&dsi {
 +	status = "ok";
 +
