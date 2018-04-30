@@ -140,7 +140,7 @@ updatedb
 EOF
 
 	chroot-script -d postbuild || zerr
-	sudo rm -f \
+	[[ -n "$BLEND" ]] || sudo rm -f \
 		"$strapdir/$armel_qemu_bin" \
 		"$strapdir/$armhf_qemu_bin" \
 		"$strapdir/$arm64_qemu_bin"
