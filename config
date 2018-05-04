@@ -85,6 +85,7 @@ uboot_configs=(
 	orangepi_lite_defconfig
 	Orangepi_mini_defconfig
 	orangepi_plus_defconfig
+	orangepi_plus2e_defconfig
 	orangepi_zero_defconfig
 	q8_a33_tablet_1024x600_defconfig
 	q8_a33_tablet_800x480_defconfig
@@ -110,6 +111,7 @@ board_dtbs=(
 	sun8i-h3-orangepi-lite.dtb
 	sun7i-a20-orangepi-mini.dtb
 	sun8i-h3-orangepi-plus.dtb
+	sun8i-h3-orangepi-plus2e.dtb
 	sun8i-h2-plus-orangepi-zero.dtb
 	sun8i-a33-q8-tablet.dtb
 	sun6i-a31s-sinovoip-bpi-m2.dtb
