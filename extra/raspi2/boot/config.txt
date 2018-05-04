@@ -1,8 +1,11 @@
 ## memory shared with the GPU
-gpu_mem=64
+gpu_mem=128
 
 ## always audio
 dtparam=audio=on
 
 ## maximum amps on usb ports
 max_usb_current=1
+
+## enable hardware-accelerated graphics
+dtoverlay=vc4-kms-v3d
