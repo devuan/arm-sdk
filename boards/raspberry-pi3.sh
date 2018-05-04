@@ -38,7 +38,7 @@ extra_packages+=()
 custmodules=(snd_bcm2835)
 
 gitkernel="https://github.com/raspberrypi/linux"
-gitbranch="rpi-4.14.y"
+gitbranch="rpi-4.16.y"
 rpifirmware="https://github.com/raspberrypi/firmware.git"
 
 
@@ -58,13 +58,6 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	copy-root-overlay
-
-	notice "downloading broadcom firmware for bt/wifi"
-	sudo mkdir -p $strapdir/lib/firmware/brcm
-	# https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/brcm
-	sudo wget -q -O "$strapdir/lib/firmware/brcm/brcmfmac43430-sdio.bin" \
-		https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/brcm/brcmfmac43430-sdio.bin
-
 	postbuild-clean
 }
 
