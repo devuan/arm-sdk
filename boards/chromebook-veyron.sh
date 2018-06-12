@@ -81,8 +81,9 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 
 		notice "patching kernel"
-		patch -p1 --no-backup-if-mismatch < $R/extra/patches/0001-UPSTREAM-soc-rockchip-add-handler-for-usb-uart-funct.patch
-		patch -p1 --no-backup-if-mismatch < $R/extra/patches/0002-fix-brcmfmac-oops-and-race-condition.patch
+		for i in $R/extra/patches/linux-chromeveyron-patches/*.patch ; do
+			patch -p1 < "$i"
+		done
 
 		#WIFIVERSION="-3.8" make multi_v7_defconfig || zerr
 		copy-kernel-config
