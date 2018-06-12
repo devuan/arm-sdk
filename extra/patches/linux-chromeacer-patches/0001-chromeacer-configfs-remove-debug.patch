@@ -1,0 +1,21 @@
+--- fs/configfs/dir.c.orig	2018-06-06 10:29:24.616110050 +0200
++++ fs/configfs/dir.c	2018-06-06 10:29:51.140594997 +0200
+@@ -387,8 +387,6 @@ static void remove_dir(struct dentry * d
+ 	if (d->d_inode)
+ 		simple_rmdir(parent->d_inode,d);
+ 
+-	pr_debug(" o %s removing done (%d)\n",d->d_name.name, d->d_count);
+-
+ 	dput(parent);
+ }
+ 
+@@ -565,9 +563,6 @@ static void detach_attrs(struct config_i
+ 	if (!dentry)
+ 		return;
+ 
+-	pr_debug("configfs %s: dropping attrs for  dir\n",
+-		 dentry->d_name.name);
+-
+ 	parent_sd = dentry->d_fsdata;
+ 	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
+ 		if (!sd->s_element || !(sd->s_type & CONFIGFS_NOT_PINNED))

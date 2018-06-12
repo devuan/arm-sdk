@@ -95,6 +95,9 @@ build_kernel_armhf() {
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		#WIFIVERSION="-3.8" make exynos_defconfig || zerr
 		copy-kernel-config
+		for i in $R/extra/patches/linux-chromeacer-patches/*.patch ; do
+			patch -p1 < $i
+		done
 		mkdir -p firmware/nvidia/tegra124/
 		cp -f $R/extra/chromebook-acer/xusb.bin firmware/nvidia/tegra124/
 		make \
