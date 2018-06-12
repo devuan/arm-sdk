@@ -39,7 +39,7 @@ extra_packages+=()
 custmodules=()
 
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.15.y"
+gitbranch="linux-4.17.y"
 
 sunxi_mali="https://github.com/mripard/sunxi-mali.git"
 
