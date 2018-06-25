@@ -84,6 +84,7 @@ uboot_configs=(
 	Orangepi_defconfig
 	orangepi_lite_defconfig
 	Orangepi_mini_defconfig
+	orangepi_pc_defconfig
 	orangepi_plus_defconfig
 	orangepi_plus2e_defconfig
 	orangepi_zero_defconfig
@@ -110,6 +111,7 @@ board_dtbs=(
 	sun7i-a20-orangepi.dtb
 	sun8i-h3-orangepi-lite.dtb
 	sun7i-a20-orangepi-mini.dtb
+	sun8i-h3-orangepi-pc.dtb
 	sun8i-h3-orangepi-plus.dtb
 	sun8i-h3-orangepi-plus2e.dtb
 	sun8i-h2-plus-orangepi-zero.dtb
