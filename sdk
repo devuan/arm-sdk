@@ -128,7 +128,7 @@ blend_postinst() {
 	ckreq || return 1
 
 	notice "executing blend postinst"
-	cat << ___EOF___ | sudo tee \$strapdir/blendpostinst
+	cat << ___EOF___ | sudo tee \$strapdir/blendpostinst >/dev/null
 ${parsedfile}
 ___EOF___
 
