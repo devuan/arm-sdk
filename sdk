@@ -88,7 +88,6 @@ load() {
 	)
 
 	blend_map=(
-		"dowse"  "https://github.com/dyne/dowse/raw/master/ops/dowse.blend"
 		"decode" "../decode.blend"
 		"maemo"  "../maemo.blend"
 	)
@@ -103,20 +102,23 @@ load() {
 
 	blendlib="${blend_map[$blend]}"
 
-	if [[ "$blendlib" =~ '^http' ]]; then
-		notice "grabbing blend from the internetz"
-		wget -O "$R/extra/blends/$(basename $blendlib)" "$blendlib"
-		blendlib="$R/extra/blends/$(basename $blendlib)"
-	fi
-
 	if [[ -z "$blendlib" ]]; then
-		notice "trying to parse an unknown blend"
-		# Check if it's a Dockerfile
-		if grep -qi '^FROM ' "$blend"; then
-			act "The blend is a Dockerfile"
-			parsedfile="$($LIBPATH/extra/dockerfile_parse.py "$blend")"
-			[[ $? = 0 ]] || { die "Could not parse the Dockerfile" ; exit 1}
-			cat > "$R/$(basename ${blend}).blend" << __EOF__
+		if [[ "$blend" =~ '^http' ]]; then
+			notice "grabbing blend from the internetz"
+			dlpath="$R/extra/blends/$(basename $blend)"
+			wget -O "$dlpath" "$blend"
+			sed 1q "$dlpath" | grep -q '^#!/usr/bin/env zsh' && blendlib="$dlpath"
+		fi
+
+		if [[ -z "$blendlib" ]]; then
+			[[ -n "$dlpath" ]] && blend="$dlpath"
+			act "trying to parse an unknown blend"
+			# Check if it's a Dockerfile
+			if grep -qi '^FROM ' "$blend"; then
+				act "The blend is a Dockerfile"
+				parsedfile="$($LIBPATH/extra/dockerfile_parse.py "$blend")"
+				[[ $? = 0 ]] || { die "Could not parse the Dockerfile" ; exit 1}
+				cat > "$R/$(basename ${blend}).blend" << __EOF__
 #!/usr/bin/env zsh
 # Parsed with dockerfile_parse.py
 #
@@ -133,7 +135,8 @@ ___EOF___
 	chroot-script -d blendpostinst || zerr
 }
 __EOF__
-			blendlib="$R/$(basename ${blend}).blend"
+				blendlib="$R/$(basename ${blend}).blend"
+			fi
 		fi
 	fi
 
