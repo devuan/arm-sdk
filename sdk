@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2018 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -94,29 +94,57 @@ load() {
 	)
 
 	boardlib="${board_map[$dev]}"
+	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
+	source $boardlib ## XXX: remove this line
+
 	oslib="${os_map[$os]}"
+	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
+	source $oslib
+
 	blendlib="${blend_map[$blend]}"
 
-	[[ $blendlib =~ '^http' ]] && {
+	if [[ "$blendlib" =~ '^http' ]]; then
 		notice "grabbing blend from the internetz"
-		pushd $R/extra/blends
-			curl -Ls -O $blendlib
-		popd
+		wget -O "$R/extra/blends/$(basename $blendlib)" "$blendlib"
 		blendlib="$R/extra/blends/$(basename $blendlib)"
-	}
+	fi
 
-	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
-	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
+	if [[ -z "$blendlib" ]]; then
+		notice "trying to parse an unknown blend"
+		# Check if it's a Dockerfile
+		if grep -qi '^FROM ' "$blend"; then
+			act "The blend is a Dockerfile"
+			parsedfile="$($LIBPATH/extra/dockerfile_parse.py "$blend")"
+			[[ $? = 0 ]] || { die "Could not parse the Dockerfile" ; exit 1}
+			cat > "$R/$(basename ${blend}).blend" << __EOF__
+#!/usr/bin/env zsh
+# Parsed with dockerfile_parse.py
+#
+blend_postinst() {
+	fn blend_postinst
+	req=(strapdir blend)
+	ckreq || return 1
+
+	notice "executing blend postinst"
+	cat << ___EOF___ | sudo tee \$strapdir/blendpostinst
+${parsedfile}
+___EOF___
+
+	chroot-script -d blendpostinst || zerr
+}
+__EOF__
+			blendlib="$R/$(basename ${blend}).blend"
+		fi
+	fi
+
 	[[ -f $blendlib ]] || { act "no blend specified" }
-
-	source $boardlib ## XXX: remove this line
-	source $oslib
 	source $boardlib && act "$device_name build script loaded"
+
 	source $R/lib/overrides
 
 	[[ -f $blendlib ]] && {
 		source $blendlib || zerr
-		act "$blend blend loaded"
+		act "$(basename $blend) blend loaded"
 		export BLEND=1
 	}
 
