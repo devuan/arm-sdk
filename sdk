@@ -80,6 +80,7 @@ load() {
 		"raspi3"          "$R/boards/raspberry-pi3.sh"
 		"rock64"          "$R/boards/rock64.sh"
 		"sunxi"           "$R/boards/sunxi.sh"
+		"turbox-twister"  "$R/boards/turbox-twister.sh"
 	)
 
 	os_map=(
