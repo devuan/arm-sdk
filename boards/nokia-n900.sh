@@ -30,9 +30,9 @@ size=1337
 #inittab=""
 
 parted_type="dos"
-parted_boot="fat32 8192s 270335s"
+parted_boot="ext2 8192s 270335s"
 parted_root="ext4 270336s 100%"
-bootfs="vfat"
+bootfs="ext2"
 
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
