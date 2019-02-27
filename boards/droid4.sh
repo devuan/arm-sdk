@@ -30,9 +30,9 @@ size=1337
 inittab=("s0:12345:respawn:/sbin/agetty -L ttyS2 115200 vt100")
 
 parted_type="dos"
-parted_boot="fat32 8192s 270335s"
+parted_boot="8192s 270335s"
 parted_root="ext4 270336s 100%"
-bootfs="vfat"
+bootfs="ext2"
 
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
@@ -41,9 +41,6 @@ custmodules=()
 #gitbranch="v4.16-rc1"
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 gitbranch="linux-4.14.y"
-
-ddroid_git="https://github.com/tmlind/ddroid.git"
-kexec_bins="$R/extra/droid4-mainline-kexec-0.3.tar.xz"
 
 
 prebuild() {
@@ -62,6 +59,7 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	copy-root-overlay
+	sudo sed -e "s/@release@/${release}/" -i "$strapdir/boot/boot/boot.cfg"
 }
 
 build_kernel_${arch}() {
@@ -92,8 +90,9 @@ build_kernel_${arch}() {
 		ARCH=arm \
 		CROSS_COMPILE=$compiler \
 			zImage modules omap4-droid4-xt894.dtb || zerr
-	sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
-	sudo cp -v arch/arm/boot/dts/omap4-droid4-xt894.dtb "$strapdir/boot/" || zerr
+	sudo mkdir -p "$strapdir/boot/boot/"
+	sudo cp -v arch/arm/boot/zImage "$strapdir/boot/boot" || zerr
+	sudo cp -v arch/arm/boot/dts/omap4-droid4-xt894.dtb "$strapdir/boot/boot" || zerr
 
 	# install kernel modules
 	sudo -E PATH="$PATH" \
@@ -104,26 +103,6 @@ build_kernel_${arch}() {
 			INSTALL_MOD_PATH=$strapdir \
 			INSTALL_MOD_STRIP=1 \
 				modules_install || zerr
-	popd
-
-	notice "building ddroid.zip"
-	pushd $R/tmp/kernels/$device_name
-		tar xvf "${kexec_bins}"
-		git clone --depth 1 "${ddroid_git}" || zerr
-		pushd "$(basename -s .tar.xz ${kexec_bins})"
-			cp -v uart.ko arm_kexec.ko kexec.ko ../ddroid/system/etc/kexec/
-			cp -v kexec ../ddroid/system/etc/kexec/kexec.static
-			cp -v "$strapdir/boot/zImage" ../ddroid/system/etc/kexec/kernel
-			cp -v "$strapdir/boot/omap4-droid4-xt894.dtb" ../ddroid/system/etc/kexec/devtree
-		popd
-		pushd ddroid
-			sed -i system/etc/kexec/kexec \
-				-e 's/mmcblk1p23/mmcblk0p2 drm.debug=8 rootwait=10 rootdelay=10/'
-			make zip || zerr
-		popd
-		mkdir -p "$R/dist"
-		cp -vf ddroid-$(date +%Y-%m-%d).zip "$R/dist"
-		sha256sum ddroid-$(date +%Y-%m-%d).zip > "$R/dist/ddroid-$(date +%Y-%m-%d).zip.sha"
 	popd
 
 	postbuild || zerr
