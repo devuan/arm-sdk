@@ -8,7 +8,8 @@ dtparam=audio=on
 max_usb_current=1
 
 ## enable hardware-accelerated graphics
-dtoverlay=vc4-kms-v3d
+#dtoverlay=vc4-kms-v3d
+dtoverlay=vc4-fkms-v3d
 
 ## kernel
 kernel=kernel8.img
