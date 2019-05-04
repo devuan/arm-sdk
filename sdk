@@ -79,6 +79,7 @@ load() {
 		"raspi2"          "$R/boards/raspberry-pi2.sh"
 		"raspi3"          "$R/boards/raspberry-pi3.sh"
 		"rock64"          "$R/boards/rock64.sh"
+		"pinephone"       "$R/boards/pinephone.sh"
 		"sunxi"           "$R/boards/sunxi.sh"
 		"turbox-twister"  "$R/boards/turbox-twister.sh"
 	)
@@ -115,7 +116,7 @@ load() {
 			[[ -n "$dlpath" ]] && blend="$dlpath"
 			act "trying to parse an unknown blend"
 			# Check if it's a Dockerfile
-			if grep -qi '^FROM ' "$blend"; then
+			if grep -qi '^FROM ' "$blend" 2>&/dev/null; then
 				act "The blend is a Dockerfile"
 				parsedfile="$($LIBPATH/extra/dockerfile_parse.py "$blend")"
 				[[ $? = 0 ]] || { die "Could not parse the Dockerfile" ; exit 1}
