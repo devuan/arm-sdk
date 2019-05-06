@@ -58,7 +58,7 @@ prebuild() {
 
 postbuild() {
 	fn postbuild
-	req=(uboot_configs device_name compiler)
+	req=(device_name compiler)
 	ckreq || return 1
 
 	notice "executing $device_name postbuild"
@@ -76,7 +76,7 @@ postbuild() {
 		cp "$R/tmp/kernels/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin" .
 		make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler || zerr
 		mkdir -p "$R/dist"
-		cat spl/sunxi-spl.bin u-boot.itb > "$R/dist"
+		cat spl/sunxi-spl.bin u-boot.itb > "$R/dist/u-boot-sunxi-with-spl-sopine.bin"
 	popd
 
 	cat <<EOF | sudo tee "${strapdir}/boot/boot.txt"
@@ -97,8 +97,8 @@ EOF
 	postbuild-clean
 }
 
-build_kernel_armhf() {
-	fn build_kernel_armhf
+build_kernel_arm64() {
+	fn build_kernel_arm64
 	req=(R arch device_name gitkernel gitbranch MAKEOPTS)
 	req+=(strapdir)
 	ckreq || return 1
@@ -116,7 +116,7 @@ build_kernel_armhf() {
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
-			Image modules sun50i-a64-dontbeevil.dtb || zerr
+			Image modules allwinner/sun50i-a64-dontbeevil.dtb || zerr
 
 		# install kernel modules
 		sudo -E PATH="$PATH" \
@@ -131,9 +131,8 @@ build_kernel_armhf() {
 		pushd "$strapdir/boot"
 		sudo gzip Image
 		popd
-		sudo mkdir -p $strapdir/boot/dtbs
 		sudo cp -v arch/arm64/boot/dts/allwinner/sun50i-a64-dontbeevil.dtb \
-			$strapdir/boot/dtbs/ || zerr
+			"$strapdir/boot/" || zerr
 	popd
 
 	postbuild || zerr
