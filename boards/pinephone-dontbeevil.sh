@@ -25,7 +25,7 @@ vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
 vars+=(gitkernel gitbranch)
 arrs+=(custmodules)
 
-device_name="sunxi"
+device_name="pinephone-dontbeevil"
 arch="arm64"
 size=1891
 inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
