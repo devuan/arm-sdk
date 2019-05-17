@@ -80,13 +80,13 @@ postbuild() {
 	popd
 
 	cat <<EOF | sudo tee "${strapdir}/boot/boot.txt"
-setenv bootargs console=tty0 console=${console} root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4 fbcon=rotate:1
+setenv bootargs console=tty0 console=\${console} root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4 fbcon=rotate:1
 setenv kernel_addr_z 0x44080000
 
-if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_z} Image.gz; then
-  unzip ${kernel_addr_z} ${kernel_addr_r}
-  if load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} sun50i-a64-dontbeevil.dtb; then
-    booti ${kernel_addr_r} - ${fdt_addr_r};
+if load \${devtype} \${devnum}:\${distro_bootpart} \${kernel_addr_z} Image.gz; then
+  unzip \${kernel_addr_z} \${kernel_addr_r}
+  if load \${devtype} \${devnum}:\${distro_bootpart} \${fdt_addr_r} sun50i-a64-dontbeevil.dtb; then
+    booti \${kernel_addr_r} - \${fdt_addr_r};
   fi;
 fi
 EOF
