@@ -1,0 +1,20 @@
+## always audio
+dtparam=audio=on
+
+## maximum amps on usb ports
+max_usb_current=1
+
+[pi4]
+## Enable DRM VC4 V3D driver on top of the dispmanx display stack
+#dtoverlay=vc4-fkms-v3d
+#max_framebuffers=2
+arm_64bit=1
+# enable 64-bit kernel; issue 3032
+#kernel=kernel8.img
+#device_tree=bcm2711-rpi-4-b.dtb
+total_mem=1024
+enable_gic=1
+#armstub=armstub8-gic.bin
+## memory shared with the GPU
+gpu_mem=128
+

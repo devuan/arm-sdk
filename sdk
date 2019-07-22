@@ -78,6 +78,7 @@ load() {
 		"raspi1"                    "$R/boards/raspberry-pi1.sh"
 		"raspi2"                    "$R/boards/raspberry-pi2.sh"
 		"raspi3"                    "$R/boards/raspberry-pi3.sh"
+		"raspi4"                    "$R/boards/raspberry-pi4.sh"
 		"rock64"                    "$R/boards/rock64.sh"
 		"pinephone-dontbeevil"      "$R/boards/pinephone-dontbeevil.sh"
 		"sunxi"                     "$R/boards/sunxi.sh"
