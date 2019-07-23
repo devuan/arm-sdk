@@ -5,3 +5,4 @@ Thank you very much for your help and advices!
 - Giovanni Rapagnani
 - Johny Mattsson
 - David Derby
+- Trevor (stiltr)
