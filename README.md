@@ -93,6 +93,18 @@ able to find it in the `dist/` directory in arm-sdk's root.
 
 For more info, see the `doc/` directory.
 
+## Support readiness grid
+
+Building and testing ASCII 2.1 point release
+
+| board name | builds | runs | problems |
+| ---------- | ------ | ---- | -------- |
+| raspi1     | yes    | ??   |          |
+| raspi2     | yes    | ??   |          |
+| raspi3     | yes    | ??   |          |
+| raspi4     | yes    | ??   |          |
+| sunxi      | no     | ??   | ?package |
+
 ## Acknowledgments
 
 Devuan's SDK was originally conceived during a period of residency at the
