@@ -15,12 +15,12 @@ as [libdevuansdk dependencies](https://github.com/dyne/libdevuansdk/blob/master/
 ### Devuan
 
 ```
-curl git wget qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils libftdi-dev libfdt-dev swig libpython-dev bc
+curl git wget qemu-user-static build-essential rsync gcc-arm-none-eabi gcc-multilib lib32z1 u-boot-tools device-tree-compiler lzop dosfstools vboot-utils vboot-kernel-utils libftdi-dev libfdt-dev swig libpython-dev bc bison flex libssl-dev
 ```
 
 ### Gentoo
 ```
-net-misc/curl net-misc/wget sys-boot/vboot-utils app-emulation/qemu(static-user) net-misc/rsync sys-libs/zlib dev-embedded/u-boot-tools sys-apps/dtc app-arch/lzop sys-fs/dosfstools
+net-misc/curl net-misc/wget sys-boot/vboot-utils app-emulation/qemu(static-user) net-misc/rsync sys-libs/zlib dev-embedded/u-boot-tools sys-apps/dtc app-arch/lzop sys-fs/dosfstools sys-devel/flex sys-devel/bison
 ```
 
 `sudo` permissions are required for the user that is running the build.
