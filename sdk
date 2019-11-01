@@ -93,6 +93,7 @@ load() {
 	blend_map=(
 		"decode" "../decode.blend"
 		"maemo"  "../maemo.blend"
+		"cobox"  "../cobox.blend"
 	)
 
 	boardlib="${board_map[$dev]}"
