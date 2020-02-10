@@ -81,6 +81,8 @@ load() {
 		"raspi4"                    "$R/boards/raspberry-pi4.sh"
 		"rock64"                    "$R/boards/rock64.sh"
 		"pinephone-dontbeevil"      "$R/boards/pinephone-dontbeevil.sh"
+		"pinephone"                 "$R/boards/pinephone.sh"
+		"pinetab"                   "$R/boards/pinetab.sh"
 		"sunxi"                     "$R/boards/sunxi.sh"
 		"turbox-twister"            "$R/boards/turbox-twister.sh"
 	)
