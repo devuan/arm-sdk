@@ -56,7 +56,7 @@ prebuild() {
 
 postbuild() {
 	fn postbuild
-	req=(device_name compiler)
+	req=(device_name compiler loopdevice)
 	ckreq || return 1
 
 	notice "executing $device_name postbuild"
@@ -91,6 +91,9 @@ EOF
 	pushd "${strapdir}/boot"
 		sudo mkimage -C none -A arm -T script -d boot.txt boot.scr
 	popd
+
+	sudo dd if="$R/dist/u-boot-sunxi-with-spl-sopine.bin" of="${loopdevice}" seek=8 \
+		bs=1024 conv=notrunc,nocreat
 
 	postbuild-clean
 }
