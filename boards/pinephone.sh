@@ -56,7 +56,7 @@ prebuild() {
 
 postbuild() {
 	fn postbuild
-	req=(device_name compilerl loopdevice)
+	req=(device_name compiler loopdevice)
 	ckreq || return 1
 
 	notice "executing $device_name postbuild"
