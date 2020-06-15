@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -94,20 +94,27 @@ copy-kernel-config() {
 		$R/tmp/kernels/$device_name/${device_name}-linux/.config
 }
 
+vars+=(skip_arm_generic_root skip_arm_device_root)
 copy-root-overlay() {
 	fn copy-root-overlay
 	req=(strapdir device_name R)
 	ckreq || return 1
 
-	[[ -d $R/extra/generic-root ]] && \
-		notice "copying generic-root" && \
-		sudo cp -rfv $R/extra/generic-root/* $strapdir
+	if [ -z "$skip_arm_generic_root" ]; then
+		if [ -d "$R/extra/generic-root" ]; then
+			notice "copying generic-root"
+			sudo cp -rfv "$R/extra/generic-root"/* "$strapdir"
+		fi
+	fi
+
+	if [ -z "$skip_arm_device_root" ]; then
+		if [ -d "$R/extra/$device_name" ]; then
+			notice "copyring ${device_name}-root"
+			sudo cp -rfv "$R/extra/$device_name"/* "$strapdir"
+		fi
+	fi
 
 	sudo sed -e "s/{{{BOOTFS}}}/$bootfs/" -i "$strapdir/etc/fstab"
-
-	[[ -d $R/extra/$device_name ]] && \
-		notice "copying ${device_name}-root" && \
-		sudo cp -rfv $R/extra/$device_name/* $strapdir
 
 	return 0
 }
