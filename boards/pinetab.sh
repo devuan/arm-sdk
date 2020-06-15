@@ -49,8 +49,6 @@ prebuild() {
 
 	notice "executing $device_name prebuild"
 
-	copy-root-overlay
-
 	mkdir -p $R/tmp/kernels/$device_name
 }
 
@@ -60,6 +58,8 @@ postbuild() {
 	ckreq || return 1
 
 	notice "executing $device_name postbuild"
+
+	copy-root-overlay
 
 	notice "building arm-trusted-firmware"
 	git clone --depth 1 "$atfgit" "$R/tmp/kernels/arm-trusted-firmware" || zerr
