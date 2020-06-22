@@ -59,7 +59,10 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	copy-root-overlay
-	sudo sed -e "s/@release@/${release}/" -i "$strapdir/boot/boot/boot.cfg"
+
+	if [[ -e "$strapdir/boot/boot/boot.cfg" ]]; then
+		sudo sed -e "s/@release@/${release}/" -i "$strapdir/boot/boot/boot.cfg"
+	fi
 }
 
 build_kernel_${arch}() {
