@@ -47,6 +47,25 @@ postbuild() {
 	notice "executing $device_name postbuild"
 
 	copy-root-overlay
+
+	notice "building u-boot"
+	pushd "$R/extra/u-boot"
+		make distclean
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+			nokia_rx51_defconfig
+		make \
+			$MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler || {
+				zerr
+				return 1
+			}
+
+		mv -v u-boot.img "$R/dist/n900-u-boot.img"
+	popd
 }
 
 build_kernel_${arch}() {
