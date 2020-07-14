@@ -20,7 +20,7 @@
 
 ## settings & config
 vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
-vars+=(gitkernel gitbranch)
+vars+=(gitkernel gitbranch atfgit crustgit crustbranch ubootgit ubootbranch)
 arrs+=(custmodules)
 
 device_name="pinephone"
@@ -40,7 +40,12 @@ gitkernel="https://github.com/maemo-leste/pine64-kernel"
 gitbranch="pine64-kernel-5.4.0"
 
 atfgit="https://github.com/ARM-software/arm-trusted-firmware.git"
-ubootgit="https://gitlab.com/pine64-org/u-boot.git"
+
+crustgit="https://github.com/crust-firmware/crust.git"
+crustbranch="master"
+
+ubootgit="https://github.com/crust-firmware/u-boot.git"
+ubootbranch="crust"
 
 prebuild() {
 	fn prebuild
@@ -54,7 +59,7 @@ prebuild() {
 
 postbuild() {
 	fn postbuild
-	req=(device_name compiler loopdevice)
+	req=(device_name compiler loopdevice or1ktc)
 	ckreq || return 1
 
 	notice "executing $device_name postbuild"
@@ -64,17 +69,29 @@ postbuild() {
 	notice "building arm-trusted-firmware"
 	git clone --depth 1 "$atfgit" "$R/tmp/kernels/arm-trusted-firmware" || zerr
 	pushd "$R/tmp/kernels/arm-trusted-firmware"
-		make CROSS_COMPILE=$compiler PLAT=sun50i_a64 DEBUG=1 bl31 || zerr
+		make $MAKEOPTS CROSS_COMPILE=$compiler PLAT=sun50i_a64 DEBUG=1 bl31 || zerr
+	popd
+
+	notice "building crust"
+	git clone --depth 1 "$crustgit" -b "$crustbranch" "$R/tmp/kernels/crust" || zerr
+	pushd "$R/tmp/kernels/crust"
+		make $MAKEOPTS CROSS_COMPILE="$or1ktc" pinephone_defconfig || zerr
+		make $MAKEOPTS CROSS_COMPILE="$or1ktc" scp || zerr
 	popd
 
 	notice "building u-boot"
-	git clone --depth 1 "$ubootgit" "$R/tmp/kernels/u-boot-pinephone" || zerr
+	git clone --depth 1 "$ubootgit" -b "$ubootbranch" "$R/tmp/kernels/u-boot-pinephone" || zerr
 	pushd "$R/tmp/kernels/u-boot-pinephone"
-		make $MAKEOPTS sopine_baseboard_defconfig
-		cp "$R/tmp/kernels/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin" .
-		make $MAKEOPTS ARCH=arm CROSS_COMPILE=$compiler || zerr
+		make $MAKEOPTS \
+			BL31="$R/tmp/kernels/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin" \
+			SCP="$R/tmp/kernels/crust/build/scp/scp.bin" \
+			pinephone_defconfig || zerr
+		make $MAKEOPTS \
+			BL31="$R/tmp/kernels/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin" \
+			SCP="$R/tmp/kernels/crust/build/scp/scp.bin" \
+			ARCH=arm CROSS_COMPILE=$compiler || zerr
 		mkdir -p "$R/dist"
-		cat spl/sunxi-spl.bin u-boot.itb > "$R/dist/u-boot-sunxi-with-spl-sopine.bin"
+		cp u-boot-sunxi-with-spl.bin "$R/dist/u-boot-sunxi-with-spl-pinephone.bin"
 	popd
 
 	cat <<EOF | sudo tee "${strapdir}/boot/boot.txt"
@@ -83,7 +100,7 @@ setenv kernel_addr_z 0x44080000
 
 if load \${devtype} \${devnum}:\${distro_bootpart} \${kernel_addr_z} Image.gz; then
   unzip \${kernel_addr_z} \${kernel_addr_r}
-  if load \${devtype} \${devnum}:\${distro_bootpart} \${fdt_addr_r} sun50i-a64-pinephone.dtb; then
+  if load \${devtype} \${devnum}:\${distro_bootpart} \${fdt_addr_r} \${fdtfile}; then
     booti \${kernel_addr_r} - \${fdt_addr_r};
   fi;
 fi
@@ -92,7 +109,7 @@ EOF
 		sudo mkimage -C none -A arm -T script -d boot.txt boot.scr
 	popd
 
-	sudo dd if="$R/dist/u-boot-sunxi-with-spl-sopine.bin" of="${loopdevice}" seek=8 \
+	sudo dd if="$R/dist/u-boot-sunxi-with-spl-pinephone.bin" of="${loopdevice}" seek=8 \
 		bs=1024 conv=notrunc,nocreat
 
 	postbuild-clean
