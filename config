@@ -32,10 +32,7 @@ armeltc="arm-none-eabi-"
 arm64tc="aarch64-linux-gnu-"
 or1ktc="or1k-linux-musl-"
 
-export PATH="$R/gcc/linaro-armhf/bin:$R/gcc/linaro-armel/bin:$R/gcc/linaro-arm64/bin"
-export PATH="$PATH:$R/gcc/or1k-linux-musl/bin"
-export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"
-
+export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin:$R/gcc/or1k-linux-musl/bin"
 
 ## static qemu arm binaries
 armel_qemu_bin="/usr/bin/qemu-arm-static"
