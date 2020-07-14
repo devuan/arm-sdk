@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -27,19 +27,13 @@ MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 ## uncomment if you wish to create stage4 tarballs for faster rebuilding
 # TAR_STAGE4=true
 
-## devuan packaged toolchain
-devuantc="arm-none-eabi-"
-
-## linaro armhf toolchain
-armhftc="arm-linux-gnueabihf-"
-
-## linaro armel toolchain
-armeltc="arm-linux-gnueabi-"
-
-## linaro arm64 toolchain
+armhftc="arm-none-eabi-"
+armeltc="arm-none-eabi-"
 arm64tc="aarch64-linux-gnu-"
+or1ktc="or1k-linux-musl-"
 
 export PATH="$R/gcc/linaro-armhf/bin:$R/gcc/linaro-armel/bin:$R/gcc/linaro-arm64/bin"
+export PATH="$PATH:$R/gcc/or1k-linux-musl/bin"
 export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin"
 
 

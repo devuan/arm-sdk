@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -19,63 +19,21 @@
 
 ## This script will setup arm-sdk and make it ready for usage.
 
+set -e
 
 git submodule update --init --recursive --checkout
 mkdir -p gcc
-#cd lib/libdevuansdk && git checkout next && cd -
+cd gcc
 
-## =================
-## linaro toolchains
-## =================
+or1ktc="or1k-linux-musl"
+or1kurl="http://musl.cc/or1k-linux-musl-cross.tgz"
 
-gettc() {
-	cd gcc
-	[ -d "linaro-$2" ] && return 0
-	echo "Downloading $1" && \
-	wget -q -O "$(basename $1)" "$1" && \
-	echo "Extracting $(basename $1)" && \
-	tar xfp "$(basename $1)" && \
-	mv "$(basename -s .tar.xz $1)" "linaro-${2}" || \
-	return 1
-	cd -
-}
+wget "$or1kurl"
+tar xf "$(basename "$or1kurl")"
+mv or1k-linux-musl-cross "$or1ktc"
+rm -f "$(basename "$or1kurl")"
 
-_hostarch="$(uname -m)"
-
-armeltc=arm-linux-gnueabi
-armhftc=arm-linux-gnueabihf
-arm64tc=aarch64-linux-gnu
-
-linarover="7.1.1-2017.08"
-linarourl="https://releases.linaro.org/components/toolchain/binaries/7.1-2017.08"
-
-tc="${linarourl}/${armeltc}/gcc-linaro-${linarover}-${_hostarch}_${armeltc}.tar.xz"
-gettc "$tc" "armel" || {
-	echo "Something went wrong while downloading the armel toolchain."
-	exit 1
-}
-
-tc="${linarourl}/${armhftc}/gcc-linaro-${linarover}-${_hostarch}_${armhftc}.tar.xz"
-gettc "$tc" "armhf" || {
-	echo "Something went wrong while downloading the armhf toolchain."
-	exit 1
-}
-
-tc="${linarourl}/${arm64tc}/gcc-linaro-${linarover}-${_hostarch}_${arm64tc}.tar.xz"
-gettc "$tc" "arm64" || {
-	echo "Something went wrong while downloading the arm64 toolchain."
-	exit 1
-}
-
-damnunicorncompanyver="4.9.4-2017.01"
-damnunicorncompanyurl="https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01"
-
-tc="${damnunicorncompanyurl}/${armhftc}/gcc-linaro-${damnunicorncompanyver}-${_hostarch}_${armhftc}.tar.xz"
-gettc "$tc" "armhf-unicorns" || {
-	echo "Something went wrong while downloading the toolchain for the damn
-	unicorn company kernels."
-	exit 1
-}
+cd -
 
 cat <<EOM
 
