@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2018 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -26,7 +26,7 @@ arrs+=(custmodules)
 
 device_name="n900"
 arch="armhf"
-size=1337
+size=1891
 inittab=("T0:23:respawn:/sbin/getty -L ttyS2 115200 vt100")
 
 parted_type="dos"
