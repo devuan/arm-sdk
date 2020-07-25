@@ -44,8 +44,8 @@ atfgit="https://github.com/ARM-software/arm-trusted-firmware.git"
 crustgit="https://github.com/crust-firmware/crust.git"
 crustbranch="master"
 
-ubootgit="https://github.com/crust-firmware/u-boot.git"
-ubootbranch="crust"
+ubootgit="https://gitlab.com/pine64-org/u-boot"
+ubootbranch="master"
 
 prebuild() {
 	fn prebuild
