@@ -72,6 +72,7 @@ load() {
 		"n950"                      "$R/boards/nokia-n950.sh"
 		"n9"                        "$R/boards/nokia-n9.sh"
 		"droid4"                    "$R/boards/droid4.sh"
+		"bionic"                    "$R/boards/bionic.sh"
 		"odroidxu"                  "$R/boards/odroid-xu.sh"
 		"odroidxu4"                 "$R/boards/odroid-xu4.sh"
 		"ouya"                      "$R/boards/ouya.sh"
