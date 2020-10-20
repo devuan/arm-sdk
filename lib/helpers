@@ -142,8 +142,6 @@ apt-get update
 apt-get --yes --force-yes upgrade
 apt-get --yes --force-yes autoremove
 apt-get clean
-
-updatedb
 EOF
 
 	chroot-script -d postbuild || zerr
