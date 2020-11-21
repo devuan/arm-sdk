@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -31,10 +31,11 @@ size=1666
 inittab=("T0:12345:respawn:/sbin/getty -L ttyS0 115200 vt100")
 
 parted_type="dos"
-parted_boot="fat32 2048s 264191s"
-parted_root="ext4 264192s 100%"
-bootable_part="1"
 bootfs="vfat"
+rootfs="ext4"
+dos_boot="$bootfs 2048s 264191s"
+dos_root="$rootfs 264192s 100%"
+bootable_part="1"
 
 extra_packages+=()
 custmodules=()

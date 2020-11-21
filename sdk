@@ -26,22 +26,22 @@ QUIET=0
 
 source $R/lib/zuper/zuper
 
-## global vars
+# Global vars
 vars+=(armsdk_version)
 vars+=(R workdir strapdir)
 vars+=(os boardlib oslib blendlib)
 vars+=(MAKEOPTS)
 
-## global arrs
+# Global arrs
 arrs+=(extra_packages)
 
-## global maps
+# Global maps
 maps+=(board_map os_map blend_map)
 
 source $R/config
 source $R/lib/helpers
 
-## conclude zuper initialization
+# Conclude zuper initialization
 source $R/lib/zuper/zuper.init
 
 load() {
@@ -100,57 +100,16 @@ load() {
 	)
 
 	boardlib="${board_map[$dev]}"
-	[[ -f $boardlib ]] || { die "no valid boards specified"; exit 1 }
+	[[ -f $boardlib ]] || { die "no valid boards specified"; return 1 }
 	source $boardlib ## XXX: remove this line
 
 	oslib="${os_map[$os]}"
-	[[ -f $oslib    ]] || { die "no valid distro specified"; exit 1 }
+	[[ -f $oslib    ]] || { die "no valid distro specified"; return 1 }
 	source $oslib
 
 	blendlib="${blend_map[$blend]}"
-
-	if [[ -z "$blendlib" ]]; then
-		if [[ "$blend" =~ '^http' ]]; then
-			notice "grabbing blend from the internetz"
-			dlpath="$R/extra/blends/$(basename $blend)"
-			wget -O "$dlpath" "$blend"
-			sed 1q "$dlpath" | grep -q '^#!/usr/bin/env zsh' && blendlib="$dlpath"
-		fi
-
-		if [[ -z "$blendlib" ]]; then
-			[[ -n "$dlpath" ]] && blend="$dlpath"
-			act "trying to parse an unknown blend"
-			# Check if it's a Dockerfile
-			if grep -qi '^FROM ' "$blend" 2>&/dev/null; then
-				act "The blend is a Dockerfile"
-				parsedfile="$($LIBPATH/extra/dockerfile_parse.py "$blend")"
-				[[ $? = 0 ]] || { die "Could not parse the Dockerfile" ; exit 1}
-				cat > "$R/$(basename ${blend}).blend" << __EOF__
-#!/usr/bin/env zsh
-# Parsed with dockerfile_parse.py
-#
-blend_postinst() {
-	fn blend_postinst
-	req=(strapdir blend)
-	ckreq || return 1
-
-	notice "executing blend postinst"
-	cat << ___EOF___ | sudo tee \$strapdir/blendpostinst >/dev/null
-${parsedfile}
-___EOF___
-
-	chroot-script -d blendpostinst || zerr
-}
-__EOF__
-				blendlib="$R/$(basename ${blend}).blend"
-			fi
-		fi
-	fi
-
 	[[ -f $blendlib ]] || { act "no blend specified" }
 	source $boardlib && act "$device_name build script loaded"
-
-	source $R/lib/overrides
 
 	[[ -f $blendlib ]] && {
 		source $blendlib || zerr

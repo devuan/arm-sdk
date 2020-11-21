@@ -29,9 +29,10 @@ size=1891
 inittab=("T1:12345:respawn:/sbin/agetty -L ttyS0 115200 vt100")
 
 parted_type="dos"
-parted_boot="ext2 2048s 264191s"
-parted_root="ext4 264192s 100%"
 bootfs="ext2"
+rootfs="ext4"
+dos_boot="$bootfs 2048s 264191s"
+dos_root="$rootfs 264192s 100%"
 
 extra_packages+=()
 custmodules=()

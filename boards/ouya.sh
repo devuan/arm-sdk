@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2017 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -31,9 +31,10 @@ size=1337
 inittab=("T0:2345:respawn:/sbin/getty -L ttyS0 115200 linux")
 
 parted_type="dos"
-parted_boot="fat32 2048s 264191s"
-parted_root="ext4 264192s 100%"
 bootfs="vfat"
+rootfs="ext4"
+dos_boot="$bootfs 2048s 264191s"
+dos_root="$rootfs 264192s 100%"
 
 extra_packages+=(libasound2 libglib2.0-0 libgstreamer-plugins-base0.10-0 libxv1)
 custmodules=()

@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -34,9 +34,10 @@ inittab=("T1:12345:respawn:/bin/login -f root ttySAC2 /dev/ttySAC2 2>&1")
 hosttuple=${compiler:0:-1}
 
 parted_type="dos"
-parted_boot="fat32 2048s 264191s"
-parted_root="ext4 264192s 100%"
 bootfs="vfat"
+rootfs="ext4"
+dos_boot="$bootfs 2048s 264191s"
+dos_root="$rootfs 264192s 100%"
 
 extra_packages+=()
 custmodules=()

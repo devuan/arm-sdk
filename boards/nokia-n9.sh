@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2018 Dyne.org Foundation
+# Copyright (c) 2016-2020 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -29,9 +29,10 @@ arch="armhf"
 size=1337
 
 parted_type="dos"
-parted_boot="fat32 8192s 270335s"
-parted_root="ext4 270336s 100%"
 bootfs="none"
+rootfs="ext4"
+dos_boot="fat32 8192s 270335s"
+dos_root="$rootfs 270336s 100%"
 
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()

@@ -17,42 +17,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this source code. If not, see <http://www.gnu.org/licenses/>.
 
-
-## arm-sdk configuration
-## ---------------------
-
-## options for `make` when building kernel
+# Options for `make` when building kernels
 MAKEOPTS="-j$(( $(grep -c 'processor' /proc/cpuinfo) + 1 ))"
 
-## uncomment if you wish to create stage4 tarballs for faster rebuilding
-# TAR_STAGE4=true
+# Comment if you wish to disable stage4 archives for faster rebuilding
+CPIO_STAGE4=1
 
-armhftc="arm-none-eabi-"
+# Comment if you wish to disable image compression
+COMPRESS_IMAGE=1
+
+armhftc="arm-linux-gnueabihf-"
 armeltc="arm-none-eabi-"
 arm64tc="aarch64-linux-gnu-"
 or1ktc="or1k-linux-musl-"
 
 export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin:$R/gcc/or1k-linux-musl/bin"
 
-## static qemu arm binaries
+# Static qemu arm binaries
 armel_qemu_bin="/usr/bin/qemu-arm-static"
 armhf_qemu_bin="/usr/bin/qemu-arm-static"
 arm64_qemu_bin="/usr/bin/qemu-aarch64-static"
 
-
-## extra_packages for all images
+# extra_packages for all images
 extra_packages+=(fake-hwclock busybox-static ntp)
-extra_packages+=(fbterm pciutils usbutils)
+extra_packages+=(pciutils usbutils)
 purge_packages+=()
 
-
-## linux kernel firmware
+# Linux kernel firmware
 linuxfirmware="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
 
-## linux mainline kernel
+# Linux mainline kernel
 linuxmainline="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 
-## u-boot mainline
+# u-boot mainline
 ubootmainline="git://git.denx.de/u-boot.git"
 
 arrs+=(uboot_configs board_dtbs)

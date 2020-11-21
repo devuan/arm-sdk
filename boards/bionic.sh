@@ -29,9 +29,10 @@ size=1891
 inittab=("s0:12345:respawn:/sbin/agetty -L ttyS2 115200 vt100")
 
 parted_type="dos"
-parted_boot="8192s 270335s"
-parted_root="ext4 270336s 100%"
 bootfs="ext2"
+rootfs="ext4"
+dos_boot="$bootfs 8192s 270335s"
+dos_root="$rootfs 270336s 100%"
 
 extra_packages+=(firmware-ti-connectivity)
 custmodules=()
