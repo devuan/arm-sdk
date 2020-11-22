@@ -32,7 +32,7 @@ inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
 parted_type="dos"
 bootfs="vfat"
 rootfs="ext4"
-dos_boot="$bootfs 2048s 264191s"
+dos_boot="fat32 2048s 264191s"
 dos_root="$rootfs 264192s 100%"
 
 extra_packages+=()
