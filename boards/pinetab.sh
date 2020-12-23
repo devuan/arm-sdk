@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2020 Dyne.org Foundation
-# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
-#
+# Copyright (c) 2016-2021 Ivan J. <parazyd@dyne.org>
 # This file is part of arm-sdk
 #
 # This source code is free software: you can redistribute it and/or modify

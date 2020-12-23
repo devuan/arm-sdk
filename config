@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2016-2020 Dyne.org Foundation
-# arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
-#
+# Copyright (c) 2016-2020 Ivan J. <parazyd@dyne.org>
 # This file is part of arm-sdk
 #
 # This source code is free software: you can redistribute it and/or modify
@@ -29,7 +27,6 @@ COMPRESS_IMAGE=1
 armhftc="arm-linux-gnueabihf-"
 armeltc="arm-none-eabi-"
 arm64tc="aarch64-linux-gnu-"
-or1ktc="or1k-linux-musl-"
 
 export PATH="$PATH:/usr/sbin:/sbin:/usr/bin:/bin:$R/gcc/or1k-linux-musl/bin"
 

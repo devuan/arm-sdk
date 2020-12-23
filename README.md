@@ -9,7 +9,7 @@ support multiple Linux distributions.
 
 arm-sdk is designed to be used interactively from a terminal, as well as
 from shell scripts. It requires the following packages to be installed, as well
-as [libdevuansdk dependencies](https://github.com/dyne/libdevuansdk/blob/master/README.md#requirements):
+as [libdevuansdk dependencies](https://github.com/parazyd/libdevuansdk/blob/master/README.md#requirements):
 
 
 ### Devuan
@@ -25,24 +25,12 @@ net-misc/curl net-misc/wget sys-boot/vboot-utils app-emulation/qemu(static-user)
 
 `sudo` permissions are required for the user that is running the build.
 
-## Initial setup
-
-By executing `init.sh` which is found in the base directory of arm-sdk, it
-will initialize all git submodules and gcc toolchains that are needed for
-arm-sdk to properly function.
-
-Do it with:
-
-```
-; ./init.sh
-```
 
 ## Quick start
 
-Edit the `config` file to match your crosscompile toolchain. `init.sh` will
-provide you with precompiled ones. Then run zsh. In case you have conflicting
-extensions on your zsh configuration, safest way would be to run a vanilla one,
-using:
+Edit the `config` file to match your crosscompile toolchains.  Then run
+zsh. In case you have conflicting extensions on your zsh configuration,
+safest way would be to run a vanilla one, using:
 
 ```
 ; zsh -f
@@ -68,6 +56,8 @@ Now is the time you choose the device and OS you want to build the image for.
 * `n900` - Nokia N900
 * `n950` - Nokia N950
 * `n9` - Nokia N9
+* `droid` - Motorola Droid 4
+* `bionic` - Motorola Droid Bionic
 * `odroidxu` - ODROID-XU
 * `odroidxu4` - ODROID-XU4
 * `ouya` - OUYA gaming console
@@ -76,7 +66,11 @@ Now is the time you choose the device and OS you want to build the image for.
 * `raspi3` - Raspberry Pi 3 (64bit)
 * `raspi4` - Raspberry Pi 4 (64bit)
 * `rock64` - Rock64 (64bit) (EXPERIMENTAL)
+* `pinephone-dontbeevil` - Pinephone Dontbeevil devkit
+* `pinephone` - Pine64 Pinephone
+* `pinetab` - Pine64 Pinetab
 * `sunxi` - Allwinner-based boards
+* `turbox-twister` - TurboX Twister tablet
 
 ```
 ; load devuan sunxi
@@ -92,42 +86,3 @@ The image will automatically be build for you. Once finished, you will be
 able to find it in the `dist/` directory in arm-sdk's root.
 
 For more info, see the `doc/` directory.
-
-## Support readiness grid
-
-Building and testing ASCII 2.1 point release
-
-| board name | builds | runs | problems |
-| ---------- | ------ | ---- | -------- |
-| raspi1     | yes    | ??   |          |
-| raspi2     | yes    | ??   |          |
-| raspi3     | yes    | ??   |          |
-| raspi4     | yes    | ??   |          |
-| sunxi      | no     | ??   | ?package |
-
-## Acknowledgments
-
-Devuan's SDK was originally conceived during a period of residency at the
-Schumacher college in Dartington, UK. Greatly inspired by the laborious and
-mindful atmosphere of its wonderful premises.
-
-The Devuan SDK is Copyright (c) 2015-2017 by the Dyne.org Foundation
-
-Devuan SDK components were designed, and are written and maintained by:
-
-- Ivan J. <parazyd@dyne.org>
-- Denis Roio <jaromil@dyne.org>
-- Enzo Nicosia <katolaz@freaknet.org>
-
-This source code is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-This software is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-more details.
-
-You should have received a copy of the GNU General Public License along
-with this source code. If not, see <http://www.gnu.org/licenses/>.

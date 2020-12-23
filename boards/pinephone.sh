@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Copyright (c) 2020 Dyne.org Foundation
+# Copyright (c) 2016-2021 Ivan J. <parazyd@dyne.org>
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
 # This file is part of arm-sdk
@@ -76,6 +76,10 @@ postbuild() {
 	notice "building crust"
 	git clone --depth 1 "$crustgit" -b "$crustbranch" "$R/tmp/kernels/crust" || zerr
 	pushd "$R/tmp/kernels/crust"
+		or1ktc="or1k-linux-musl-"
+		wget -c "http://musl.cc/${or1ktc}cross.tgz"
+		tar xf "${or1ktc}cross.tgz"
+		export PATH="$PATH:$(pwd)/or1k-linux-musl/bin"
 		make $MAKEOPTS CROSS_COMPILE="$or1ktc" pinephone_defconfig || zerr
 		make $MAKEOPTS CROSS_COMPILE="$or1ktc" scp || zerr
 	popd
