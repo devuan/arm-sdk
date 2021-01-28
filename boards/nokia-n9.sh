@@ -24,7 +24,7 @@ arrs+=(custmodules)
 
 device_name="n9"
 arch="armhf"
-size=1337
+size=1891
 
 parted_type="dos"
 bootfs="none"
