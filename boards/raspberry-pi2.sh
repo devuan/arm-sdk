@@ -89,7 +89,11 @@ build_kernel_armhf() {
 	popd
 
 	clone-git "$rpifirmware" "$R/tmp/kernels/$device_name/${device_name}-firmware"
-	sudo cp -rf  $R/tmp/kernels/$device_name/${device_name}-firmware/boot/* $strapdir/boot/
+	sudo cp $R/tmp/kernels/$device_name/${device_name}-firmware/boot/bootcode.bin "$strapdir/boot/"
+	sudo cp $R/tmp/kernels/$device_name/${device_name}-firmware/boot/fixup* "$strapdir/boot/"
+	sudo cp $R/tmp/kernels/$device_name/${device_name}-firmware/boot/start* "$strapdir/boot/"
+	sudo cp $R/tmp/kernels/$device_name/${device_name}-firmware/boot/COPYING.linux "$strapdir/boot/"
+	sudo cp $R/tmp/kernels/$device_name/${device_name}-firmware/boot/LICENCE.broadcom "$strapdir/boot/"
 
 	pushd $R/tmp/kernels/$device_name/${device_name}-linux
 		sudo perl scripts/mkknlimg --dtok arch/arm/boot/zImage $strapdir/boot/kernel7.img
