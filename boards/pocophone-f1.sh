@@ -28,7 +28,7 @@ parted_type="dos"
 bootfs="vfat"
 rootfs="ext4"
 dos_boot="fat32 2048s 264191s"
-dos_root="$rootfs 24192s 100%"
+dos_root="$rootfs 264192s 100%"
 
 extra_packages+=()
 custmodules=()
@@ -98,7 +98,7 @@ build_kernel_arm64() {
 			CROSS_COMPILE=$compiler \
 			Image.gz modules qcom/sdm845-xiaomi-beryllium-ebbg.dtb || { zerr; return 1; }
 
-		make \
+		sudo -E PATH="$PATH" make \
 			$MAKEOPTS \
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
