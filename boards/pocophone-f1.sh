@@ -22,7 +22,7 @@ arrs+=(custmodules)
 device_name="pocophone-f1"
 arch="arm64"
 size=1891
-inittab=("T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100")
+inittab=("T0:23:respawn:/sbin/agetty -L ttyMSM0 115200n8 vt100")
 
 parted_type="dos"
 bootfs="vfat"
@@ -55,8 +55,11 @@ postbuild() {
 	
 	pushd "$R/tmp/kernels/$device_name/${device_name}-linux"
 	
-	cat Image.gz dts/qcom/sdm845-xiaomi-beryllium-ebbg.dtb > Image.gz-dtb || { zerr; return 1; }
-	
+	cat arch/arm64/boot/Image.gz \
+		arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-ebbg.dtb \
+		> Image.gz-dtb || { zerr; return 1; }
+
+	mkdir -p "$R/dist"
 	mkbootimg \
         --kernel Image.gz-dtb \
         --base 0x00000000 \
@@ -65,11 +68,10 @@ postbuild() {
         --ramdisk_offset 0x01000000 \
         --tags_offset 0x00000100 \
         --pagesize 4096 \
-        --cmdline "root=LABEL=ALARM rw audit=0" \
-        -o $R/boot/boot.img || { zerr; return 1; }
+        --cmdline "root=/dev/mmcblk0p2 rootfstype=$rootfs rootwait rw audit=0" \
+        -o $R/dist/pocophone-f1-boot.img || { zerr; return 1; }
 	
 	popd
-	
 }
 
 build_kernel_arm64() {
@@ -95,6 +97,13 @@ build_kernel_arm64() {
 			ARCH=arm64 \
 			CROSS_COMPILE=$compiler \
 			Image.gz modules qcom/sdm845-xiaomi-beryllium-ebbg.dtb || { zerr; return 1; }
+
+		make \
+			$MAKEOPTS \
+			ARCH=arm64 \
+			CROSS_COMPILE=$compiler \
+			INSTALL_MOD_PATH="$strapdir" \
+			modules_install || { zerr; return 1; }
 
 	popd
 
