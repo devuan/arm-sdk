@@ -3,7 +3,7 @@
 	url = https://github.com/parazyd/libdevuansdk
 [submodule "extra/u-boot"]
 	path = extra/u-boot
-	url = git://git.denx.de/u-boot.git
+	url = https://gitlab.denx.de/u-boot/u-boot
 [submodule "extra/u-boot-hardkernel"]
 	path = extra/u-boot-hardkernel
 	url = https://github.com/hardkernel/u-boot.git
