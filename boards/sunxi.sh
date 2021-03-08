@@ -38,10 +38,7 @@ extra_packages+=()
 custmodules=()
 
 gitkernel="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-gitbranch="linux-4.17.y"
-
-sunxi_mali="https://github.com/mripard/sunxi-mali.git"
-
+gitbranch="linux-5.11.y"
 
 prebuild() {
 	fn prebuild
@@ -73,14 +70,11 @@ postbuild() {
 				$MAKEOPTS \
 				ARCH=arm \
 				CROSS_COMPILE=$compiler \
-					$board
+					"$board" || { zerr; return 1; }
 			make \
 				$MAKEOPTS \
 				ARCH=arm \
-				CROSS_COMPILE=$compiler || {
-					zerr
-					return 1
-				}
+				CROSS_COMPILE=$compiler || { zerr; return 1; }
 
 			mv -v u-boot-sunxi-with-spl.bin $R/dist/u-boot/${board}.bin
 		done
@@ -96,19 +90,7 @@ EOF
 
     notice "creating u-boot script image"
     sudo mkimage -A arm -T script -C none \
-		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || zerr
-
-
-	notice "building mali"
-	export CROSS_COMPILE=$compiler
-	export KDIR="$R/tmp/kernels/$device_name/${device_name}-linux"
-	clone-git "$sunxi_mali" "$R/tmp/kernels/${device_name}/sunxi-mali"
-	pushd "$R/tmp/kernels/${device_name}/sunxi-mali"
-		git checkout -- .
-		git clean -xdf
-		./build.sh -r r6p2 -b || zerr
-		sudo cp mali.ko ${strapdir}/lib/modules/*/kernel/drivers/gpu
-	popd
+		-d $strapdir/boot/boot.cmd $strapdir/boot/boot.scr || { zerr; return 1; }
 
     postbuild-clean
 }
@@ -121,18 +103,22 @@ build_kernel_armhf() {
 
     notice "building $arch kernel"
 
-    prebuild || zerr
+    prebuild || { zerr; return 1; }
 
     get-kernel-sources
     pushd $R/tmp/kernels/$device_name/${device_name}-linux
-        copy-kernel-config
+        #copy-kernel-config
+		make $MAKEOPTS \
+			ARCH=arm \
+			CROSS_COMPILE=$compiler \
+				sunxi_defconfig || { zerr; return 1; }
 
 		# compile kernel and modules
         make \
 			$MAKEOPTS \
             ARCH=arm \
 			CROSS_COMPILE=$compiler \
-				zImage dtbs modules || zerr
+				zImage dtbs modules || { zerr; return 1; }
 
 		# install kernel modules
         sudo -E PATH="$PATH" \
@@ -141,14 +127,15 @@ build_kernel_armhf() {
 				ARCH=arm \
 				CROSS_COMPILE=$compiler \
 				INSTALL_MOD_PATH=$strapdir \
-					modules_install || zerr
+					modules_install || { zerr; return 1; }
 
-        sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || zerr
+        sudo cp -v arch/arm/boot/zImage $strapdir/boot/ || { zerr; return 1; }
 		sudo mkdir -p $strapdir/boot/dtbs
 		for board in $board_dtbs; do
-			sudo cp -v arch/arm/boot/dts/$board $strapdir/boot/dtbs/ || zerr
+			sudo cp -v arch/arm/boot/dts/$board $strapdir/boot/dtbs/ || {
+				zerr; return 1; }
 		done
     popd
 
-    postbuild || zerr
+    postbuild || { zerr; return 1; }
 }
