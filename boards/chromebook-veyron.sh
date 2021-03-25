@@ -29,8 +29,8 @@ size=1730
 #inittab=""
 
 parted_type="gpt"
-bootpart="vfat"
-rootpart="ext4"
+bootfs="vfat"
+rootfs="ext4"
 gpt_boot=(8192 32768)
 gpt_root=(40960)
 bootfs="none"
